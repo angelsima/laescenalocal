@@ -1,0 +1,1032 @@
+<title>La Escena Local</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Quién hace qué en tu ciudad, y dónde. El mapa de la escena cultural pequeña: proyectos, colectivos, escuelas y espacios.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: el mapa conceptual de la ciudad es la portada; debajo, la lista de proyectos que filtra. Tinta sobre papel; amarillo para lo que importa y verde azulado para los lugares. */
+:root{
+  --amarillo:#FFD12B; --amarillo-ink:#17160F;
+  --acento:#0F7B6C; --acento-ink:#FFFFFF;
+  --bg:#F6F6F3; --surface:#FFFFFF; --ink:#17160F; --muted:#5E5C52; --faint:#A9A69B; --line:#E1DFD6; --soft:#EFEEE8;
+  --danger:#B3261E;
+  --display:"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12110D; --surface:#1B1A15; --ink:#F2F0E8; --muted:#A3A096; --faint:#5F5D55; --line:#2E2C25; --soft:#24231D; --danger:#FF8A80; --acento:#3CC4AE; --acento-ink:#12110D; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#12110D; --surface:#1B1A15; --ink:#F2F0E8; --muted:#A3A096; --faint:#5F5D55; --line:#2E2C25; --soft:#24231D; --danger:#FF8A80; --acento:#3CC4AE; --acento-ink:#12110D; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+a{color:inherit;text-decoration-color:var(--amarillo);text-decoration-thickness:3px;text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px}
+
+header{padding-block:24px 4px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:clamp(38px,7vw,60px);letter-spacing:-.03em;line-height:1;margin:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 .22em}
+.brand .es{position:relative;display:inline-block;z-index:0;color:var(--amarillo-ink);padding:.02em .16em .02em .14em;margin-left:.04em}
+.brand .es::before{content:"";position:absolute;z-index:-1;left:0;right:0;top:-.14em;bottom:-.1em;background:var(--amarillo);clip-path:polygon(1% 100%,6% 22%,100% 0,94% 80%)}
+.brand .la{font-weight:600;font-size:.42em;letter-spacing:0;color:var(--muted)}
+.brand .loc{font-weight:800;font-size:.42em;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);-webkit-text-stroke:.055em currentColor;paint-order:stroke fill}
+.brand .dot{font-size:.4em;color:var(--acento);-webkit-text-stroke:0;transform:translateY(-.1em);display:inline-block}
+.brand .bcity{font-family:var(--display);font-weight:600;font-size:.4em;letter-spacing:.01em;color:var(--muted)}
+.tagline{color:var(--muted);margin:8px 0 0;font-size:16px;max-width:58ch}
+.cta{background:var(--amarillo);color:var(--amarillo-ink);border:0;border-radius:999px;padding:11px 18px;font-weight:600;cursor:pointer;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.cta:hover{filter:brightness(.96)}
+.cta:disabled{opacity:.6;cursor:wait}
+.notice{margin-top:12px;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.notice b{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--ink);flex:none}
+
+.controls{padding-block:16px 4px;display:grid;gap:12px}
+.filters{display:flex;gap:14px 24px;flex-wrap:wrap;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl-l{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;cursor:pointer;font-weight:500;font-size:14px}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.city-wrap{position:relative}
+.city-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-family:var(--display);font-weight:600;font-size:17px}
+.city-btn small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted)}
+.city-btn svg{width:12px;height:12px}
+.city-panel{position:absolute;z-index:15;top:calc(100% + 6px);left:0;width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.16);padding:10px}
+.city-panel input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.city-list{max-height:320px;overflow:auto;margin-top:8px;display:flex;flex-direction:column}
+.city-list .grp,.disc-list .grp{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 8px 4px}
+.city-opt{display:flex;justify-content:space-between;gap:8px;border:0;background:transparent;text-align:left;padding:7px 8px;border-radius:6px;cursor:pointer}
+.city-opt:hover,.city-opt.cur{background:var(--soft)}
+.city-opt small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.disc-wrap{position:relative}
+.disc-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-size:clamp(17px,2.6vw,22px);font-family:var(--display);font-weight:600;padding:12px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;color:var(--ink);transition:border-color .15s}
+.disc-btn:hover,.city-btn:hover{border-color:var(--muted)}
+.disc-btn:focus-visible{outline:none;box-shadow:0 0 0 4px var(--amarillo)}
+.disc-btn svg{width:14px;height:14px;flex:none}
+.disc-btn .ph{color:var(--muted)}
+.disc-wrap .clear{right:44px}
+.disc-panel{position:absolute;z-index:15;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.16);padding:10px}
+.disc-panel input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:16px}
+.disc-list{max-height:min(420px,60vh);overflow:auto;margin-top:8px;display:flex;flex-direction:column}
+.disc-opt,.disc-fam{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border:0;background:transparent;text-align:left;padding:7px 8px;border-radius:6px;cursor:pointer;color:var(--ink)}
+.disc-opt:hover,.disc-opt.cur,.disc-fam:hover,.disc-fam.cur{background:var(--soft)}
+.disc-opt small,.disc-fam small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.disc-opt.off span{color:var(--faint)}
+.disc-fam{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px;align-items:center}
+.disc-fam .fl{display:flex;align-items:center;gap:8px}
+.disc-fam .chv{width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;flex:none;margin:0 2px}
+.disc-fam[aria-expanded="true"] .chv{transform:rotate(45deg)}
+.disc-fam[aria-expanded="true"]{color:var(--ink)}
+.disc-fam.static{cursor:default}.disc-fam.static:hover{background:transparent}
+.disc-sub{padding-left:15px;border-left:2px solid var(--line);margin:0 0 4px 11px;display:flex;flex-direction:column}
+.disc-opt.all span{font-style:italic}
+@media (prefers-reduced-motion:reduce){.disc-fam .chv{transition:none}}
+.disc-foot{font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 8px 2px;border-top:1px dashed var(--line);margin-top:6px}
+.searchbox{position:relative}
+.searchbox input{width:100%;font-size:clamp(17px,2.6vw,22px);font-family:var(--display);font-weight:600;padding:14px 52px 14px 18px;border:2px solid var(--ink);border-radius:14px;background:var(--surface)}
+.searchbox input:focus{outline:none;box-shadow:0 0 0 4px var(--amarillo)}
+.searchbox input::placeholder{color:var(--muted);font-weight:600}
+.clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:22px;cursor:pointer;color:var(--muted);width:36px;height:36px;border-radius:50%}
+.clear:hover{background:var(--soft)}
+
+/* Mapa */
+.map-band{padding-block:14px 6px}
+.mapbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;position:relative}
+.mapview{position:relative}
+.msvg{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.msvg.dragging{cursor:grabbing}
+.node{cursor:pointer}
+.node text{pointer-events:none}
+.fam text,.dsc text{pointer-events:auto}
+.hit,.hit-area{fill:transparent}
+.pj .hit-area,.dsc .hit{r:calc(11px * var(--s,1) / var(--z,1))}
+.pj circle.pd{r:calc(3.2px * var(--s,1) / var(--z,1))}
+.pj.feat circle.pd{r:calc(4.6px * var(--s,1) / var(--z,1))}
+.pj rect.pd{x:calc(-4.5px * var(--s,1) / var(--z,1));y:calc(-4.5px * var(--s,1) / var(--z,1));width:calc(9px * var(--s,1) / var(--z,1));height:calc(9px * var(--s,1) / var(--z,1))}
+/* Anillos guía: existen, casi sin marcar */
+.ring{fill:none;stroke:var(--ink);stroke-opacity:.07;vector-effect:non-scaling-stroke}
+.ring.in{stroke-opacity:.05;stroke-dasharray:1 5}
+/* Enlaces */
+.lk{stroke:var(--ink);stroke-opacity:.1;stroke-width:.8;fill:none;pointer-events:none;vector-effect:non-scaling-stroke;transition:stroke-opacity .2s}
+.lk.sec{stroke-dasharray:2 3;stroke-opacity:.07}
+.lk.hot{stroke-opacity:.5}
+.lk.sec.hot{stroke-opacity:.38}
+.lk.hov{stroke-opacity:.8;stroke-width:1.2}
+.lk.dim{stroke-opacity:.03}
+/* Lo que no está seleccionado pierde fuerza */
+.g-dim{opacity:.2;transition:opacity .25s}
+.g-dim:hover{opacity:.5}
+/* Familias */
+.fam-dot{fill:var(--ink)}
+.fam-dot.off{fill:var(--surface);stroke:var(--faint);stroke-width:1;vector-effect:non-scaling-stroke}
+.fam .halo{fill:var(--amarillo);opacity:0;transition:opacity .2s}
+.fam.on .halo{opacity:1}
+.fam:hover .halo{opacity:.45}
+.fam-t{font-family:var(--display);font-weight:600;font-size:calc(var(--fl,16px) * var(--s,1) / var(--z,1));fill:var(--ink)}
+.fam-t.off{fill:var(--faint)}
+/* Disciplinas (segundo anillo) */
+.dsc .dd{fill:var(--ink);fill-opacity:.45}
+.dsc.lab .dd{fill-opacity:1}
+.dsc.on .dd{fill:var(--amarillo);fill-opacity:1;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke}
+.dsc .rl{opacity:0}
+.dsc.lab .rl,.dsc.on .rl,.dsc:hover .rl{opacity:1}
+/* Proyectos y lugares (tercer anillo) */
+.pj .pd{fill:var(--ink);fill-opacity:.75}
+.pj.sp .pd{fill:var(--acento);fill-opacity:.9;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke}
+.pj.sp.on .pd{fill:var(--acento);fill-opacity:1;stroke-width:2.2}
+.pj.on .pd{fill:var(--amarillo);fill-opacity:1;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke}
+.pj:hover .pd{fill-opacity:1}
+.pj .rl{opacity:0}
+.pj.lab .rl,.pj:hover .rl,.pj:focus-visible .rl{opacity:1}
+/* Etiquetas a lo largo del radio: tamaño constante en pantalla al hacer zoom */
+.rl{font-family:var(--body);font-size:calc(11.5px * var(--s,1) / var(--z,1));fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:calc(3.5px * var(--s,1) / var(--z,1));stroke-linejoin:round;pointer-events:none;transition:opacity .15s}
+.rl.d{font-weight:600}
+.hl{font-family:var(--body);font-size:calc(11.5px * var(--s,1) / var(--z,1));fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:calc(3.5px * var(--s,1) / var(--z,1));stroke-linejoin:round;pointer-events:none;opacity:0;transition:opacity .15s}
+.hl.d{font-weight:600}
+.dsc.lab .hl,.dsc.on .hl,.dsc:hover .hl,.pj.lab .hl,.pj:hover .hl,.pj:focus-visible .hl{opacity:1}
+.map-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 4px 0;align-items:center}
+.map-legend i{display:inline-block;width:8px;height:8px;vertical-align:0;margin-right:6px;border-radius:50%;background:var(--ink);opacity:.8}
+.map-legend i.sq{border-radius:1px;background:var(--acento);border:1px solid var(--ink);opacity:1}
+@media (prefers-reduced-motion:reduce){.lk,.fam-dot,.fam .halo,.pj .pd,.pj text{transition:none}}
+.mapctl{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.mapctl button,.maphome{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.mapctl button{width:36px;height:36px;font-size:19px;line-height:1;display:grid;place-items:center}
+.mapctl button:hover,.maphome:hover{border-color:var(--muted)}
+.maphome{position:absolute;top:10px;left:10px;z-index:2;padding:8px 14px 8px 11px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:7px}
+.maphome svg{width:14px;height:14px}
+.maphome[hidden]{display:none}
+.map-hint{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.maptop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 8px 4px}
+.mapmode{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg)}
+.mapmode button{border:0;background:transparent;border-radius:999px;padding:5px 14px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted)}
+.mapmode button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.mapmode button[data-mode="l"][aria-pressed="true"]{background:var(--acento);color:var(--acento-ink)}
+.maptop .map-hint{margin-left:auto}
+@media (max-width:719px){ .mapbox{margin-inline:-6px;border-radius:12px} .map-legend{font-size:12px;gap:10px} }
+.concept .center{font-family:var(--display);font-weight:800;font-size:22px;display:flex;align-items:center;gap:8px}
+.concept .center span{background:var(--amarillo);color:var(--amarillo-ink);padding:2px 10px;border-radius:999px}
+.concept h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 6px}
+.cchips{display:flex;flex-wrap:wrap;gap:6px}
+.cchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer}
+.cchip.off{border-color:var(--line);color:var(--faint)}
+.cchip.on{background:var(--amarillo);color:var(--amarillo-ink);border-color:var(--amarillo)}
+.cchip small{font-family:var(--mono);font-size:11px;margin-left:4px}
+
+/* Lista */
+.bar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-block:20px 12px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.bar h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.count strong{color:var(--ink);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card.feat{box-shadow:0 0 0 2px var(--ink), 6px 6px 0 var(--amarillo)}
+.kind{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.who{display:flex;align-items:center;gap:11px;min-width:0}
+.avatar{position:relative;flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:var(--soft);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.02em;overflow:hidden;color:var(--ink)}
+.card.feat .avatar{background:var(--amarillo);color:var(--amarillo-ink)}
+.avatar.sp{border-radius:12px;border-color:var(--acento);border-width:2px}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--surface)}
+.card h3{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
+.badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;padding:2px 7px;border-radius:4px;background:var(--amarillo);color:var(--amarillo-ink)}
+.badge.ver{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.badge.new{background:var(--ink);color:var(--bg)}
+.doors{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;font-weight:500;margin:0;padding:0;list-style:none}
+.doors li::before{content:"";display:inline-block;width:7px;height:7px;background:var(--ink);margin-right:6px;vertical-align:1px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12.5px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);cursor:pointer;background:var(--soft)}
+.tag:hover{border-color:var(--ink)}
+.desc{margin:0;color:var(--muted);font-size:14px}
+.sub{font-size:13px;margin:0;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline}
+.sub > span:first-child{font-weight:600}
+.offers{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.offers li{font-size:12.5px;border:1px dashed var(--faint);border-radius:4px;padding:2px 8px}
+.linkbtn{border:0;background:transparent;padding:0;cursor:pointer;font-size:13px;text-decoration:underline;text-decoration-color:var(--amarillo);text-decoration-thickness:2px;text-underline-offset:2px}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:8px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.place{font-size:13px;color:var(--muted);display:flex;gap:4px;flex-wrap:wrap;align-items:baseline}
+.handle{display:flex;align-items:center;gap:6px;min-width:0}
+.ig{font-family:var(--mono);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.copy{border:1px solid var(--line);background:transparent;border-radius:6px;font-size:12px;padding:2px 8px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.report{border:0;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;padding:0;align-self:flex-end}
+.report:hover{color:var(--ink);text-decoration:underline}
+mark{background:var(--amarillo);color:var(--amarillo-ink);border-radius:2px;padding:0 1px}
+
+.invite{background:var(--surface);border:2px dashed var(--ink);border-radius:14px;padding:26px;margin-bottom:28px;display:grid;gap:12px}
+.invite h3{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vw,30px);line-height:1.1;margin:0;text-wrap:balance}
+.invite h3 span{background:linear-gradient(transparent 60%, var(--amarillo) 60%)}
+.invite p{color:var(--muted);margin:0;max-width:62ch}
+.invite .acts{display:flex;gap:8px;flex-wrap:wrap}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:500}
+.ghost:hover{border-color:var(--ink)}
+.loading{color:var(--muted);padding-block:40px;text-align:center;font-family:var(--mono);font-size:13px}
+
+dialog{border:0;border-radius:16px;padding:0;background:var(--surface);color:var(--ink);width:min(580px,calc(100vw - 32px));box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(15,14,10,.5)}
+.dlg{padding:22px;display:flex;flex-direction:column;gap:12px}
+.dlg h2{font-family:var(--display);font-weight:800;font-size:24px;margin:0}
+.dlg p{margin:0;color:var(--muted);font-size:14px}
+.rules{font-size:13px;color:var(--muted);background:var(--soft);border-radius:8px;padding:10px 12px;margin:0;display:grid;gap:6px}
+.rules b{color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+label,.field{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+label input,label select,label textarea{font-weight:400;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.hint{font-weight:400;color:var(--muted);font-size:12px}
+.checks{display:flex;flex-wrap:wrap;gap:6px;font-weight:400}
+.checks label{flex-direction:row;align-items:center;gap:6px;font-weight:400;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;background:var(--bg)}
+.checks label:has(input:checked){border-color:var(--ink);background:var(--amarillo);color:var(--amarillo-ink)}
+.checks input{margin:0;accent-color:var(--ink)}
+.disc-box,.acts-box{border:1px solid var(--line);border-radius:10px;background:var(--bg);display:grid;gap:0;overflow:hidden}
+.fgrp{border-top:1px solid var(--line)}
+.fgrp:first-child{border-top:0}
+.fgrp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 12px;font-weight:600;font-size:14px}
+.fgrp>summary::-webkit-details-marker{display:none}
+.fgrp>summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;flex:none;margin-right:2px}
+.fgrp[open]>summary::before{transform:rotate(45deg) translate(-2px,-1px)}
+.fgrp>summary:hover{background:var(--soft)}
+.fgrp .n{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:500;background:var(--amarillo);color:var(--amarillo-ink);border-radius:999px;padding:1px 8px}
+.fgrp .n:empty{display:none}
+.fgrp .checks{padding:2px 12px 12px}
+.foto{display:flex;align-items:center;gap:12px;font-weight:400}
+.foto .avatar{width:56px;height:56px;border-style:dashed;border-color:var(--faint);color:var(--faint);font-size:20px}
+.foto .avatar.has{border-style:solid;border-color:var(--ink)}
+[hidden]{display:none!important}
+.row>*{min-width:0}
+.dlg select,.dlg input,.dlg textarea{max-width:100%;min-width:0}
+.grp-t,.dlg .grp-t{font-size:11px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 4px}
+.concept .none{font-size:13px;color:var(--faint)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+.err{color:var(--danger);font-size:13px;min-height:1em}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:calc(100vw - 32px)}
+footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease both}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+<header class="wrap">
+  <div class="top">
+    <div>
+      <h1 class="brand"><span class="la">La</span><span class="es">Escena</span><span class="loc">Local</span><span class="dot" aria-hidden="true">●</span><span class="bcity" id="bcity">Murcia</span></h1>
+      <p class="tagline">Quién hace qué en tu ciudad, y dónde. El mapa de la escena pequeña: proyectos, colectivos, escuelas y espacios.</p>
+    </div>
+    <button class="cta" id="openAdd" type="button">¡Únete a la escena local!</button>
+  </div>
+  <div class="notice" id="notice" hidden></div>
+</header>
+
+<section class="wrap controls" aria-label="Buscar">
+  <div class="filters">
+    <div class="ctl">
+      <span class="ctl-l" id="cityLbl">Ciudad:</span>
+      <div class="city-wrap">
+        <button type="button" class="city-btn" id="cityBtn" aria-haspopup="listbox" aria-expanded="false"></button>
+        <div class="city-panel" id="cityPanel" hidden>
+          <input id="cityQ" type="search" placeholder="Busca tu ciudad" aria-label="Buscar ciudad" autocomplete="off">
+          <div class="city-list" id="cityList" role="listbox" aria-labelledby="cityLbl"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="ctl-l" id="doorsLbl">¿Qué buscas?</span>
+      <div class="seg" id="doors" role="group" aria-labelledby="doorsLbl"></div>
+    </div>
+  </div>
+  <div class="ctl">
+    <span class="ctl-l" id="discLbl">Disciplina:</span>
+    <div class="disc-wrap">
+      <button type="button" class="disc-btn" id="discBtn" aria-haspopup="listbox" aria-expanded="false"><span id="discTxt"><span class="ph">Todas las disciplinas</span></span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <button class="clear" id="clear" type="button" aria-label="Quitar el filtro" hidden>×</button>
+      <div class="disc-panel" id="discPanel" hidden>
+        <input id="q" type="search" autocomplete="off" placeholder="Escribe: salsa, impro, jam de poesía, semillas…" aria-label="Filtrar disciplinas">
+        <div class="disc-list" id="discList" role="listbox" aria-labelledby="discLbl"></div>
+        <div class="disc-foot" id="discFoot"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap map-band" aria-label="Mapa de la escena">
+  <div class="mapbox" id="map"><div class="loading">Cargando la escena…</div></div>
+</section>
+
+<main class="wrap" id="lista">
+  <div class="bar"><h2>Proyectos</h2><div class="count" id="count"></div></div>
+  <div id="out"></div>
+</main>
+
+<footer class="wrap">
+  <span>Cada ficha se revisa a mano antes de publicarse. Las básicas son gratis.</span>
+  <button type="button" class="linkbtn" id="demoLink">Ver una demostración con datos inventados</button>
+</footer>
+
+<dialog id="dlg">
+  <form class="dlg" id="addForm" novalidate>
+    <h2 id="dlgTitle">Únete a la escena local</h2>
+    <div class="rules" id="rules">
+      <span><b>Entra en La Escena Local quien convoca</b>: proyectos, colectivos, escuelas y espacios que abren algo al público de forma regular en la ciudad. Clases, quedadas, jams, funciones propias, mercadillos o una sala para otros.</span>
+      <span>Quien solo actúa cuando lo contratan (grupos, solistas, DJs) aparece a través del ciclo o la sala que lo programa. Se quedan fuera el deporte y el fitness, las consultas y terapias individuales, el ocio comercial y lo que solo existe en internet.</span>
+    </div>
+    <label for="fType">¿Qué quieres hacer?
+      <select id="fType"><option value="ficha">Proponer un proyecto o un espacio</option><option value="embajador">Ayudar a construir la escena de mi ciudad</option></select>
+    </label>
+    <div class="row">
+      <label for="fName"><span id="lNameTxt">Nombre del proyecto</span><input id="fName" required maxlength="80"></label>
+      <label for="fIg">Instagram<input id="fIg" maxlength="31" placeholder="@cuenta"></label>
+    </div>
+    <div class="row">
+      <label for="fCity">Ciudad<select id="fCity"></select></label>
+      <label for="fFormat" id="lFormat">Es…<select id="fFormat">
+        <option value="persona">Un proyecto personal</option><option value="colectivo">Un colectivo o asociación</option><option value="escuela">Una escuela o academia</option><option value="espacio">Un espacio (sala, tienda-taller, bar…)</option>
+      </select></label>
+    </div>
+    <div class="field" id="lDoors">Qué hacéis abierto al público <span class="hint">marca al menos una cosa</span>
+      <div class="acts-box" id="fActs"></div>
+    </div>
+    <div class="row" id="lSpace" hidden>
+      <label for="fKind">Tipo de espacio<input id="fKind" maxlength="60" placeholder="Sala multiusos, tienda-taller…"></label>
+      <label for="fOffers">Qué ofrece a otros<input id="fOffers" maxlength="200" placeholder="Alquiler por horas, venta en depósito"></label>
+    </div>
+    <div class="field" id="lDisc">Disciplinas <span class="hint">hasta 4 · la primera que marques es la principal</span>
+      <div class="disc-box" id="fDisc"></div>
+    </div>
+    <label for="fOtra" id="lOtra">¿Otra disciplina que no está en la lista? <span class="hint">opcional</span><input id="fOtra" maxlength="60" placeholder="Escríbela y la revisamos"></label>
+    <label for="fBarrio" id="lBarrio">Barrio o municipio <span class="hint">opcional</span><input id="fBarrio" maxlength="60" placeholder="Ej. El Carmen, Molina de Segura"></label>
+    <div class="field" id="lFoto">Foto o logo <span class="hint">opcional · mejor cuadrada; la recortamos al centro</span>
+      <div class="foto"><span class="avatar" id="fFotoPrev" aria-hidden="true">+</span><button type="button" class="ghost" id="fFotoBtn">Elegir imagen</button><button type="button" class="linkbtn" id="fFotoX" hidden>Quitar</button><input type="file" id="fFoto" accept="image/jpeg,image/png,image/webp,image/heic,image/*" hidden></div>
+    </div>
+    <label for="fDesc">En una frase<textarea id="fDesc" rows="2" maxlength="280" placeholder="Qué hacéis y cuándo"></textarea></label>
+    <label for="fContact">Contacto para verificar <span class="hint">opcional, no se publica</span><input id="fContact" maxlength="120" placeholder="Correo o teléfono"></label>
+    <div class="hp" aria-hidden="true"><label for="fWeb">Deja esto vacío<input id="fWeb" tabindex="-1" autocomplete="off"></label></div>
+    <div class="err" id="fErr" role="alert"></div>
+    <div class="dlg-actions">
+      <button type="button" class="ghost" id="cancelAdd">Cancelar</button>
+      <button type="submit" class="cta" id="sendAdd">Enviar para revisión</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgR">
+  <form class="dlg" id="repForm" novalidate>
+    <h2>Avisar de un error</h2>
+    <p id="repWhat"></p>
+    <label for="rMotivo">¿Qué pasa?<select id="rMotivo">
+      <option>Ya no existe o está inactivo</option><option>Los datos están mal</option><option>No es parte de la escena</option><option>Es mi proyecto y quiero gestionarlo</option>
+    </select></label>
+    <label for="rMas">Algo más <span class="hint">opcional</span><textarea id="rMas" rows="2" maxlength="200"></textarea></label>
+    <div class="err" id="rErr" role="alert"></div>
+    <div class="dlg-actions">
+      <button type="button" class="ghost" id="cancelRep">Cancelar</button>
+      <button type="submit" class="cta">Enviar aviso</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// ---------- Conexión ----------
+const CFG = { url:'https://edywflfxiwcujhkjgowu.supabase.co', key:'sb_publishable_lV05cEROK_oS3JIPv0xDIw_3hku5Xar' };
+async function api(path, opts={}){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), 8000);
+  try{
+    const r=await fetch(CFG.url+'/rest/v1/'+path,{...opts,signal:ctrl.signal,headers:{apikey:CFG.key,'Content-Type':'application/json',...(opts.headers||{})}});
+    const txt=await r.text(); if(!r.ok) throw new Error(txt||('HTTP '+r.status));
+    return txt?JSON.parse(txt):null;
+  } finally { clearTimeout(t); }
+}
+
+// ---------- Catálogo ----------
+const CATALOGO={"fam":["Baile","Artes escénicas","Música","Palabra","Imagen","Oficios","Cuerpo y mente","Tierra","Encuentro"],"d":[["Baile","Salsa",["casino","rueda de casino","timba","salsa cubana","salsa en linea"]],["Baile","Bachata",["bachata sensual"]],["Baile","Kizomba",["urban kiz","semba"]],["Baile","Swing",["lindy","lindy hop","balboa","shag","charleston"]],["Baile","Tango",["milonga","tango argentino"]],["Baile","Baile flamenco",["sevillanas","baile por sevillanas"]],["Baile","Danza contemporánea",["contemporaneo","danza moderna"]],["Baile","Danza urbana",["hip hop","breaking","breakdance","dancehall","popping","waacking"]],["Baile","Danza oriental",["danza del vientre","bellydance","tribal"]],["Baile","Folk y danzas del mundo",["folk","bal folk","danzas tradicionales","jota","danzas africanas","bailes del mundo"]],["Baile","Ballet y clásico",["ballet","danza clasica","barra al suelo"]],["Baile","Contact improvisación",["contact"]],["Baile","Danza libre",["ecstatic dance","danza consciente","5 ritmos","movimiento libre"]],["Artes escénicas","Teatro",["artes escenicas","interpretacion","teatro amateur"]],["Artes escénicas","Improvisación",["impro","teatro de improvisacion","match de impro"]],["Artes escénicas","Clown",["payaso","payasa"]],["Artes escénicas","Circo",["malabares","acrobacia","aereos","telas","trapecio","equilibrismo"]],["Artes escénicas","Títeres y objetos",["titeres","marionetas","teatro de objetos"]],["Artes escénicas","Comedia",["stand up","standup","monologos","humor"]],["Artes escénicas","Cabaret y drag",["drag","cabaret","burlesque"]],["Artes escénicas","Performance",["arte de accion"]],["Artes escénicas","Magia",["mago","maga","cartomagia"]],["Música","Coro y canto",["coro","coral","canto","tecnica vocal"]],["Música","Percusión y batucada",["batucada","percusion","tambores","samba reggae"]],["Música","Cante y guitarra flamenca",["cante","guitarra flamenca","toque","palmas","rumba"]],["Música","Música tradicional",["cuadrillas","rondalla","auroros","folk murciano","musica popular"]],["Música","Jazz y blues",["jazz","blues"]],["Música","Rock, pop e indie",["rock","pop","indie","punk","metal"]],["Música","Electrónica",["techno","house","drum and bass","dnb","jungle","breakbeat","dj","djs","produccion musical"]],["Música","Clásica y cámara",["musica clasica","musica de camara","orquesta"]],["Música","Canción de autor",["cantautor","cantautora","acustico"]],["Música","Aprender un instrumento",["guitarra","piano","ukelele","violin","bateria","clases de musica"]],["Palabra","Poesía",["recital","slam poetico","poetry slam","jam poetica","poetas"]],["Palabra","Escritura creativa",["escritura","escritura rapida","taller de escritura","relato"]],["Palabra","Club de lectura",["lectura","libros"]],["Palabra","Narración oral",["cuentacuentos","cuentos","narracion"]],["Palabra","Fanzines y autoedición",["fanzine","fanzines","autoedicion","zine"]],["Imagen","Ilustración",["laminas","ilustradora","ilustrador"]],["Imagen","Dibujo",["urban sketchers","sketching","dibujo del natural","croquis"]],["Imagen","Pintura",["acuarela","oleo"]],["Imagen","Cómic",["novela grafica","tebeo"]],["Imagen","Fotografía",["foto","fotografo","fotografa","revelado","analogica"]],["Imagen","Grabado y serigrafía",["serigrafia","grabado","estampacion","linograbado","risografia"]],["Imagen","Cine y audiovisual",["cine","cineclub","cortos","cortometraje","video"]],["Imagen","Arte urbano",["muralismo","graffiti","murales"]],["Oficios","Cerámica",["barro","torno","alfareria"]],["Oficios","Joyería",["joyas","plata","orfebre","orfebreria","bisuteria"]],["Oficios","Textil",["costura","punto","ganchillo","crochet","bordado","tejer","telar"]],["Oficios","Encuadernación y papel",["encuadernacion","libretas","papel","origami"]],["Oficios","Madera",["carpinteria","ebanisteria","talla"]],["Oficios","Cuero",["marroquineria"]],["Oficios","Vidrio",["vitral","vidrio soplado","fusing"]],["Oficios","Esparto y fibras",["esparto","cesteria","mimbre"]],["Oficios","Cocina y fermentación",["cocina","fermentados","kombucha","pan","masa madre"]],["Oficios","Cosmética natural",["jabones","jabon","cosmetica"]],["Oficios","Reparación",["repair cafe","arreglos","reparar"]],["Cuerpo y mente","Yoga",["hatha","vinyasa","kundalini"]],["Cuerpo y mente","Meditación",["mindfulness","zen"]],["Cuerpo y mente","Taichí y chi kung",["taichi","tai chi","chi kung","qi gong"]],["Cuerpo y mente","Respiración",["breathwork"]],["Cuerpo y mente","Canto de mantras",["kirtan","mantras"]],["Cuerpo y mente","Biodanza",[]],["Cuerpo y mente","Círculos de palabra",["circulo de mujeres","circulo de hombres","circulos"]],["Tierra","Huertos urbanos",["huerto","huerto urbano","huerto comunitario"]],["Tierra","Permacultura",["agroecologia","agricultura sintropica"]],["Tierra","Semillas",["intercambio de semillas","banco de semillas","variedades locales"]],["Tierra","Botánica y plantas silvestres",["botanica","plantas","plantas silvestres","setas"]],["Tierra","Salidas naturalistas",["aves","pajaros","ornitologia","naturaleza"]],["Tierra","Compostaje y residuo cero",["compost","residuo cero","zero waste"]],["Tierra","Grupos de consumo",["consumo","cesta"]],["Tierra","Apicultura",["abejas","miel"]],["Tierra","Bici urbana",["bici","bicicleta","masa critica"]],["Encuentro","Juegos de mesa",["juegos","ludoteca","boardgames"]],["Encuentro","Rol y wargames",["rol","wargames","warhammer"]],["Encuentro","Ajedrez",[]],["Encuentro","Intercambio de idiomas",["tandem","idiomas","language exchange"]],["Encuentro","Intercambio de habilidades",["trueque","banco de tiempo"]],["Encuentro","Filosofía",["cafe filosofico","pensamiento"]],["Encuentro","Divulgación",["ciencia","astronomia","historia local"]],["Encuentro","Tecnología y maker",["maker","hackerspace","impresion 3d","arduino","programacion"]],["Encuentro","Debate",["oratoria"]]],"a":[["clases","Clases regulares","clases",["clases","cursos regulares"]],["taller","Taller puntual o intensivo","clases",["talleres","intensivo","workshop"]],["curso","Curso o formación","clases",["cursos","formacion"]],["quedada","Quedada o grupo abierto","comunidad",["quedadas","grupo abierto"]],["jam","Jam o micro abierto","comunidad",["jam","jams","jam session","micro abierto","open mic","escenario abierto"]],["slam","Slam o concurso","comunidad",["slam","concurso","batalla","batallas"]],["practica","Práctica abierta","comunidad",["practica","social","sociales","ensayo abierto"]],["intercambio","Intercambio","comunidad",["intercambio","intercambios"]],["salida","Salida o ruta","comunidad",["ruta","rutas","salida","salidas","excursion"]],["colectivo","Trabajo colectivo","comunidad",["jornada","jornadas","voluntariado"]],["funcion","Función o show","eventos",["show","funcion","funciones","espectaculo"]],["concierto","Concierto","eventos",["concierto","conciertos","directo"]],["exposicion","Exposición","eventos",["expo","exposicion"]],["proyeccion","Proyección","eventos",["proyeccion","proyecciones"]],["charla","Charla o presentación","eventos",["charla","charlas","presentacion","conferencia"]],["fiesta","Fiesta o sesión","eventos",["fiesta","fiestas","sesion","pinchada"]],["mercadillo","Mercadillo o feria","venta",["mercadillo","feria","market"]],["estudio","Estudio o taller abierto","venta",["tienda","estudio abierto","venta"]],["alquiler","Alquiler o cesión de sala","espacio",["alquiler","alquilar","sala","cesion","sala para alquilar"]]]};
+// Familias del mapa: salen del catálogo cargado (la base de datos o la demo), en su orden
+let FAMS=[];
+function setFams(){ FAMS=[]; Object.values(S.disc).forEach(d=>{ if(d.familia&&!FAMS.includes(d.familia)) FAMS.push(d.familia); }); }
+const FAMLINES={'Cuerpo y mente':['Cuerpo','y mente'],'Artes escénicas':['Artes','escénicas']};
+function famLines(f){ if(FAMLINES[f]) return FAMLINES[f]; const w=f.split(' '); if(f.length<=11||w.length<2) return [f]; const k=Math.ceil(w.length/2); return [w.slice(0,k).join(' '),w.slice(k).join(' ')]; }
+const DOORS=[['clases','Clases','Clases y talleres'],['comunidad','Experiencias','Quedadas, jams y prácticas abiertas'],['eventos','Shows','Funciones, conciertos y eventos'],['venta','Hecho aquí','Compra directa a quien lo hace'],['espacio','Espacios','Espacio para otros']];
+const DOORTXT=Object.fromEntries(DOORS.map(d=>[d[0],d[2]]));
+const FORMATS={persona:'Proyecto personal',colectivo:'Colectivo o asociación',escuela:'Escuela',espacio:'Espacio'};
+const CITY_NAMES=['A Coruña','Albacete','Alcalá de Henares','Alcobendas','Alcorcón','Algeciras','Alicante','Almería','Ávila','Badajoz','Badalona','Barakaldo','Barcelona','Bilbao','Burgos','Cáceres','Cádiz','Cartagena','Castellón de la Plana','Ceuta','Ciudad Real','Córdoba','Cuenca','Dos Hermanas','Elche','Fuenlabrada','Getafe','Gijón','Girona','Granada','Guadalajara','Huelva','Huesca','Jaén','Jerez de la Frontera',"L'Hospitalet de Llobregat",'Las Palmas de Gran Canaria','Leganés','León','Lleida','Logroño','Lugo','Madrid','Málaga','Marbella','Mataró','Melilla','Mérida','Móstoles','Murcia','Ourense','Oviedo','Palencia','Palma','Pamplona','Parla','Pontevedra','Reus','Roquetas de Mar','Sabadell','Salamanca','San Cristóbal de La Laguna','San Sebastián','Santa Coloma de Gramenet','Santa Cruz de Tenerife','Santander','Santiago de Compostela','Segovia','Sevilla','Soria','Tarragona','Telde','Terrassa','Teruel','Toledo','Torrejón de Ardoz','Valencia','Valladolid','Vigo','Vitoria-Gasteiz','Zamora','Zaragoza'];
+// ---------- Demostración (todo inventado) ----------
+// [nombre, ciudad, formato, disciplinas, actividades, barrio, descripción, instagram, destacado, verificado, actúa en, tipo de espacio, ofrece]
+const DEMO=[
+ ['Clave del Segura','Murcia','escuela',['Salsa','Bachata'],['clases','practica'],'Santa Eulalia','Clases semanales de salsa cubana y rueda de casino. Social los viernes.','clave.delsegura',1,1,['Estudio Compás']],
+ ['Lindy Pimentón','Murcia','colectivo',['Swing'],['clases','practica'],'El Carmen','Lindy hop y balboa desde cero. Bailes sociales mensuales con música en directo.','lindy.pimenton',0,1,['La Nave del Carmen']],
+ ['Tango Azahar','Murcia','colectivo',['Tango'],['clases','practica'],'Centro','Milongas los domingos y prácticas abiertas entre semana.','tango.azahar',0,0,['Estudio Compás']],
+ ['Academia Duende','Murcia','escuela',['Baile flamenco'],['clases'],'San Antolín','Baile flamenco y sevillanas en su propio estudio, para adultos de cualquier nivel.','academia.duende',0,0,[]],
+ ['Impro Bancal','Murcia','colectivo',['Improvisación'],['taller','funcion'],'San Antolín','Compañía de improvisación con talleres trimestrales y un show propio cada mes.','impro.bancal',1,1,['Bar La Acequia']],
+ ['Los Sin Guion','Murcia','colectivo',['Improvisación','Comedia'],['jam'],'La Flota','Jam de impro cada dos semanas. Puedes salir a escena sin experiencia.','lossinguion',0,0,['La Nave del Carmen']],
+ ['Nariz de Pimiento','Murcia','persona',['Clown'],['taller'],'El Carmen','Talleres de clown para adultos con una payasa de largo oficio.','narizdepimiento',0,0,['La Nave del Carmen']],
+ ['Bajo Frecuencia','Murcia','colectivo',['Electrónica'],['fiesta'],'Espinardo','Colectivo de drum and bass y jungle que organiza una fiesta al mes en sala pequeña.','bajo.frecuencia',1,1,['La Nave del Carmen']],
+ ['Jam del Martes','Murcia','colectivo',['Jazz y blues'],['jam'],'Santa Eulalia','Jam session de jazz cada martes. Trae tu instrumento.','jamdelmartes.mu',0,0,['Bar La Acequia']],
+ ['Verso Suelto','Murcia','colectivo',['Poesía','Escritura creativa'],['jam','slam'],'Santa Eulalia','Jam de poesía los lunes y un concurso de escritura rápida al mes.','versosuelto.mu',0,0,['Bar La Acequia']],
+ ['Coro Las Cigarras','Murcia','colectivo',['Coro y canto'],['practica'],'Vistalegre','Coro amateur de música popular. Abre plazas en septiembre.','coro.cigarras',0,0,['Ateneo de Vistalegre']],
+ ['Plata y Esparto','Murcia','persona',['Joyería'],['mercadillo','taller'],'Centro','Joyería en plata con motivos de la huerta. Vende en mercadillos y da talleres de iniciación.','plata.esparto',1,1,['Patio Esparto']],
+ ['Taller Filigrana','Murcia','persona',['Joyería'],['clases'],'San Antolín','Orfebre que enseña joyería a la cera perdida en grupos de cuatro.','tallerfiligrana',0,0,['Patio Esparto']],
+ ['Pepa Garabato','Murcia','persona',['Ilustración'],['mercadillo','taller'],'El Carmen','Ilustradora. Vende láminas en mercadillos y da talleres de dibujo para adultos.','pepagarabato',0,0,['Patio Esparto']],
+ ['Barro Vivo','Murcia','escuela',['Cerámica'],['curso','estudio'],'Molina de Segura','Taller de cerámica con cursos de torno de ocho semanas.','barrovivo.mu',0,0,[]],
+ ['Tinta Bancal','Murcia','colectivo',['Grabado y serigrafía','Fanzines y autoedición'],['taller','mercadillo'],'Centro','Estudio de serigrafía y autoedición. Organiza un mercadillo de fanzines.','tintabancal',0,0,['Patio Esparto']],
+ ['La Gramola Itinerante','Murcia','colectivo',['Poesía','Fanzines y autoedición','Jazz y blues'],['jam','concierto'],'Vistalegre','Mezcla micro abierto, fanzines y música en directo en un mismo encuentro mensual.','gramolaitinerante',0,0,['Ateneo de Vistalegre']],
+ ['Cineclub Ventana','Murcia','colectivo',['Cine y audiovisual'],['proyeccion','charla'],'El Carmen','Proyecciones quincenales con coloquio después de la película.','cineclubventana',0,0,['La Nave del Carmen']],
+ ['Tándem Murcia','Murcia','colectivo',['Intercambio de idiomas'],['quedada'],'Centro','Intercambios de idiomas semanales en cafeterías del centro.','tandem.murcia',0,0,[]],
+ ['Semillas del Segura','Murcia','colectivo',['Semillas','Huertos urbanos'],['intercambio','charla','taller'],'Espinardo','Red de intercambio de variedades locales. Charlas y talleres abiertos a todo el mundo.','semillasdelsegura',0,0,['Ateneo de Vistalegre']],
+ ['Raíz Común','Murcia','colectivo',['Permacultura','Huertos urbanos'],['colectivo','taller'],'Espinardo','Huerto comunitario con jornadas abiertas de permacultura.','raizcomun',0,0,[]],
+ ['Yoga en la Huerta','Murcia','persona',['Yoga','Meditación'],['clases','salida'],'La Alberca','Yoga y meditación en grupos pequeños, con sesiones al aire libre en primavera.','yogaenlahuerta',0,0,[]],
+ ['Dado Gordo','Murcia','colectivo',['Juegos de mesa'],['quedada'],'Vistalegre','Quedadas de juegos de mesa los jueves.','dadogordo',0,0,['Ateneo de Vistalegre']],
+ ['Bloque Norte','Murcia','colectivo',['Danza urbana'],['clases','slam'],'Espinardo','Breaking y hip hop. Batallas abiertas cada trimestre.','bloquenorte.crew',0,0,['Estudio Compás']],
+ ['La Nave del Carmen','Murcia','espacio',['Swing','Improvisación','Comedia','Clown','Electrónica','Cine y audiovisual'],['alquiler','funcion'],'El Carmen','Nave con tarima y equipo de sonido que alquilan por horas profes y colectivos.','lanavedelcarmen',1,1,[],'Sala multiusos',['Alquiler por horas','Escenario para funciones','Equipo de sonido']],
+ ['Patio Esparto','Murcia','espacio',['Joyería','Ilustración','Grabado y serigrafía','Fanzines y autoedición'],['alquiler','estudio','mercadillo'],'Centro','Tienda colectiva donde artesanos venden en depósito y dan talleres en la trastienda.','patioesparto',0,0,[],'Tienda-taller',['Venta en depósito','Mercadillo mensual','Taller para cursos']],
+ ['Bar La Acequia','Murcia','espacio',['Improvisación','Jazz y blues','Poesía','Escritura creativa'],['alquiler'],'Santa Eulalia','Bar con escenario pequeño que cede la noche a jams, impro y poesía.','bar.laacequia',0,0,[],'Bar con escenario',['Escenario gratis con la consumición']],
+ ['Estudio Compás','Murcia','espacio',['Salsa','Bachata','Tango','Danza urbana'],['alquiler'],'San Antolín','Dos salas con espejo y tarima que comparten varias escuelas de baile.','estudiocompas',0,0,[],'Estudio de danza',['Alquiler de sala con espejo']],
+ ['Ateneo de Vistalegre','Murcia','espacio',['Coro y canto','Poesía','Semillas','Huertos urbanos','Juegos de mesa'],['alquiler','quedada'],'Vistalegre','Centro social del barrio con salas gratuitas para colectivos sin ánimo de lucro.','ateneovistalegre',0,0,[],'Centro social',['Salas gratuitas para colectivos']],
+ ['Son de Perchel','Málaga','escuela',['Salsa','Bachata'],['clases','practica'],'El Perchel','Escuela de salsa y bachata con sociales los sábados.','sondeperchel',1,1,[]],
+ ['Swing Boquerón','Málaga','colectivo',['Swing'],['clases','practica'],'Soho','Lindy hop y shag. Bailes en la calle los domingos.','swingboqueron',0,1,[]],
+ ['Impro Espeto','Málaga','colectivo',['Improvisación'],['curso','funcion'],'Lagunillas','Liga de impro con funciones semanales y cursos.','impro.espeto',1,1,['El Almacén de Lagunillas']],
+ ['Terral Bass','Málaga','colectivo',['Electrónica'],['fiesta'],'Soho','Colectivo de drum and bass con fiesta propia cada mes.','terral.bass',0,0,[]],
+ ['Arena y Plata','Málaga','persona',['Joyería'],['mercadillo'],'Soho','Joyería con metal reciclado. Vende en mercadillos de la ciudad.','arenayplata',0,0,[]],
+ ['El Almacén de Lagunillas','Málaga','espacio',['Improvisación','Clown'],['alquiler','funcion'],'Lagunillas','Antiguo almacén convertido en sala para funciones y talleres.','almacenlagunillas',0,0,[],'Sala multiusos',['Alquiler por horas','Escenario para funciones']],
+ ['Casino Realejo','Granada','escuela',['Salsa'],['clases','practica'],'Realejo','Salsa cubana y rueda de casino. Social los jueves.','casinorealejo',1,1,['Corrala del Realejo']],
+ ['Grave Nevado','Granada','colectivo',['Electrónica'],['fiesta'],'Zaidín','Colectivo de drum and bass y jungle con fiestas propias en salas pequeñas.','gravenevado',0,0,[]],
+ ['Filigrana Nazarí','Granada','persona',['Joyería'],['estudio','curso'],'Albaicín','Joyería con técnica de filigrana y cursos cortos.','filigrananazari',0,0,[]],
+ ['Corrala del Realejo','Granada','espacio',['Jazz y blues','Salsa'],['alquiler','jam'],'Realejo','Bar con escenario donde pasan jams y sociales de salsa.','corraladelrealejo',0,0,[],'Bar con escenario',['Escenario gratis con la consumición']]
+];
+
+// ---------- Estado ----------
+const S={mode:'live',city:'Murcia',q:'',door:'',cities:[],disc:{},discById:{},acts:{},cache:{},cur:null,open:null,loading:true};
+const $=s=>document.querySelector(s);
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const igUrl=h=>'https://www.instagram.com/'+encodeURIComponent(h)+'/';
+const today=new Date().toISOString().slice(0,10);
+const cityObj=n=>S.cities.find(c=>c.nombre===n);
+const famOf=d=>(S.disc[d]&&S.disc[d].familia)||'';
+const actName=id=>(S.acts[id]&&S.acts[id].n)||id;
+const doorsOf=acts=>[...new Set(acts.map(a=>S.acts[a]&&S.acts[a].p).filter(Boolean))];
+const STOPI=['la','el','los','las','de','del','y','en','the','a'];
+function initials(n){ const w=String(n).split(/\s+/).filter(x=>x&&!STOPI.includes(x.toLowerCase())); const a=w.length?w:[String(n)]; return ((a[0][0]||'')+((a[1]||'')[0]||'')).toUpperCase(); }
+function imgUrl(v){ return !v?'':/^(https?:|blob:|data:)/.test(v)?v:CFG.url+'/storage/v1/object/public/logos/'+encodeURI(v); }
+const counted=e=>e.fmt!=='espacio';
+function famCount(items,f){ return items.filter(e=>counted(e)&&e.d.some(d=>famOf(d)===f)).length; }
+function loadCatalog(){ S.disc={}; S.discById={}; CATALOGO.d.forEach(([f,n,sin],i)=>{ S.disc[n]={id:i+1,familia:f,sin}; S.discById[i+1]=n; }); S.acts={}; CATALOGO.a.forEach(([id,n,p,sin])=>{ S.acts[id]={n,p,sin}; }); setFams(); }
+try{ const sv=JSON.parse(localStorage.getItem('laescena')||'{}'); if(sv.city) S.city=sv.city; }catch(e){}
+function save(){ try{ localStorage.setItem('laescena',JSON.stringify({city:S.city})); }catch(e){} }
+
+// ---------- Carga ----------
+async function boot(){
+  S.loading=true; S.cache={}; render();
+  if(location.hash!=='#demo'){
+    try{
+      const [cs,ds,as,cnt]=await Promise.all([
+        api('ciudades?select=id,nombre,provincia&order=nombre'),
+        api('disciplinas?select=id,nombre,familia,sinonimos&order=orden'),
+        api('actividades?select=id,nombre,puerta,sinonimos&order=orden'),
+        api('conteo_fichas?select=ciudad_id,fichas')
+      ]);
+      const counts={}; cnt.forEach(r=>counts[r.ciudad_id]=+r.fichas);
+      S.cities=cs.map(c=>({id:c.id,nombre:c.nombre,provincia:c.provincia,n:counts[c.id]||0}));
+      S.disc={}; S.discById={}; ds.forEach(d=>{ S.disc[d.nombre]={id:d.id,familia:d.familia,sin:d.sinonimos||[]}; S.discById[d.id]=d.nombre; }); setFams();
+      S.acts={}; as.forEach(a=>{ S.acts[a.id]={n:a.nombre,p:a.puerta,sin:a.sinonimos||[]}; });
+      S.mode='live';
+    }catch(e){ setupDemo(); }
+  } else setupDemo();
+  if(!cityObj(S.city)) S.city='Murcia';
+  fillForm();
+  await selectCity(S.city);
+}
+function setupDemo(){
+  S.mode='demo';
+  loadCatalog();
+  S.cities=CITY_NAMES.map((n,i)=>({id:i+1,nombre:n,n:DEMO.filter(r=>r[1]===n).length}));
+}
+function finalize(items){
+  return {items};
+}
+async function loadCity(name){
+  if(S.cache[name]) return S.cache[name];
+  let items=[];
+  if(S.mode==='demo'){
+    const rows=DEMO.filter(r=>r[1]===name);
+    items=rows.map((r,i)=>({id:'d'+name+i,img:'',n:r[0],fmt:r[2],d:r[3],acts:r[4],doors:doorsOf(r[4]),b:r[5],t:r[6],ig:r[7],feat:!!r[8],ver:!!r[9],kind:r[11]||'',offers:r[12]||[]}));
+  } else {
+    const c=cityObj(name);
+    if(c&&c.n>0){
+      const rows=await api(`fichas?select=id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)&ciudad_id=eq.${c.id}&aprobada=eq.true&order=nombre`);
+      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[]}));
+    }
+  }
+  const data=finalize(items); S.cache[name]=data; return data;
+}
+async function selectCity(name){
+  S.city=name; save(); S.loading=true; render();
+  try{ S.cur=await loadCity(name); }catch(e){ S.cur={items:[]}; toast('No se pudo cargar la ciudad. Prueba de nuevo en un momento.'); }
+  S.loading=false; render();
+}
+
+// ---------- Búsqueda ----------
+const STOP=['para','de','la','el','en','un','una','los','las','con','y','que','donde'];
+function resolve(q){ const nq=norm(q); if(!nq) return null; for(const [n,d] of Object.entries(S.disc)){ if(norm(n)===nq||d.sin.some(s=>norm(s)===nq)) return n; } return null; }
+function resolveFam(q){ const nq=norm(q); return FAMS.find(f=>norm(f)===nq)||null; }
+function resolveAct(q){ const nq=norm(q); if(!nq) return null; for(const [id,a] of Object.entries(S.acts)){ if(norm(a.n)===nq||a.sin.some(s=>norm(s)===nq)) return id; } return null; }
+const byId=id=>S.cur.items.find(x=>x.id===id);
+// Las disciplinas son siempre las de la propia ficha: en un lugar, las que suele acoger
+function discsOf(e){ return e.d.filter(x=>S.disc[x]); }
+function hay(e){ return norm([e.n,FORMATS[e.fmt],e.kind,discsOf(e).join(' '),discsOf(e).map(famOf).join(' '),e.doors.map(d=>DOORTXT[d]).join(' '),e.acts.map(a=>actName(a)+' '+((S.acts[a]||{}).sin||[]).join(' ')).join(' '),e.offers.join(' '),e.b,e.t].join(' ')); }
+function matches(e,q){
+  const nq=norm(q); if(!nq) return true;
+  const target=resolve(q);
+  if(target) return discsOf(e).includes(target);
+  const fam=resolveFam(q); if(fam) return discsOf(e).some(d=>famOf(d)===fam);
+  const act=resolveAct(q); if(act) return e.acts.includes(act);
+  const h=hay(e), words=nq.split(/\s+/).filter(w=>w.length>1&&!STOP.includes(w)), stem=w=>w.length>5?w.slice(0,w.length-2):w;
+  return words.length?words.every(w=>h.includes(stem(w))):h.includes(nq);
+}
+const doorOk=e=>!S.door||e.doors.includes(S.door);
+function hl(text,q){ const nq=norm(q); if(!nq||nq.length<2) return esc(text); const i=norm(text).indexOf(nq); if(i<0) return esc(text); return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+nq.length))+'</mark>'+esc(text.slice(i+nq.length)); }
+
+// ---------- Pintado ----------
+const chev='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+function renderTop(){
+  const n=$('#notice'); n.hidden=false;
+  n.innerHTML = S.mode==='demo'
+    ? '<b>Demostración</b><span>Datos inventados para enseñar cómo funciona. Los enlaces abren Instagram de verdad, así que pueden llevar a cuentas que no existen. Lo que envíes aquí no se guarda.</span>'
+    : '<b>Beta</b><span>Empezamos por Murcia y la abrimos ciudad a ciudad. Si conoces la escena de la tuya, ayúdanos a construirla.</span>';
+  $('#bcity').textContent=S.city; document.title='La Escena Local · '+S.city;
+  const c=cityObj(S.city);
+  $('#cityBtn').innerHTML=`${esc(S.city)} <small>${c?c.n:0}</small>${chev}`;
+  $('#doors').innerHTML=[['','Todo']].concat(DOORS.map(d=>[d[0],d[1]])).map(([k,l])=>`<button type="button" class="pill" aria-pressed="${k===S.door}" data-door="${k}">${l}</button>`).join('');
+  $('#clear').hidden=!S.q;
+  const t=resolve(S.q), fm=resolveFam(S.q), ac=resolveAct(S.q);
+  $('#discTxt').innerHTML=!S.q?'<span class="ph">Todas las disciplinas</span>':esc(t||(fm?fm:ac?actName(ac):'«'+S.q+'»'));
+  $('#demoLink').textContent=S.mode==='demo'?'Volver a los datos reales':'Ver una demostración con datos inventados';
+}
+const DOPEN=new Set();
+function renderDiscList(){
+  const raw=$('#q').value.trim(), nq=norm(raw), items=S.cur?S.cur.items:[], c={};
+  items.forEach(e=>{ if(counted(e)) e.d.forEach(d=>c[d]=(c[d]||0)+1); });
+  const cur=resolve(S.q), curF=resolveFam(S.q);
+  const m=d=>!nq||norm(d).includes(nq)||S.disc[d].sin.some(x=>norm(x).includes(nq))||norm(S.disc[d].familia).includes(nq);
+  let h=`<button type="button" role="option" class="disc-opt${!S.q?' cur':''}" data-q=""><span>Todas las disciplinas</span></button>`;
+  if(nq&&!Object.keys(S.disc).some(d=>norm(d)===nq)) h+=`<button type="button" role="option" class="disc-opt" data-q="${esc(raw)}"><span>Buscar «${esc(raw)}» en nombres y descripciones</span></button>`;
+  let shown=0;
+  const opt=d=>{ const n=c[d]||0; return `<button type="button" role="option" class="disc-opt${n?'':' off'}${cur===d?' cur':''}" data-q="${esc(d)}"><span>${esc(d)}</span><small>${n||'—'}</small></button>`; };
+  FAMS.forEach(f=>{
+    const ds=Object.keys(S.disc).filter(d=>S.disc[d].familia===f&&m(d)); if(!ds.length) return; shown+=ds.length;
+    const open=!!nq||DOPEN.has(f), fc=famCount(items,f)||'';
+    h+=nq
+      ?`<div class="disc-fam static" aria-expanded="true"><span class="fl">${esc(f)}</span><small>${fc}</small></div>`
+      :`<button type="button" class="disc-fam${curF===f?' cur':''}" data-fam="${esc(f)}" aria-expanded="${open}"><span class="fl"><i class="chv"></i>${esc(f)}</span><small>${fc}</small></button>`;
+    if(open) h+=`<div class="disc-sub">`+ds.map(opt).join('')+`</div>`;
+  });
+  if(!shown&&nq) h+='<div class="grp">Ninguna disciplina se llama así</div>';
+  const L=$('#discList'), st=L.scrollTop; L.innerHTML=h; L.scrollTop=st;
+  const all=Object.keys(S.disc);
+  $('#discFoot').textContent=`${all.filter(d=>c[d]).length} de ${all.length} disciplinas tienen fichas en ${S.city}`;
+}
+function renderCityList(){
+  const nq=norm($('#cityQ').value);
+  const list=S.cities.filter(c=>!nq||norm(c.nombre).includes(nq)||norm(c.provincia||'').includes(nq));
+  const opt=c=>`<button type="button" role="option" class="city-opt${c.nombre===S.city?' cur':''}" data-city="${esc(c.nombre)}"><span>${esc(c.nombre)}</span><small>${c.n?c.n+' fichas':'por construir'}</small></button>`;
+  const open=list.filter(c=>c.n>0), build=list.filter(c=>c.n===0);
+  $('#cityList').innerHTML=(open.length?'<div class="grp">Con escena</div>'+open.map(opt).join(''):'')+(build.length?'<div class="grp">Por construir</div>'+build.map(opt).join(''):'')||'<div class="grp">Esa ciudad aún no está en la lista</div>';
+}
+function igBlock(e){ return e.ig?`<span class="handle"><a class="ig" href="${igUrl(e.ig)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(e.ig)} en Instagram">@${esc(e.ig)}</a><button type="button" class="copy" data-copy="@${esc(e.ig)}">Copiar</button></span>`:''; }
+function card(e){
+  const ds=discsOf(e), space=e.fmt==='espacio';
+  const kind=FORMATS[e.fmt]+(e.kind?' · '+e.kind:'');
+  return `<article class="card${e.feat?' feat':''}">
+    <span class="kind">${esc(kind)}</span>
+    <div class="card-head"><div class="who"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span><h3>${hl(e.n,S.q)}</h3></div><div class="badges">${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.ver&&!e.feat?'<span class="badge ver">Verificado</span>':''}</div></div>
+    ${e.acts.length?`<ul class="doors">${e.acts.map(a=>`<li>${esc(actName(a))}</li>`).join('')}</ul>`:e.doors.length?`<ul class="doors">${e.doors.map(d=>`<li>${DOORTXT[d]}</li>`).join('')}</ul>`:''}
+    ${e.t?`<p class="desc">${hl(e.t,S.q)}</p>`:''}
+    ${e.offers.length?`<ul class="offers">${e.offers.map(o=>`<li>${hl(o,S.q)}</li>`).join('')}</ul>`:''}
+    ${ds.length?`${space?'<p class="sub"><span>Suele acoger:</span></p>':''}<div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
+    <div class="meta"><span class="place">${esc(e.b||S.city)}</span>${igBlock(e)}</div>
+    <button type="button" class="report" data-report="${esc(e.id)}" data-rname="${esc(e.n)}">Avisar de un error</button>
+  </article>`;
+}
+function invite(){
+  return `<div class="invite"><span class="kind">${esc(S.city)} · por construir</span>
+    <h3>La escena de <span>${esc(S.city)}</span> está por construir</h3>
+    <p>Todavía no hay fichas aquí. Si conoces un proyecto, un colectivo o un espacio donde pasan cosas, propónlo: lo revisamos a mano y lo publicamos.</p>
+    <div class="acts"><button type="button" class="cta" data-open="ficha">¡Únete a la escena local!</button><button type="button" class="ghost" data-open="embajador">Quiero ayudar en ${esc(S.city)}</button></div></div>`;
+}
+function render(){
+  renderTop();
+  if(S.loading||!S.cur){ $('#count').textContent=''; $('#map').innerHTML='<div class="loading">Cargando la escena…</div>'; $('#out').innerHTML=''; return; }
+  const all=S.cur.items;
+  renderMap(all.filter(doorOk));
+  const exact=S.q?all.filter(e=>norm(e.n)===norm(S.q)):[];
+  const res=(exact.length?exact:all.filter(e=>doorOk(e)&&matches(e,S.q))).sort((a,b)=>(!!b.isNew-!!a.isNew)||(b.feat-a.feat)||(b.ver-a.ver)||a.n.localeCompare(b.n,'es'));
+  const target=resolve(S.q), door=DOORS.find(d=>d[0]===S.door);
+  $('#count').innerHTML=`<strong>${res.length}</strong> en ${esc(S.city)}${door?' · '+door[2].toLowerCase():''}${S.q?` · «${esc(target||S.q)}»`:''}`;
+  if(!all.length){ $('#out').innerHTML=invite(); return; }
+  if(!res.length){ $('#out').innerHTML=`<div class="invite"><h3>Aún no hay nada así en ${esc(S.city)}</h3><p>Si conoces a alguien que lo haga, o un sitio donde pase, propónlo.</p><div class="acts"><button type="button" class="cta" data-open="ficha">¡Únete a la escena local!</button><button type="button" class="ghost" data-reset="1">Ver todo ${esc(S.city)}</button></div></div>`; return; }
+  $('#out').innerHTML=`<div class="grid">${res.map(card).join('')}</div>`;
+}
+
+// Vista del mapa (zoom y desplazamiento): se guarda entre renders
+const V={home:null,cur:null,key:'',anim:0};
+function fitAspect(b,A){ let {x,y,w,h}=b; if(h/w<A){ const nh=w*A; y-=(nh-h)/2; h=nh; } else { const nw=h/A; x-=(nw-w)/2; w=nw; } return {x,y,w,h}; }
+const atHome=()=>!!(V.cur&&V.home&&Math.abs(V.cur.w-V.home.w)<2&&Math.abs(V.cur.x-V.home.x)<2&&Math.abs(V.cur.y-V.home.y)<2);
+function setVB(v){
+  V.cur=v; const sv=$('#map .msvg'); if(!sv) return;
+  sv.setAttribute('viewBox',`${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`);
+  const z=V.home?V.home.w/v.w:1; sv.style.setProperty('--z',z.toFixed(3));
+  // Los nombres largos de disciplina se recortan según el espacio que hay a este zoom
+  sv.querySelectorAll('.rl[data-gap]').forEach(t=>{ const full=t.dataset.full, max=Math.max(4,Math.floor(+t.dataset.gap*z/(+t.dataset.cw))); const txt=full.length>max?full.slice(0,max-1).trimEnd()+'…':full; if(t.textContent!==txt) t.textContent=txt; });
+  const home=atHome(); sv.style.touchAction=home?'pan-y':'none';
+  const hb=$('#mapHome'); if(hb) hb.hidden=home&&!S.open&&!S.q;
+}
+function clampV(v){
+  const H=V.home, A=H.h/H.w, w=Math.min(H.w,Math.max(H.w*0.1,v.w)), h=w*A;
+  // Sin salirse del mapa: los bordes de la vista quedan dentro de la vista completa
+  const cx=v.x+v.w/2, cy=v.y+v.h/2;
+  const x=Math.max(H.x,Math.min(H.x+H.w-w,cx-w/2)), y=Math.max(H.y,Math.min(H.y+H.h-h,cy-h/2));
+  return {x,y,w,h};
+}
+function animTo(t){
+  cancelAnimationFrame(V.anim); const f=V.cur;
+  if(!f||matchMedia('(prefers-reduced-motion: reduce)').matches){ setVB(t); return; }
+  const t0=performance.now(), D=520, ease=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+  const step=now=>{ const u=Math.min(1,(now-t0)/D), k=ease(u); setVB({x:f.x+(t.x-f.x)*k,y:f.y+(t.y-f.y)*k,w:f.w+(t.w-f.w)*k,h:f.h+(t.h-f.h)*k}); if(u<1) V.anim=requestAnimationFrame(step); };
+  V.anim=requestAnimationFrame(step);
+}
+function zoomAt(f,px,py,smooth){
+  const v=V.cur, H=V.home; const w=Math.min(H.w,Math.max(H.w*0.1,v.w/f)), r=w/v.w;
+  const t=clampV({x:px-(px-v.x)*r,y:py-(py-v.y)*r,w,h:v.h*r});
+  smooth?animTo(t):(cancelAnimationFrame(V.anim),setVB(t));
+}
+function focusBox(sv,sel,pad,minFrac){
+  let b=null;
+  sv.querySelectorAll(sel).forEach(el=>{ let r; try{ r=el.getBBox(); }catch(e){ return; } if(!r||(!r.width&&!r.height)) return;
+    b=b?{x1:Math.min(b.x1,r.x),y1:Math.min(b.y1,r.y),x2:Math.max(b.x2,r.x+r.width),y2:Math.max(b.y2,r.y+r.height)}:{x1:r.x,y1:r.y,x2:r.x+r.width,y2:r.y+r.height}; });
+  const H=V.home; if(!b) return H;
+  let box=fitAspect({x:b.x1-pad,y:b.y1-pad,w:b.x2-b.x1+2*pad,h:b.y2-b.y1+2*pad},H.h/H.w);
+  if(box.w<H.w*minFrac){ const w=H.w*minFrac, h=w*H.h/H.w; box={x:box.x+box.w/2-w/2,y:box.y+box.h/2-h/2,w,h}; }
+  return clampV(box);
+}
+// Arrastrar, pellizcar y rueda (con Ctrl o el gesto del trackpad)
+function bindPanZoom(sv){
+  const pts=new Map(); let last=null, dist=0, moved=0, pinch=null;
+  const toV=(cx,cy)=>{ const r=sv.getBoundingClientRect(), v=V.cur; return {x:v.x+(cx-r.left)/r.width*v.w,y:v.y+(cy-r.top)/r.height*v.h}; };
+  sv.addEventListener('pointerdown',e=>{ if(e.button>0) return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=0; last={x:e.clientX,y:e.clientY};
+    if(pts.size===2){ const [p,q]=[...pts.values()]; pinch={d:Math.hypot(p.x-q.x,p.y-q.y)}; } });
+  sv.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId)) return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size>=2&&pinch){ const [p,q]=[...pts.values()], d=Math.hypot(p.x-q.x,p.y-q.y), m=toV((p.x+q.x)/2,(p.y+q.y)/2); if(pinch.d>0) zoomAt(d/pinch.d,m.x,m.y); pinch.d=d; moved=99; return; }
+    if(atHome()&&e.pointerType==='touch') return; // en la vista completa, un dedo hace scroll de la página
+    const dx=e.clientX-last.x, dy=e.clientY-last.y; moved+=Math.abs(dx)+Math.abs(dy); last={x:e.clientX,y:e.clientY};
+    if(moved>6){ if(!sv.classList.contains('dragging')){ sv.classList.add('dragging'); try{ sv.setPointerCapture(e.pointerId); }catch(_){} }
+      const r=sv.getBoundingClientRect(), v=V.cur; cancelAnimationFrame(V.anim); setVB(clampV({x:v.x-dx/r.width*v.w,y:v.y-dy/r.height*v.h,w:v.w,h:v.h})); }
+  });
+  const end=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch=null; if(!pts.size) sv.classList.remove('dragging'); };
+  sv.addEventListener('pointerup',end); sv.addEventListener('pointercancel',end);
+  sv.addEventListener('click',e=>{ if(moved>6){ e.stopPropagation(); e.preventDefault(); moved=0; } },true);
+  sv.addEventListener('wheel',e=>{ if(!e.ctrlKey&&!e.metaKey) return; e.preventDefault(); const m=toV(e.clientX,e.clientY); zoomAt(Math.exp(-e.deltaY*0.01),m.x,m.y); },{passive:false});
+}
+
+function renderMap(items){
+  // Tres anillos fijos: familias (fuera) → disciplinas (en medio) → proyectos o lugares (dentro).
+  // El esqueleto se calcula con todos los proyectos de la ciudad, así no se mueve al filtrar.
+  const all=S.cur.items, places=S.door==='espacio';
+  const pure=e=>e.fmt==='espacio';
+  const own=e=>e.d.filter(x=>S.disc[x]);
+  const target=resolve(S.q), qn=norm(S.q), open=S.open||resolveFam(S.q)||null;
+  const box=$('#map'), cw=Math.max(280,(box&&box.clientWidth)||900), mobile=cw<720;
+  const FL=mobile?13:16, kd=mobile?2.2:1;
+  // Unidades del mapa por píxel en la vista completa, contando con que las etiquetas de familia quepan
+  const sc=(2*(360+40))/Math.max(160,cw-2*0.56*9.5*FL), K=sc;
+  const R1=360, R2=285, R3=172, TAU=Math.PI*2, deg=a=>a*180/Math.PI, f1=v=>v.toFixed(1);
+  const pol=(a,r)=>({x:Math.cos(a)*r,y:Math.sin(a)*r});
+  // --- Esqueleto: un hueco por proyecto, agrupados por familia y disciplina principal (la primera de la ficha)
+  const base=all.filter(e=>!pure(e)&&own(e).length), prim=e=>own(e)[0], fi=f=>FAMS.indexOf(f), di=d=>S.disc[d].id;
+  base.sort((a,b)=>fi(famOf(prim(a)))-fi(famOf(prim(b)))||di(prim(a))-di(prim(b))||a.n.localeCompare(b.n,'es'));
+  const byF={}; FAMS.forEach(f=>byF[f]=base.filter(e=>famOf(prim(e))===f));
+  const GAP=1.3, W=f=>Math.max(byF[f].length,1.5); let T=0; FAMS.forEach(f=>T+=W(f)+GAP);
+  const u=TAU/T, famA={}, sect={}, leafA={}, dAcc={}; let acc=0;
+  FAMS.forEach(f=>{ const w=W(f), st=acc+GAP/2, pad=(w-byF[f].length)/2; famA[f]=st+w/2; sect[f]=[st,st+w];
+    byF[f].forEach((e,i)=>{ const a=st+pad+i+0.5; leafA[e.id]=a; (dAcc[prim(e)]=dAcc[prim(e)]||[]).push(a); }); acc+=w+GAP; });
+  const off=-Math.PI/2-famA[FAMS[0]]*u, ang=x=>x*u+off;
+  // Disciplinas: en la media de sus proyectos; las que solo aparecen como secundarias, dentro del sector de su familia
+  const discA={};
+  Object.entries(dAcc).forEach(([d,as])=>discA[d]=as.reduce((p,q)=>p+q,0)/as.length);
+  const present=new Set(); all.forEach(e=>(pure(e)?[]:own(e)).forEach(d=>present.add(d))); if(target&&S.disc[target]) present.add(target);
+  FAMS.forEach(f=>{
+    const ds=[...present].filter(d=>famOf(d)===f).sort((a,b)=>di(a)-di(b));
+    ds.filter(d=>discA[d]===undefined).forEach(d=>{ const as=base.filter(e=>famOf(prim(e))===f&&own(e).includes(d)).map(e=>leafA[e.id]); discA[d]=as.length?as.reduce((p,q)=>p+q,0)/as.length:famA[f]; });
+    // separar las que caen juntas, sin salir del sector
+    const list=ds.sort((a,b)=>discA[a]-discA[b]), minSep=Math.min(0.9,(sect[f][1]-sect[f][0])/Math.max(1,list.length));
+    for(let it=0;it<40;it++){ let mv=false; for(let k=1;k<list.length;k++){ const g=discA[list[k]]-discA[list[k-1]]; if(g<minSep){ const p=(minSep-g)/2; discA[list[k-1]]-=p; discA[list[k]]+=p; mv=true; } } if(!mv) break; }
+  });
+  Object.keys(famA).forEach(f=>famA[f]=ang(famA[f])); Object.keys(leafA).forEach(k=>leafA[k]=ang(leafA[k])); Object.keys(discA).forEach(d=>discA[d]=ang(discA[d]));
+  // --- Lo que se dibuja en este modo
+  const leaves=places?items.filter(e=>e.doors.includes('espacio')):items.filter(e=>!pure(e)&&own(e).length);
+  const dOf=e=>own(e);
+  const counts={}; leaves.forEach(e=>dOf(e).forEach(d=>counts[d]=(counts[d]||0)+1));
+  const famN={}; FAMS.forEach(f=>famN[f]=leaves.filter(e=>dOf(e).some(d=>famOf(d)===f)).length);
+  // Lugares: en el anillo interior, en la media de lo que acogen, separados entre sí
+  if(places){
+    const L=leaves.map(e=>{ const ds=dOf(e).filter(d=>discA[d]!==undefined); let x=0,y=0; ds.forEach(d=>{ x+=Math.cos(discA[d]); y+=Math.sin(discA[d]); }); return {e,a:ds.length?Math.atan2(y,x):Math.PI/2}; }).sort((p,q)=>p.a-q.a);
+    const sep=Math.min(TAU/Math.max(1,L.length)*0.9,Math.max(22/R3,0.5));
+    for(let it=0;it<60;it++){ let mv=false; for(let k=0;k<L.length;k++){ const A=L[k], B=L[(k+1)%L.length]; if(L.length<2) break; let g=B.a-A.a; if(k===L.length-1) g+=TAU; if(g<sep){ const p=(sep-g)/2; A.a-=p; B.a+=p; mv=true; } } if(!mv) break; }
+    L.forEach(t=>leafA[t.e.id]=t.a);
+  }
+  const maxF=Math.max(1,...FAMS.map(f=>famN[f])), famR=f=>(famN[f]?6+20*Math.pow(famN[f]/maxF,0.8):6)*Math.sqrt(kd);
+  const maxD=Math.max(1,...Object.values(counts)), dR=d=>(2.5+6.5*Math.pow((counts[d]||0)/maxD,0.8))*Math.sqrt(kd);
+  const drawD=Object.keys(discA).filter(d=>counts[d]||d===target);
+  // --- Estados: lo elegido manda; lo demás se apaga
+  const nameHit=leaves.find(e=>norm(e.n)===qn);
+  const any=!!(open||target||nameHit);
+  const famSt=f=>!any?'':(f===open||(target&&famOf(target)===f)?'on':(nameHit&&dOf(nameHit).some(d=>famOf(d)===f)?'':'dim'));
+  const dscSt=d=>{ if(target) return d===target?'on':'dim'; if(open) return famOf(d)===open?'lab':'dim'; if(nameHit) return dOf(nameHit).includes(d)?'lab':'dim'; return ''; };
+  const leafSt=e=>{ if(nameHit) return e===nameHit?'on':'dim'; if(target) return dOf(e).includes(target)?'on':'dim'; if(open) return dOf(e).some(d=>famOf(d)===open)?'on':'dim'; return ''; };
+  const rlink=(a1,r1,a2,r2)=>{ const m=(r1+r2)/2, A=pol(a1,r1), B=pol(a1,m), C=pol(a2,m), D=pol(a2,r2); return `M${f1(A.x)},${f1(A.y)} C${f1(B.x)},${f1(B.y)} ${f1(C.x)},${f1(C.y)} ${f1(D.x)},${f1(D.y)}`; };
+  const nm=e=>e.n.length>26?e.n.slice(0,25).trimEnd()+'…':e.n;
+  // --- Vista completa (hace falta para saber a qué escala se leerán los textos)
+  const padX=40+0.56*9.5*FL*sc, padY=40+FL*1.5*sc, nat={x:-R1-padX,y:-R1-padY,w:2*(R1+padX),h:2*(R1+padY)};
+  const A=mobile?Math.max(nat.h/nat.w,1.4):nat.h/nat.w, H=fitAspect(nat,A); V.home=H;
+  // --- Etiquetas siempre horizontales, hacia el centro del círculo:
+  //     a los lados, a la izquierda o la derecha del punto; arriba y abajo, debajo o encima.
+  const side=a=>{ const c=Math.cos(a), sn=Math.sin(a); return Math.abs(c)<0.38?(sn<0?'below':'above'):(c>0?'left':'right'); };
+  const boxOf=(n,k)=>{ const p=pol(n.a,n.r), fu=11.5/k, w=n.lab.length*fu*(n.bold?0.6:0.55), d=n.dr+0.6*fu, sd=side(n.a); let x1,x2,y1,y2;
+    if(sd==='below'){ x1=p.x-w/2; x2=p.x+w/2; y1=p.y+n.dr+0.1*fu; y2=y1+1.25*fu; }
+    else if(sd==='above'){ x1=p.x-w/2; x2=p.x+w/2; y2=p.y-n.dr-0.1*fu; y1=y2-1.25*fu; }
+    else if(sd==='left'){ x2=p.x-d; x1=x2-w; y1=p.y-0.65*fu; y2=p.y+0.65*fu; }
+    else { x1=p.x+d; x2=x1+w; y1=p.y-0.65*fu; y2=p.y+0.65*fu; }
+    const m=2/k; return {x1:Math.min(x1,p.x-n.dr)-m,x2:Math.max(x2,p.x+n.dr)+m,y1:Math.min(y1,p.y-n.dr)-m,y2:Math.max(y2,p.y+n.dr)+m}; };
+  const hit=(P,Q)=>P.x1<Q.x2&&Q.x1<P.x2&&P.y1<Q.y2&&Q.y1<P.y2;
+  const wrap=x=>{ while(x>Math.PI) x-=TAU; while(x<-Math.PI) x+=TAU; return x; };
+  // Separa los nodos que se pisan moviéndolos a lo largo de su anillo
+  function relax(nodes,k){
+    for(let it=0;it<400;it++){
+      const bx=nodes.map(n=>boxOf(n,k)); let mv=false;
+      for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){
+        if(!hit(bx[i],bx[j])) continue; const sg=wrap(nodes[j].a-nodes[i].a)>=0?1:-1, st=0.012*(nodes[i].r===nodes[j].r?1:0.7);
+        nodes[i].a-=sg*st; nodes[j].a+=sg*st; mv=true;
+      }
+      if(!mv) break;
+    }
+    return nodes.map(n=>boxOf(n,k));
+  }
+  const union=bs=>bs.reduce((u,b)=>({x1:Math.min(u.x1,b.x1),y1:Math.min(u.y1,b.y1),x2:Math.max(u.x2,b.x2),y2:Math.max(u.y2,b.y2)}),{x1:1e9,y1:1e9,x2:-1e9,y2:-1e9});
+  // --- Qué se despliega: con una familia abierta, todas sus disciplinas y sus proyectos (o lugares) se reparten y llevan nombre
+  const fo=open||(target&&FAMS.includes(famOf(target))?famOf(target):null);
+  let layD=[], layL=[];
+  if(fo){ layD=drawD.filter(d=>famOf(d)===fo); layL=leaves.filter(e=>dOf(e).some(d=>famOf(d)===fo)); }
+  else if(nameHit){ layD=drawD.filter(d=>dOf(nameHit).includes(d)); layL=[nameHit]; }
+  else if(places&&!mobile){ layL=leaves.slice(); }
+  const posA={};
+  const zNow=V.cur&&V.key.split('|')[0]===S.city?H.w/V.cur.w:1;
+  let zPick=zNow, layBox=null;
+  if(layD.length||layL.length){
+    const dOrd=d=>S.disc[d].id, mk=()=>{
+      const ds=layD.slice().sort((x,y)=>dOrd(x)-dOrd(y)), ls=layL.slice().sort((x,y)=>{ const px=dOf(x).find(d=>layD.includes(d)), py=dOf(y).find(d=>layD.includes(d)); return (px?dOrd(px):0)-(py?dOrd(py):0)||x.n.localeCompare(y.n,'es'); });
+      const c=fo?famA[fo]:null;
+      return [...ds.map((d,i)=>({key:'d:'+d,a:fo?c+(i-(ds.length-1)/2)*0.05:discA[d],r:R2,lab:d,dr:dR(d),bold:1})),
+              ...ls.map((e,i)=>({key:'l:'+e.id,a:fo?c+(i-(ls.length-1)/2)*0.04:leafA[e.id],r:R3,lab:nm(e),dr:0}))];
+    };
+    const fam0=fo?pol(famA[fo],R1):null;
+    const tryZ=z=>{ const k=z*cw/H.w, ns=mk(); ns.forEach(n=>{ if(n.r===R3) n.dr=3.2/k; }); const bs=relax(ns,k); let u=union(bs); if(fam0) u=union([u,{x1:fam0.x-30,x2:fam0.x+30,y1:fam0.y-30,y2:fam0.y+30}]);
+      if(!fo&&nameHit){ const fl=60*H.w/(z*cw); [...new Set(dOf(nameHit).map(famOf))].filter(f=>FAMS.includes(f)).forEach(f=>{ const q=pol(famA[f],R1); u=union([u,{x1:q.x-fl,x2:q.x+fl,y1:q.y-30,y2:q.y+30}]); }); }
+      return {ns,u}; };
+    const zoomed=!!(fo||target||nameHit);
+    const cands=zoomed?(mobile?[4,3.4,2.8,2.3,1.9,1.5,1.2,1]:[1.6,1.4,1.25,1.1,1]):[zNow];
+    let res=null;
+    for(const z of cands){ res=tryZ(z); zPick=z; if(!zoomed) break; const vw=H.w/z, vh=H.h/z; if(res.u.x2-res.u.x1<=vw*0.94&&res.u.y2-res.u.y1<=vh*0.94) break; }
+    res.ns.forEach(n=>posA[n.key]=n.a); layBox=res.u;
+  }
+  const angD=d=>posA['d:'+d]??discA[d], angL=e=>posA['l:'+e.id]??leafA[e.id];
+  const htext=(a,p,dr,txt,cls,extra='')=>{ const sd=side(a);
+    if(sd==='below') return `<text class="hl ${cls}" x="${f1(p.x)}" y="${f1(p.y+dr)}" dy="1.02em" text-anchor="middle"${extra}>${txt}</text>`;
+    if(sd==='above') return `<text class="hl ${cls}" x="${f1(p.x)}" y="${f1(p.y-dr)}" dy="-0.42em" text-anchor="middle"${extra}>${txt}</text>`;
+    if(sd==='left') return `<text class="hl ${cls}" x="${f1(p.x-dr)}" y="${f1(p.y)}" dx="-0.6em" dy=".35em" text-anchor="end"${extra}>${txt}</text>`;
+    return `<text class="hl ${cls}" x="${f1(p.x+dr)}" y="${f1(p.y)}" dx="0.6em" dy=".35em" text-anchor="start"${extra}>${txt}</text>`; };
+  let links='', fams='', discs='', dots='';
+  // Familia → disciplina
+  drawD.forEach(d=>{ const st=dscSt(d), f=famOf(d); if(!FAMS.includes(f)) return;
+    links+=`<path class="lk${st==='dim'?' dim':st?' hot':''}" d="${rlink(famA[f],R1-famR(f),angD(d),R2+dR(d))}"/>`; });
+  // Disciplina → proyecto (la principal, continua; las demás, discontinuas)
+  leaves.forEach((e,i)=>{ const st=leafSt(e), a=angL(e); if(a===undefined) return;
+    dOf(e).forEach((d,k)=>{ if(discA[d]===undefined) return; const ds=dscSt(d), sec=places?false:k>0;
+      const hot=st==='on'&&ds!=='dim', cls=hot?' hot':(st==='dim'||ds==='dim')&&any?' dim':'';
+      links+=`<path data-i="${i}" class="lk${sec?' sec':''}${cls}" d="${rlink(angD(d),R2-dR(d),a,R3+4)}"/>`; }); });
+  FAMS.forEach(f=>{
+    const a=famA[f], {x,y}=pol(a,R1), n=famN[f], st=famSt(f), cos=Math.cos(a), sin=Math.sin(a), r=famR(f);
+    const lr=R1+r+10, lx=Math.cos(a)*lr, ly=Math.sin(a)*lr;
+    const anchor=Math.abs(cos)<0.25?'middle':cos>0?'start':'end', dy=Math.abs(cos)<0.25?(sin<0?'-0.25em':'0.95em'):'0.35em';
+    const lines=famLines(f), noun=places?(n===1?'espacio':'espacios'):(n===1?'proyecto':'proyectos');
+    fams+=`<g class="node fam${st==='on'?' on':''}${st==='dim'?' g-dim':''}" tabindex="0" role="button" aria-expanded="${open===f}" data-q="${esc(f)}" aria-label="${esc(f)}: ${n} ${noun}"><title>${esc(f)} · ${n} ${noun}</title>
+      <circle class="halo" cx="${f1(x)}" cy="${f1(y)}" r="${f1(r+7)}"/><circle class="hit" cx="${f1(x)}" cy="${f1(y)}" r="${f1(Math.max(r+12,22*K))}"/>
+      <circle class="fam-dot${n?'':' off'}" cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}"/>
+      <text class="fam-t${n||st==='on'?'':' off'}" x="${f1(lx)}" y="${f1(ly)}" text-anchor="${anchor}">${lines.map((l,k)=>`<tspan x="${f1(lx)}" dy="${k?'1.05em':(lines.length>1&&anchor!=='middle'?'-0.2em':dy)}">${esc(l)}</tspan>`).join('')}</text></g>`;
+  });
+  drawD.forEach(d=>{
+    const st=dscSt(d), a=angD(d), p=pol(a,R2), r=dR(d), n=counts[d]||0;
+    discs+=`<g class="node dsc${st?' '+st:''}${st==='dim'?' g-dim':''}" tabindex="0" role="button" data-q="${esc(d)}" aria-label="${esc(d)}: ${n}"><title>${esc(d)} · ${n}</title><circle class="hit" cx="${f1(p.x)}" cy="${f1(p.y)}" r="11"/><circle class="dd" cx="${f1(p.x)}" cy="${f1(p.y)}" r="${f1(st==='on'?r+2:r)}"/>${htext(a,p,r,esc(d),'d')}</g>`;
+  });
+  const showAll=places&&!mobile&&!any;
+  leaves.forEach((e,i)=>{ const a=angL(e); if(a===undefined) return;
+    const st=leafSt(e), p=pol(a,R3), lab=st==='on'||(showAll&&st!=='dim'), pr=4;
+    const shape=places?`<rect class="pd" transform="translate(${f1(p.x)},${f1(p.y)})" x="${-pr}" y="${-pr}" width="${pr*2}" height="${pr*2}" rx="1.5"/>`:`<circle class="pd" cx="${f1(p.x)}" cy="${f1(p.y)}" r="${pr}"/>`;
+    dots+=`<g data-i="${i}" class="node pj${places?' sp':''}${e.feat?' feat':''}${st==='on'?' on':''}${lab?' lab':''}${st==='dim'?' g-dim':''}" tabindex="0" role="button" data-q="${esc(e.n)}" aria-label="${esc(e.n)}"><circle class="hit-area" cx="${f1(p.x)}" cy="${f1(p.y)}" r="9"/>${shape}${htext(a,p,0,esc(nm(e)),'')}</g>`;
+  });
+  const rings=`<circle class="ring" r="${R1}"/><circle class="ring in" r="${R2}"/><circle class="ring in" r="${R3}"/>`;
+  const key=[S.city,places,open||'',target||'',mobile,nameHit?nameHit.id:''].join('|'), changed=key!==V.key, pk=V.key.split('|');
+  const start=(!V.cur||pk[0]!==S.city||pk[4]!==String(mobile))?H:V.cur;
+  const svg=`<svg class="msvg" viewBox="${start.x.toFixed(1)} ${start.y.toFixed(1)} ${start.w.toFixed(1)} ${start.h.toFixed(1)}" style="aspect-ratio:1 / ${A.toFixed(4)};--s:${(H.w/cw).toFixed(3)};--fl:${FL}px" role="img" aria-label="Mapa de ${places?'los espacios':'la escena'} de ${esc(S.city)}">${rings}${links}${fams}${discs}${dots}</svg>`;
+  const top=`<div class="maptop"><div class="mapmode" role="group" aria-label="Qué ver en el mapa"><button type="button" data-mode="p" aria-pressed="${!places}">Proyectos</button><button type="button" data-mode="l" aria-pressed="${places}">Espacios</button></div><span class="map-hint">${mobile?'Pellizca para acercar':'Ctrl + rueda para acercar · arrastra para moverte'}</span></div>`;
+  const ctl=`<button type="button" class="maphome" id="mapHome" data-home="1" hidden><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2.5 4.5 7 9 11.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Todo el mapa</button>
+    <div class="mapctl"><button type="button" data-zoom="1.5" aria-label="Acercar">+</button><button type="button" data-zoom="0.667" aria-label="Alejar">−</button></div>`;
+  const legend=places
+    ?`<div class="map-legend"><span><i class="sq"></i>Espacio</span><span>Cada espacio se une a lo que suele acoger. Toca uno para verlo.</span></div>`
+    :`<div class="map-legend"><span><i></i>Proyecto</span><span>Fuera, las familias; en medio, las disciplinas; dentro, los proyectos. El tamaño es el peso de cada parte en ${esc(S.city)}.</span></div>`;
+  $('#map').innerHTML=top+`<div class="mapview">${svg}${ctl}</div>`+legend;
+  const sv=$('#map .msvg');
+  V.cur=start; setVB(start); bindPanZoom(sv);
+  if(changed){
+    V.key=key;
+    let t=H;
+    if((fo||target||nameHit)&&layBox){
+      let z=zPick, c={x:(layBox.x1+layBox.x2)/2,y:(layBox.y1+layBox.y2)/2};
+      if(target){ // un poco más cerca de la disciplina elegida y sus proyectos
+        const k=z*cw/H.w, bs=[];
+        const tp=pol(angD(target),R2); bs.push({x1:tp.x-20,x2:tp.x+20,y1:tp.y-20,y2:tp.y+20});
+        leaves.filter(e=>leafSt(e)==='on').forEach(e=>bs.push(boxOf({a:angL(e),r:R3,lab:nm(e),dr:3.2/k},k)));
+        const u=union(bs); c={x:(u.x1+u.x2)/2,y:(u.y1+u.y2)/2};
+        const z2=Math.min(z*1.3,H.w/((u.x2-u.x1)/0.85),H.h/((u.y2-u.y1)/0.85)); z=Math.max(z,z2);
+      }
+      const w=H.w/z, h=H.h/z; t=clampV({x:c.x-w/2,y:c.y-h/2,w,h});
+    }
+    animTo(t);
+  }
+  sv.querySelectorAll('.pj').forEach(g=>{
+    const on=v=>sv.querySelectorAll(`.lk[data-i="${g.dataset.i}"]`).forEach(l=>l.classList.toggle('hov',v));
+    g.addEventListener('pointerenter',()=>on(true)); g.addEventListener('pointerleave',()=>on(false));
+    g.addEventListener('focus',()=>on(true)); g.addEventListener('blur',()=>on(false));
+  });
+}
+
+// ---------- Interacción ----------
+let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
+function closeCity(){ $('#cityPanel').hidden=true; $('#cityBtn').setAttribute('aria-expanded','false'); }
+$('#cityBtn').addEventListener('click',e=>{ e.stopPropagation(); closeDisc(); const p=$('#cityPanel'); p.hidden=!p.hidden; $('#cityBtn').setAttribute('aria-expanded',String(!p.hidden)); if(!p.hidden){ $('#cityQ').value=''; renderCityList(); $('#cityQ').focus(); } });
+$('#cityQ').addEventListener('input',renderCityList);
+function closeDisc(){ $('#discPanel').hidden=true; $('#discBtn').setAttribute('aria-expanded','false'); }
+$('#discBtn').addEventListener('click',()=>{ const p=$('#discPanel'); const show=p.hidden; closeCity(); p.hidden=!show; $('#discBtn').setAttribute('aria-expanded',String(show)); if(show){ $('#q').value=''; DOPEN.clear(); const t=resolve(S.q), f=t?famOf(t):resolveFam(S.q); if(f&&FAMS.includes(f)) DOPEN.add(f); renderDiscList(); $('#q').focus(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeCity(); closeDisc(); } if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('node')){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click',{bubbles:true})); } });
+const toList=()=>{ const el=$('#lista'); if(el) window.scrollTo({top:el.offsetTop-8,behavior:'smooth'}); };
+document.addEventListener('click',ev=>{
+  if(!ev.target.closest('.city-wrap')) closeCity();
+  if(!ev.target.closest('.disc-wrap')) closeDisc();
+  const b=ev.target.closest('[data-mode],[data-home],[data-zoom],[data-city],[data-door],[data-fam],[data-q],[data-copy],[data-open],[data-report],[data-reset]'); if(!b) return;
+  if(b.dataset.mode){ const l=b.dataset.mode==='l'; if(l!==(S.door==='espacio')){ S.door=l?'espacio':''; S.q=''; S.open=null; $('#q').value=''; render(); } return; }
+  if(b.dataset.home){ S.q=''; S.open=null; $('#q').value=''; V.key=''; render(); return; }
+  if(b.dataset.zoom){ const v=V.cur; if(v) zoomAt(+b.dataset.zoom,v.x+v.w/2,v.y+v.h/2,true); return; }
+  if(b.dataset.city!==undefined){ closeCity(); S.q=''; $('#q').value=''; selectCity(b.dataset.city); return; }
+  if(b.dataset.door!==undefined){ S.door=(S.door===b.dataset.door&&b.closest('.concept'))?'':b.dataset.door; render(); return; }
+  if(b.dataset.fam!==undefined){ const f=b.dataset.fam; DOPEN.has(f)?DOPEN.delete(f):DOPEN.add(f); renderDiscList(); return; }
+  if(b.dataset.reset){ S.q=''; S.door=''; $('#q').value=''; render(); return; }
+  if(b.dataset.q!==undefined){
+    const v=b.dataset.q, inMap=!!b.closest('#map'), same=!!v&&norm(S.q)===norm(v);
+    if(inMap&&FAMS.includes(v)){ // una familia del mapa: abre o cierra sus disciplinas y filtra la lista
+      if(S.open===v){ S.open=null; if(same) S.q=''; } else { S.open=v; S.q=v; }
+      render(); return;
+    }
+    S.q=same&&inMap?'':v;
+    const t=resolve(S.q), fm=resolveFam(S.q);
+    if(t&&FAMS.includes(famOf(t))) S.open=famOf(t); else if(fm) S.open=fm;
+    if(b.closest('#discPanel')) closeDisc();
+    render(); if(S.q&&inMap&&b.classList.contains('pj')&&S.door!=='espacio') toList(); return;
+  }
+  if(b.dataset.open){ openAdd(b.dataset.open); return; }
+  if(b.dataset.report){ openReport(b.dataset.report,b.dataset.rname); return; }
+  if(b.dataset.copy){ const v=b.dataset.copy, done=()=>{ b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1400); }; try{ navigator.clipboard.writeText(v).then(done).catch(()=>toast('Copia a mano: '+v)); }catch(e){ toast('Copia a mano: '+v); } }
+});
+$('#q').addEventListener('input',renderDiscList);
+$('#q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); const v=$('#q').value.trim(); S.q=resolve(v)||v; const t=resolve(S.q); if(t&&FAMS.includes(famOf(t))) S.open=famOf(t); closeDisc(); render(); $('#discBtn').focus(); } });
+$('#clear').addEventListener('click',()=>{ S.q=''; S.open=null; $('#q').value=''; render(); $('#discBtn').focus(); });
+$('#demoLink').addEventListener('click',()=>{ if(S.mode==='demo'){ try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} boot(); } else { location.hash='demo'; } });
+window.addEventListener('hashchange',()=>boot());
+let rsz; window.addEventListener('resize',()=>{ clearTimeout(rsz); rsz=setTimeout(()=>{ if(S.cur&&!S.loading){ V.key=''; V.cur=null; render(); } },200); });
+
+// ---------- Proponer ----------
+const dlg=$('#dlg');
+function fillForm(){
+  $('#fCity').innerHTML=S.cities.map(c=>`<option>${esc(c.nombre)}</option>`).join('');
+  $('#fActs').innerHTML=DOORS.map(([p,l])=>{ const as=Object.entries(S.acts).filter(([id,a])=>a.p===p); return as.length?`<details class="fgrp"><summary>${esc(l)}<span class="n"></span></summary><div class="checks">${as.map(([id,a])=>`<label><input type="checkbox" value="${esc(id)}" id="act-${esc(id)}">${esc(a.n)}</label>`).join('')}</div></details>`:''; }).join('');
+  let k=0;
+  $('#fDisc').innerHTML=FAMS.map(f=>{ const ds=Object.keys(S.disc).filter(d=>S.disc[d].familia===f); return ds.length?`<details class="fgrp"><summary>${esc(f)}<span class="n"></span></summary><div class="checks">${ds.map(d=>`<label><input type="checkbox" value="${esc(d)}" id="disc-${k++}">${esc(d)}</label>`).join('')}</div></details>`:''; }).join('');
+}
+function grpCount(){ document.querySelectorAll('#addForm .fgrp').forEach(g=>{ const n=g.querySelectorAll('input:checked').length; g.querySelector('.n').textContent=n?String(n):''; }); }
+function syncForm(){
+  grpCount();
+  const amb=$('#fType').value==='embajador';
+  ['#lFormat','#lDoors','#lDisc','#lOtra','#lBarrio','#rules','#lFoto'].forEach(s=>$(s).hidden=amb);
+  const de=$('#act-alquiler'); const space=!amb&&($('#fFormat').value==='espacio'||(de&&de.checked));
+  $('#lSpace').hidden=!space;
+  $('#lDisc').firstChild.textContent=space?'Disciplinas que suele acoger ':'Disciplinas ';
+  $('#lDisc').querySelector('.hint').textContent=space?'hasta 8 · la primera que marques es la que más se hace allí':'hasta 4 · la primera que marques es la principal';
+  $('#lNameTxt').textContent=amb?'Tu nombre':'Nombre del proyecto';
+  $('#dlgTitle').textContent=amb?'Ayudar en tu ciudad':'Únete a la escena local';
+  $('#fDesc').placeholder=amb?'Qué escena conoces bien y cómo te gustaría ayudar':'Qué hacéis y cuándo';
+}
+$('#fType').addEventListener('change',syncForm);
+$('#fFormat').addEventListener('change',()=>{ const de=$('#act-alquiler'); if($('#fFormat').value==='espacio'&&de){ de.checked=true; const g=de.closest('details'); if(g) g.open=true; } syncForm(); });
+$('#fActs').addEventListener('change',syncForm);
+$('#fDisc').addEventListener('change',e=>{ setTimeout(()=>{ grpCount(); syncOrder(); }); const on=[...document.querySelectorAll('#fDisc input:checked')]; const sp=$('#fFormat').value==='espacio', max=sp?8:4; if(on.length>max){ e.target.checked=false; toast(sp?'Hasta 8 disciplinas: lo que más se hace allí.':'Hasta 4 disciplinas: quédate con las que más te definen.'); } });
+function openAdd(type){ $('#addForm').reset(); clearFoto(); discOrder=[]; $('#fType').value=type==='embajador'?'embajador':'ficha'; $('#fCity').value=S.city; $('#fErr').textContent=''; syncForm(); if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open',''); $('#fName').focus(); }
+$('#openAdd').addEventListener('click',()=>openAdd('ficha'));
+$('#cancelAdd').addEventListener('click',()=>dlg.close());
+// Foto: se recorta a un cuadrado de 600 px y se comprime en el navegador antes de subirla
+let foto=null, discOrder=[];
+function syncOrder(){ const on=[...document.querySelectorAll('#fDisc input:checked')].map(i=>i.value); discOrder=discOrder.filter(v=>on.includes(v)); on.forEach(v=>{ if(!discOrder.includes(v)) discOrder.push(v); }); }
+function orderedDiscs(){ syncOrder(); return discOrder.slice(); }
+function clearFoto(){ if(foto&&foto.url) URL.revokeObjectURL(foto.url); foto=null; const pv=$('#fFotoPrev'); pv.innerHTML='+'; pv.classList.remove('has'); $('#fFotoX').hidden=true; $('#fFotoBtn').textContent='Elegir imagen'; $('#fFoto').value=''; }
+function toBlob(c,type,q){ return new Promise(r=>c.toBlob(r,type,q)); }
+async function prepFoto(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=await new Promise((ok,ko)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=ko; i.src=url; });
+    const side=Math.min(img.naturalWidth,img.naturalHeight), S2=Math.min(600,side), c=document.createElement('canvas'); c.width=c.height=S2;
+    c.getContext('2d').drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,S2,S2);
+    let b=await toBlob(c,'image/webp',.85); if(!b||b.type!=='image/webp') b=await toBlob(c,'image/jpeg',.85);
+    if(b.size>1000000) b=await toBlob(c,'image/jpeg',.7);
+    return b;
+  } finally { URL.revokeObjectURL(url); }
+}
+$('#fFotoBtn').addEventListener('click',()=>$('#fFoto').click());
+$('#fFotoX').addEventListener('click',clearFoto);
+$('#fFoto').addEventListener('change',async()=>{
+  const f=$('#fFoto').files[0]; if(!f) return;
+  if(f.size>15e6){ toast('Esa imagen es muy grande. Prueba con otra de menos de 15 MB.'); return; }
+  try{
+    const b=await prepFoto(f); clearFoto(); foto={blob:b,url:URL.createObjectURL(b)};
+    const pv=$('#fFotoPrev'); pv.innerHTML=`<img src="${foto.url}" alt="">`; pv.classList.add('has'); $('#fFotoX').hidden=false; $('#fFotoBtn').textContent='Cambiar';
+  }catch(e){ toast('No se pudo leer esa imagen. Prueba con un JPG o PNG.'); }
+});
+async function uploadFoto(){
+  const ext=foto.blob.type==='image/webp'?'webp':'jpg', path='pendientes/'+(crypto.randomUUID?crypto.randomUUID():([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)))+'.'+ext;
+  const r=await fetch(CFG.url+'/storage/v1/object/logos/'+path,{method:'POST',headers:{apikey:CFG.key,Authorization:'Bearer '+CFG.key,'Content-Type':foto.blob.type,'x-upsert':'false'},body:foto.blob});
+  if(!r.ok) throw new Error('foto '+r.status);
+  return path;
+}
+let lastSend=0;
+$('#addForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const amb=$('#fType').value==='embajador', n=$('#fName').value.trim(), ig=$('#fIg').value.trim().replace(/^@/,'');
+  const acts=[...document.querySelectorAll('#fActs input:checked')].map(i=>i.value), doors=doorsOf(acts), otra=$('#fOtra').value.trim();
+  const discs=amb?[]:orderedDiscs();
+  const err=m=>{ $('#fErr').textContent=m; };
+  if(n.length<2) return err('Escribe un nombre.');
+  if(ig&&!/^[A-Za-z0-9._]{1,30}$/.test(ig)) return err('La cuenta de Instagram solo admite letras, números, puntos y guiones bajos.');
+  if(!amb&&!ig) return err('Pon la cuenta de Instagram: es como verificamos cada ficha.');
+  if(!amb&&!acts.length) return err('Marca al menos una cosa que hacéis abierta al público: es lo que hace que un proyecto entre en La Escena Local.');
+  if(!amb&&!discs.length&&!otra) return err($('#fFormat').value==='espacio'?'Marca al menos una disciplina que se haga en el espacio.':'Marca al menos una disciplina, o escribe la tuya.');
+  if(amb&&!ig&&!$('#fContact').value.trim()) return err('Déjanos tu Instagram o un contacto para escribirte.');
+  if(Date.now()-lastSend<30000) return err('Acabas de enviar una propuesta. Espera unos segundos para la siguiente.');
+  const row={tipo:amb?'embajador':'ficha',ciudad:$('#fCity').value,nombre:n,instagram:ig||null,
+    formato:amb?null:$('#fFormat').value, puertas:amb?null:doors.join(','), actividades:amb?null:acts.join(','), disciplinas:amb?null:([...discs,otra].filter(Boolean).join('|')||null),
+    tipo_espacio:!$('#lSpace').hidden?($('#fKind').value.trim()||null):null, ofrece:!$('#lSpace').hidden?($('#fOffers').value.trim()||null):null,
+    barrio:amb?null:($('#fBarrio').value.trim()||null), descripcion:$('#fDesc').value.trim()||null, contacto:$('#fContact').value.trim()||null};
+  const finish=m=>{ lastSend=Date.now(); dlg.close(); toast(m); };
+  if($('#fWeb').value) return finish('Recibido. Lo revisamos y te escribimos.');
+  if(S.mode==='demo'){
+    if(!amb){
+      const data=await loadCity(row.ciudad);
+      data.items.push({id:'n'+Date.now(),n,fmt:row.formato,d:discs,acts,doors,b:row.barrio||'',t:row.descripcion||'Propuesta pendiente de revisión.',ig,img:foto?foto.url:'',feat:false,ver:false,isNew:true,at:[],hosts:[],kind:row.tipo_espacio||'',offers:row.ofrece?row.ofrece.split(',').map(s=>s.trim()).filter(Boolean):[]});
+      foto=null; // la tarjeta de la demo sigue usando la imagen
+      if(row.ciudad!==S.city) await selectCity(row.ciudad); else render();
+    }
+    return finish('En la demostración aparece al momento. En la web real queda pendiente de revisión.');
+  }
+  $('#sendAdd').disabled=true;
+  let sinFoto=false;
+  if(!amb&&foto){ try{ row.imagen=await uploadFoto(); }catch(e){ sinFoto=true; } }
+  try{
+    if(amb) await api('propuestas',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
+    else await api('rpc/enviar_ficha',{method:'POST',body:JSON.stringify({p:{ciudad:row.ciudad,nombre:n,instagram:ig,formato:row.formato,disciplinas:discs,otra,actividades:acts,puertas:doors,
+      tipo_espacio:row.tipo_espacio,ofrece:row.ofrece,barrio:row.barrio,descripcion:row.descripcion,contacto:row.contacto,imagen:row.imagen||null}})});
+    finish(amb?'Gracias. Te escribimos para hablar de tu ciudad.':'Recibido'+(sinFoto?' (la foto no se pudo subir; nos la puedes mandar por Instagram)':'')+'. Lo revisamos a mano y te escribimos por Instagram para confirmarlo.'); }
+  catch(e){ err('No se pudo enviar. Revisa la conexión y prueba otra vez.'); }
+  finally{ $('#sendAdd').disabled=false; }
+});
+
+// ---------- Avisos ----------
+const dlgR=$('#dlgR'); let repId=null;
+function openReport(id,name){ repId=id; $('#repForm').reset(); $('#repWhat').textContent='Sobre «'+name+'». Lo revisamos a mano.'; $('#rErr').textContent=''; if(dlgR.showModal) dlgR.showModal(); else dlgR.setAttribute('open',''); }
+$('#cancelRep').addEventListener('click',()=>dlgR.close());
+$('#repForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const motivo=($('#rMotivo').value+($('#rMas').value.trim()?': '+$('#rMas').value.trim():'')).slice(0,280);
+  if(S.mode==='demo'){ dlgR.close(); return toast('En la demostración los avisos no se envían.'); }
+  try{ await api('avisos_ficha',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({ficha_id:repId,motivo})}); dlgR.close(); toast('Gracias. Lo revisamos.'); }
+  catch(e){ $('#rErr').textContent='No se pudo enviar. Prueba otra vez.'; }
+});
+
+boot();
+</script>
