@@ -1,0 +1,1482 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Escena Local</title>
+<meta name="description" content="Proyectos, grupos y espacios de tu ciudad en un mapa. Encuentra tu gente. Que tu gente te encuentre.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2249%22 fill=%22%23FFD36B%22/%3E%3Cpath d=%22M38.4 22.0L79.0 22.0L76.5 33.6L49.2 33.6L46.8 45.2L67.1 45.2L64.6 56.8L44.3 56.8L41.8 68.4L69.1 68.4L66.6 80.0L26.0 80.0Z%22 fill=%22%232B1B3D%22 stroke=%22%232B1B3D%22 stroke-width=%221.2%22 stroke-linejoin=%22miter%22/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="theme-color" content="#FFD36B">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="La Escena Local">
+<meta property="og:title" content="La Escena Local · encuentra tu gente">
+<meta property="og:description" content="Proyectos, grupos y espacios de tu ciudad. Encuentra tu gente. Que tu gente te encuentre.">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://angelsima.github.io/laescenalocal/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="La Escena Local: logo con la frase «Encuentra tu gente. Que tu gente te encuentre.»">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: el mapa conceptual de la ciudad es la portada; debajo, la lista de proyectos que filtra. Tinta sobre papel; amarillo para lo que importa y verde azulado para los lugares. */
+:root{
+  --amarillo:#FFD36B; --amarillo-ink:#2B1B3D;
+  --acento:#117266; --acento-ink:#FFFFFF;
+  --bg:#FAF5F0; --surface:#FFFFFF; --ink:#2B1B3D; --muted:#5F5568; --faint:#A89FAE; --line:#E8DFDE; --soft:#F3ECE9;
+  --danger:#B3261E;
+  --display:"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#17101F; --surface:#211829; --ink:#F4EEF2; --muted:#B3A8BA; --faint:#6B5F75; --line:#352A40; --soft:#2A2034; --danger:#FF8A80; --acento:#3CC4AE; --acento-ink:#17101F; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#17101F; --surface:#211829; --ink:#F4EEF2; --muted:#B3A8BA; --faint:#6B5F75; --line:#352A40; --soft:#2A2034; --danger:#FF8A80; --acento:#3CC4AE; --acento-ink:#17101F; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+a{color:inherit;text-decoration-color:var(--amarillo);text-decoration-thickness:3px;text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px}
+
+header{padding-block:24px 14px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:clamp(38px,7vw,60px);letter-spacing:-.03em;line-height:1;margin:0;display:flex;align-items:flex-end;flex-wrap:wrap;gap:6px .5em}
+.brand .logo{display:block;height:clamp(84px,16vw,120px);width:auto;max-width:100%;overflow:visible}
+.brand .bcity{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:.22em;font-family:var(--display);font-weight:600;font-size:.4em;letter-spacing:.01em;color:var(--muted);border-bottom:1.5px dashed transparent;line-height:1.15}
+.brand .bcity svg{width:.62em;height:.62em;opacity:.75;transition:transform .15s}
+.brand .bcity:hover{color:var(--ink);border-bottom-color:var(--faint)}
+.brand .bcity[aria-expanded="true"] svg{transform:rotate(180deg)}
+.brand .bcity:focus-visible{outline:3px solid var(--amarillo);outline-offset:3px;border-radius:4px}
+.brand-wrap{position:relative}
+.brand-wrap .city-panel{top:calc(100% + 8px)}
+.tagline{margin:14px 0 0;max-width:58ch;display:flex;flex-direction:column;gap:2px}
+.tagline .slogan{font-family:var(--display);font-weight:500;font-size:clamp(17px,2.6vw,20px);line-height:1.25;color:var(--ink)}
+.tagline .slogan span{display:inline-block}
+.tagline .sub{font-size:14px;color:var(--muted)}
+.cta{background:var(--amarillo);color:var(--amarillo-ink);border:0;border-radius:999px;padding:11px 18px;font-weight:600;cursor:pointer;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.cta:hover{filter:brightness(.96)}
+.cta:disabled{opacity:.6;cursor:wait}
+.notice{margin-top:12px;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.notice b{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--ink);flex:none}
+
+.controls{padding-block:16px 4px;display:grid;gap:12px}
+.filters{display:flex;gap:14px 24px;flex-wrap:wrap;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl-l{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;cursor:pointer;font-weight:500;font-size:14px}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pill[data-door="espacio"][aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:var(--acento-ink)}
+.city-wrap{position:relative}
+.city-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-family:var(--display);font-weight:600;font-size:17px}
+.city-btn small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted)}
+.city-btn svg{width:12px;height:12px}
+.city-panel{position:absolute;z-index:15;top:calc(100% + 6px);left:0;width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.16);padding:10px}
+.city-panel input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.city-list{max-height:320px;overflow:auto;margin-top:8px;display:flex;flex-direction:column}
+.city-list .grp,.disc-list .grp{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 8px 4px}
+.city-opt{display:flex;justify-content:space-between;gap:8px;border:0;background:transparent;text-align:left;padding:7px 8px;border-radius:6px;cursor:pointer}
+.city-opt:hover,.city-opt.cur{background:var(--soft)}
+.city-opt.city-new{margin-top:6px;border-top:1px solid var(--line);border-radius:0 0 6px 6px;font-weight:600;color:var(--acento)}
+.city-opt small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.disc-wrap{position:relative}
+.disc-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-size:clamp(17px,2.6vw,22px);font-family:var(--display);font-weight:600;padding:12px 18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;color:var(--ink);transition:border-color .15s}
+.disc-btn:hover,.city-btn:hover{border-color:var(--muted)}
+.disc-btn:focus-visible{outline:none;box-shadow:0 0 0 4px var(--amarillo)}
+.disc-btn svg{width:14px;height:14px;flex:none}
+.disc-btn .ph{color:var(--muted)}
+.disc-wrap .clear{right:44px}
+.disc-panel{position:absolute;z-index:15;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.16);padding:10px}
+.disc-panel input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:16px}
+.disc-list{max-height:min(420px,60vh);overflow:auto;margin-top:8px;display:flex;flex-direction:column}
+.disc-opt,.disc-fam{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border:0;background:transparent;text-align:left;padding:7px 8px;border-radius:6px;cursor:pointer;color:var(--ink)}
+.disc-opt:hover,.disc-opt.cur,.disc-fam:hover,.disc-fam.cur{background:var(--soft)}
+.disc-opt small,.disc-fam small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.disc-opt.off span{color:var(--faint)}
+.disc-fam{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px;align-items:center}
+.disc-fam .fl{display:flex;align-items:center;gap:8px}
+.disc-fam .chv{width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;flex:none;margin:0 2px}
+.disc-fam[aria-expanded="true"] .chv{transform:rotate(45deg)}
+.disc-fam[aria-expanded="true"]{color:var(--ink)}
+.disc-fam.static{cursor:default}.disc-fam.static:hover{background:transparent}
+.disc-sub{padding-left:15px;border-left:2px solid var(--line);margin:0 0 4px 11px;display:flex;flex-direction:column}
+.disc-opt.all span{font-style:italic}
+@media (prefers-reduced-motion:reduce){.disc-fam .chv{transition:none}}
+.disc-foot{font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 8px 2px;border-top:1px dashed var(--line);margin-top:6px}
+.searchbox{position:relative}
+.searchbox input{width:100%;font-size:clamp(17px,2.6vw,22px);font-family:var(--display);font-weight:600;padding:14px 52px 14px 18px;border:2px solid var(--ink);border-radius:14px;background:var(--surface)}
+.searchbox input:focus{outline:none;box-shadow:0 0 0 4px var(--amarillo)}
+.searchbox input::placeholder{color:var(--muted);font-weight:600}
+.clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:22px;cursor:pointer;color:var(--muted);width:36px;height:36px;border-radius:50%}
+.clear:hover{background:var(--soft)}
+
+/* Mapa */
+.map-band{padding-block:14px 6px}
+.mapbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;position:relative}
+.mapview{position:relative}
+.msvg{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.msvg.dragging{cursor:grabbing}
+.node{cursor:pointer}
+.node text{pointer-events:none}
+.fam text,.dsc text{pointer-events:auto}
+.hit,.hit-area{fill:transparent}
+.pj .hit-area,.dsc .hit{r:calc(11px * var(--s,1) / var(--z,1))}
+.pj circle.pd{r:calc(4.3px * var(--s,1) / var(--z,1))}
+.pj.feat circle.pd{r:calc(5.6px * var(--s,1) / var(--z,1))}
+.pj rect.pd{x:calc(-4.5px * var(--s,1) / var(--z,1));y:calc(-4.5px * var(--s,1) / var(--z,1));width:calc(9px * var(--s,1) / var(--z,1));height:calc(9px * var(--s,1) / var(--z,1))}
+/* Anillos guía: existen, casi sin marcar */
+.ring{fill:none;stroke:var(--ink);stroke-opacity:.07;vector-effect:non-scaling-stroke}
+.ring.in{stroke-opacity:.05;stroke-dasharray:1 5}
+/* Enlaces */
+.lk{stroke:var(--ink);stroke-opacity:.1;stroke-width:.8;fill:none;pointer-events:none;vector-effect:non-scaling-stroke;transition:stroke-opacity .2s}
+.lk.sec{stroke-dasharray:2 3;stroke-opacity:.07}
+.lk.hot{stroke-opacity:.5}
+.lk.sec.hot{stroke-opacity:.38}
+.lk.hov{stroke-opacity:.8;stroke-width:1.2}
+.lk.dim{stroke-opacity:.03}
+/* Lo que no está seleccionado pierde fuerza */
+.g-dim{opacity:.2;transition:opacity .25s}
+.g-dim:hover{opacity:.5}
+/* Familias */
+.fam-dot{fill:var(--ink)}
+.fam-dot.off{fill:var(--surface);stroke:var(--faint);stroke-width:1;vector-effect:non-scaling-stroke}
+.fam .halo{fill:var(--amarillo);opacity:0;transition:opacity .2s}
+.fam.on .halo{opacity:1}
+.fam:hover .halo{opacity:.45}
+.fam-t{font-family:var(--display);font-weight:600;font-size:calc(var(--fl,16px) * var(--s,1) / var(--z,1));fill:var(--ink)}
+.fam-t.off{fill:var(--faint)}
+/* Disciplinas (segundo anillo) */
+.dsc .dd{fill:var(--ink);fill-opacity:.45}
+.dsc.lab .dd{fill-opacity:1}
+.dsc.on .dd{fill:var(--amarillo);fill-opacity:1;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke}
+.dsc .rl{opacity:0}
+.dsc.lab .rl,.dsc.on .rl,.dsc:hover .rl{opacity:1}
+/* Proyectos y lugares (tercer anillo) */
+.pj .pd{fill:var(--amarillo);fill-opacity:1;stroke:var(--ink);stroke-width:1;stroke-opacity:.85;vector-effect:non-scaling-stroke}
+.pj.sp .pd{fill:var(--acento);fill-opacity:.9;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke}
+.pj.sp.on .pd{fill:var(--acento);fill-opacity:1;stroke-width:2.2}
+.pj.on .pd{fill:var(--amarillo);fill-opacity:1;stroke:var(--ink);stroke-width:2.4;stroke-opacity:1;vector-effect:non-scaling-stroke}
+.pj:hover .pd{fill-opacity:1}
+.pj .rl{opacity:0}
+.pj.lab .rl,.pj:hover .rl,.pj:focus-visible .rl{opacity:1}
+/* Etiquetas a lo largo del radio: tamaño constante en pantalla al hacer zoom */
+.rl{font-family:var(--body);font-size:calc(11.5px * var(--s,1) / var(--z,1));fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:calc(3.5px * var(--s,1) / var(--z,1));stroke-linejoin:round;pointer-events:none;transition:opacity .15s}
+.rl.d{font-weight:600}
+.hl{font-family:var(--body);font-size:calc(11.5px * var(--s,1) / var(--z,1));fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:calc(3.5px * var(--s,1) / var(--z,1));stroke-linejoin:round;pointer-events:none;opacity:0;transition:opacity .15s}
+.hl.d{font-weight:600}
+.dsc.lab .hl,.dsc.on .hl,.dsc:hover .hl,.pj.lab .hl,.pj:hover .hl,.pj:focus-visible .hl{opacity:1}
+.map-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 4px 0;align-items:center}
+.map-legend i{display:inline-block;width:10px;height:10px;vertical-align:-1px;margin-right:6px;border-radius:50%;background:var(--amarillo);border:1px solid var(--ink)}
+.lk.gen{stroke-dasharray:1.5 4;stroke-linecap:round}
+.map-legend i.sq{border-radius:1px;background:var(--acento);border:1px solid var(--ink);opacity:1}
+@media (prefers-reduced-motion:reduce){.lk,.fam-dot,.fam .halo,.pj .pd,.pj text{transition:none}}
+.mapctl{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.mapctl button,.maphome{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.mapctl button{width:36px;height:36px;font-size:19px;line-height:1;display:grid;place-items:center}
+.mapctl button:hover,.maphome:hover{border-color:var(--muted)}
+.maphome{position:absolute;top:10px;left:10px;z-index:2;padding:8px 14px 8px 11px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:7px}
+.maphome svg{width:14px;height:14px}
+.maphome[hidden]{display:none}
+.map-hint{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.maptop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 8px 4px}
+.mapmode{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg)}
+.mapmode button{border:0;background:transparent;border-radius:999px;padding:5px 14px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted)}
+.mapmode button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.mapmode button[data-mode="l"][aria-pressed="true"]{background:var(--acento);color:var(--acento-ink)}
+.maptop .map-hint{margin-left:auto}
+@media (max-width:719px){ .mapbox{margin-inline:-6px;border-radius:12px} .map-legend{font-size:12px;gap:10px} }
+.concept .center{font-family:var(--display);font-weight:800;font-size:22px;display:flex;align-items:center;gap:8px}
+.concept .center span{background:var(--amarillo);color:var(--amarillo-ink);padding:2px 10px;border-radius:999px}
+.concept h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 6px}
+.cchips{display:flex;flex-wrap:wrap;gap:6px}
+.cchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer}
+.cchip.off{border-color:var(--line);color:var(--faint)}
+.cchip.on{background:var(--amarillo);color:var(--amarillo-ink);border-color:var(--amarillo)}
+.cchip small{font-family:var(--mono);font-size:11px;margin-left:4px}
+
+/* Buscador, filtros y barra de resultados */
+.search{position:relative;display:flex;align-items:center}
+.search svg{position:absolute;left:16px;width:17px;height:17px;color:var(--muted);pointer-events:none}
+.search input{width:100%;font-size:17px;padding:13px 44px 13px 44px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink)}
+.search input:focus{outline:none;box-shadow:0 0 0 4px var(--amarillo);border-color:var(--ink)}
+.search input::-webkit-search-cancel-button{display:none}
+.search .clear{position:absolute;right:10px;top:50%;transform:translateY(-50%)}
+.kindsw button[data-kind="e"][aria-pressed="true"]{background:var(--acento);color:var(--acento-ink)}
+.pill.pill-esp{border-color:var(--acento)}
+.pill.pill-sub{font-size:13px;border-style:dashed}
+.pill.pill-sub[aria-pressed="true"]{background:var(--soft);color:var(--ink);border-style:solid;border-color:var(--acento)}
+.catchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;padding-left:12px;border-left:3px solid var(--amarillo)}
+.catchips button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:13.5px;cursor:pointer}
+.catchips button small{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:5px}
+.catchips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.catchips button[aria-pressed="true"] small{color:var(--bg)}
+.subchips{border-left-color:var(--acento);margin-left:14px;align-items:center}
+.subchips button{font-size:13px;padding:3px 10px}
+.subchips .sub-l{flex:none;font-size:12px;color:var(--muted);font-family:var(--mono)}
+.tag small{color:var(--muted);font-size:.85em}
+@media (max-width:719px){.catchips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}.catchips::-webkit-scrollbar{display:none}}
+.rtools{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;margin-left:auto}
+.rtools #views{margin-left:6px}
+@media (max-width:640px){.top .cta{margin-inline:auto}.rtools{margin-left:0;width:100%;flex-wrap:nowrap;justify-content:space-between}.rtools #views{margin-left:0}.rtools .ctl-l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.rtools .vsw{padding:2px}.rtools .vsw button{padding:5px 8px;font-size:12.5px}}
+@media (max-width:370px){.rtools{flex-wrap:wrap;justify-content:flex-start}.rtools #views{margin-left:auto}}
+.resbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-block:16px 0}
+.rsum{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.active{display:inline-flex;gap:6px;flex-wrap:wrap}
+.active button{border:1px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 8px 3px 11px;font-size:12.5px;cursor:pointer}
+.active button::after{content:"×";margin-left:6px;font-size:14px;line-height:1;color:var(--muted)}
+.active button.all{border-style:dashed;border-color:var(--faint)}
+.active button.all::after{content:""}
+/* Mapa o lista */
+.vsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.vsw button{border:0;background:transparent;border-radius:999px;padding:5px 14px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted)}
+.vsw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.famchips{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:719px){.famchips{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding:0 16px 4px;scrollbar-width:none}.famchips::-webkit-scrollbar{display:none}}
+.famchips button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer}
+.famchips button small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);margin-left:5px}
+.famchips button[aria-pressed="true"]{background:var(--amarillo);border-color:var(--ink);color:var(--amarillo-ink)}
+.famchips button[aria-pressed="true"] small{color:var(--amarillo-ink)}
+.famchips button.off{opacity:.45}
+.rows{display:grid;gap:8px;padding-bottom:28px}
+.frow{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 14px 9px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.frow:hover{border-color:var(--muted)}
+.frow.feat{border-color:var(--ink);box-shadow:inset 4px 0 0 var(--amarillo)}
+.frow .avatar{width:52px;height:52px;font-size:16px}
+.fr-main{min-width:0;display:grid;gap:2px}
+.fr-top{display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap}
+.fr-top h3{font-family:var(--display);font-weight:600;font-size:17.5px;line-height:1.2;margin:0 2px 0 0}
+.fr-meta{color:var(--muted);font-size:12.5px}
+.fr-acts{display:inline;margin-left:10px;color:var(--ink);font-weight:500}
+.fr-acts span{margin-right:10px;white-space:nowrap}
+.frow .badge{font-size:9.5px;padding:1px 5px}
+.fr-acts span::before{content:"";display:inline-block;width:6px;height:6px;background:var(--ink);margin-right:5px;vertical-align:1px}
+.fr-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.fr-tags span{font-size:11.5px;background:var(--soft);border-radius:999px;padding:1px 8px}
+.fr-tags span.p{background:var(--amarillo);color:var(--amarillo-ink);font-weight:600}
+.fr-tags span.f{background:transparent;border:1.5px solid var(--acento);font-weight:600;padding:0 7px}
+.fr-tags span.more{background:transparent;border:1px dashed var(--faint);color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer}
+.fr-desc{margin:1px 0 0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-gen{margin:2px 0 0;font-size:12px;border-left:3px solid var(--acento);padding-left:7px}
+.fr-side{align-self:center}
+.netbtn{display:inline-block;font-family:var(--mono);font-size:12.5px;font-weight:500;border:1px solid var(--line);border-radius:999px;padding:5px 11px;white-space:nowrap;text-decoration:none;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.netbtn:hover{border-color:var(--ink)}
+@media (max-width:640px){.frow{grid-template-columns:auto 1fr;gap:12px}.frow .avatar{width:48px;height:48px;align-self:start}.fr-side{grid-column:2}.fr-desc{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}}
+/* Lista */
+.bar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-block:20px 12px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.bar h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.count strong{color:var(--ink);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px 16px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card.feat{box-shadow:0 0 0 2px var(--ink), 6px 6px 0 var(--amarillo)}
+.kind{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.who{display:flex;align-items:center;gap:11px;min-width:0}
+.avatar{position:relative;flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:var(--soft);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.02em;overflow:hidden;color:var(--ink)}
+.card.feat .avatar{background:var(--amarillo);color:var(--amarillo-ink)}
+.avatar.sp{border-radius:12px;border-color:var(--acento);border-width:2px}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--surface)}
+.card h3{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
+.badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;padding:2px 7px;border-radius:4px;background:var(--amarillo);color:var(--amarillo-ink)}
+.badge.ver{background:var(--acento);color:var(--acento-ink)}
+.badge.new{background:var(--ink);color:var(--bg)}
+.badge.loc{background:transparent;color:var(--ink);border:1.5px solid var(--acento)}
+.rel{gap:4px 8px}
+.rel .linkbtn{font-weight:600;text-decoration-color:var(--acento)}
+.doors{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;font-weight:500;margin:0;padding:0;list-style:none}
+.doors li::before{content:"";display:inline-block;width:7px;height:7px;background:var(--ink);margin-right:6px;vertical-align:1px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12.5px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);cursor:pointer;background:var(--soft)}
+.tag:hover{border-color:var(--ink)}
+.desc{margin:0;color:var(--muted);font-size:14px}
+.sub{font-size:13px;margin:0;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline}
+.sub > span:first-child{font-weight:600}
+.offers{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.offers li{font-size:12.5px;border:1px dashed var(--faint);border-radius:4px;padding:2px 8px}
+.linkbtn{border:0;background:transparent;padding:0;cursor:pointer;font-size:13px;text-decoration:underline;text-decoration-color:var(--amarillo);text-decoration-thickness:2px;text-underline-offset:2px}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:8px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.place{font-size:13px;color:var(--muted);display:flex;gap:4px;flex-wrap:wrap;align-items:baseline}
+.handle{display:flex;align-items:center;gap:6px;min-width:0}
+.ig{font-family:var(--mono);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.card{cursor:pointer;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--muted)}
+.cname{all:unset;cursor:pointer}
+.tag.tfam{background:var(--surface);border:1.5px solid var(--acento);font-weight:600}
+.gen-note{margin:0;font-size:13px;line-height:1.45;background:var(--soft);border-left:3px solid var(--acento);padding:7px 10px;border-radius:0 6px 6px 0}
+.cname:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px;border-radius:4px}
+.links{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.net{font-family:var(--mono);font-size:12.5px;font-weight:500}
+.copy{border:1px solid var(--line);background:transparent;border-radius:6px;font-size:12px;padding:2px 8px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.report{border:0;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;padding:0;align-self:flex-end}
+.report:hover{color:var(--ink);text-decoration:underline}
+mark{background:var(--amarillo);color:var(--amarillo-ink);border-radius:2px;padding:0 1px}
+
+.invite{background:var(--surface);border:2px dashed var(--ink);border-radius:14px;padding:26px;margin-bottom:28px;display:grid;gap:12px}
+.invite h3{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vw,30px);line-height:1.1;margin:0;text-wrap:balance}
+.invite h3 span{background:linear-gradient(transparent 60%, var(--amarillo) 60%)}
+.invite p{color:var(--muted);margin:0;max-width:62ch}
+.invite .acts{display:flex;gap:8px;flex-wrap:wrap}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:500}
+.ghost:hover{border-color:var(--ink)}
+.loading{color:var(--muted);padding-block:40px;text-align:center;font-family:var(--mono);font-size:13px}
+
+dialog{border:0;border-radius:16px;padding:0;background:var(--surface);color:var(--ink);width:min(580px,calc(100vw - 32px));box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(23,16,31,.55)}
+.fsheet{width:min(600px,calc(100vw - 24px));max-height:90vh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--ink)}
+.fs-in{position:relative;padding:22px 22px 18px;display:flex;flex-direction:column;gap:14px}
+#fsBody{display:flex;flex-direction:column;gap:16px}
+.fs-sec .doors,.fs-sec .tags{margin-top:2px}
+.fs-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:20px;line-height:1;cursor:pointer}
+.fs-head{display:flex;gap:16px;align-items:center;padding-right:36px}
+.fs-head .avatar{width:96px;height:96px;font-size:30px;border-width:2px}
+.fs-head h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,5vw,30px);line-height:1.08;margin:2px 0 6px;letter-spacing:-.02em;text-wrap:balance}
+.fs-links{display:flex;gap:8px;flex-wrap:wrap}
+.fs-links a{text-decoration:none}
+.fs-links .ghost{display:inline-flex;align-items:center}
+.fs-sec{display:grid;gap:6px}
+.fs-sec h3{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0}
+.fs-text{margin:0;font-size:15.5px;line-height:1.55}
+.fs-more{margin:0;white-space:pre-line;font-size:14.5px}
+.fs-info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px}
+.fs-info dt{font-weight:600}
+.fs-info dd{margin:0}
+.fs-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:12px}
+@media (max-width:719px){
+  .fsheet{width:100%;max-width:100%;max-height:88vh;margin:auto 0 0;border-radius:18px 18px 0 0;border-bottom:0}
+  .fs-in{padding:18px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  .fs-in::before{content:"";width:40px;height:4px;border-radius:2px;background:var(--line);align-self:center;margin:-6px 0 2px}
+  .fs-head .avatar{width:76px;height:76px;font-size:24px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .fsheet[open]{animation:fsin .22s ease}
+  @keyframes fsin{from{transform:translateY(16px);opacity:.4}to{transform:none;opacity:1}}
+}
+.dlg{padding:22px;display:flex;flex-direction:column;gap:12px}
+.dlg h2{font-family:var(--display);font-weight:800;font-size:24px;margin:0}
+.dlg p{margin:0;color:var(--muted);font-size:14px}
+.rules{font-size:13px;color:var(--muted);background:var(--soft);border-radius:8px;padding:10px 12px;margin:0;display:grid;gap:6px}
+.rules b{color:var(--ink)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+label,.field{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+label input,label select,label textarea{font-weight:400;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.hint{font-weight:400;color:var(--muted);font-size:12px}
+.checks{display:flex;flex-wrap:wrap;gap:6px;font-weight:400}
+.checks label{flex-direction:row;align-items:center;gap:6px;font-weight:400;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;background:var(--bg)}
+.checks label:has(input:checked){border-color:var(--ink);background:var(--amarillo);color:var(--amarillo-ink)}
+.checks input{margin:0;accent-color:var(--ink)}
+#addForm{counter-reset:step}
+.lead{margin:0;color:var(--muted);font-size:14px}
+.dlg .vsw{align-self:stretch;display:flex;flex-wrap:nowrap;max-width:420px}
+.dlg .vsw button{flex:1 1 0;white-space:nowrap;padding:7px 10px;min-width:0}
+@media (max-width:400px){.dlg .vsw button{font-size:13px;padding:7px 6px}}
+.rules-d summary{cursor:pointer;font-size:13px;font-weight:600;width:max-content;text-decoration:underline;text-decoration-color:var(--amarillo);text-decoration-thickness:2px;text-underline-offset:3px}
+.rules-d .rules{margin-top:8px}
+.step{border:0;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0}
+.step:not([hidden]){counter-increment:step}
+.step+.step{margin-top:10px}
+.step legend{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:800;font-size:18px;padding:0;margin-bottom:10px;letter-spacing:-.01em}
+.step legend::before{content:counter(step);display:grid;place-items:center;width:24px;height:24px;flex:none;border-radius:50%;background:var(--ink);color:var(--bg);font:500 12px var(--mono)}
+.fpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.fpick button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer}
+.fpick button[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:var(--acento-ink)}
+.sede-box{display:grid;gap:10px;margin-top:10px;padding:12px;border:1px dashed var(--acento);border-radius:12px;background:var(--bg)}
+.sede-box .hint{margin:0}
+label.chk{flex-direction:row;align-items:center;gap:8px;font-weight:500}
+label.chk input{width:auto;padding:0;margin:0;accent-color:var(--acento)}
+.consent{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.dlg p.legal-note{font-size:12.5px;line-height:1.45}
+.consent label.chk{align-items:flex-start;font-size:14px;line-height:1.4}
+.consent label.chk input{margin-top:3px;width:18px;height:18px;flex:none}
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+@media (max-width:560px){.kinds{grid-template-columns:1fr}}
+.kindopt{position:relative;display:flex;flex-direction:column;gap:2px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 10px 34px;cursor:pointer;background:var(--bg);font-weight:400}
+.kindopt input{position:absolute;left:12px;top:13px;margin:0;padding:0;border:0;accent-color:var(--ink)}
+.kindopt b{font-size:14.5px}
+.kindopt small{color:var(--muted);font-size:12.5px;line-height:1.35}
+.kindopt:has(input:checked){border-color:var(--ink);background:var(--amarillo);color:var(--amarillo-ink)}
+.kindopt:has(input:checked) small{color:var(--amarillo-ink)}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:2px}
+@media (max-width:560px){.row3{grid-template-columns:1fr}}
+.more{border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.more .more-in{display:grid;gap:10px;padding:2px 12px 12px}
+.more summary .hint{font-weight:400;margin-left:4px}
+.disc-box,.acts-box{border:1px solid var(--line);border-radius:10px;background:var(--bg);display:grid;gap:0;overflow:hidden}
+.fgrp{border-top:1px solid var(--line)}
+.fgrp:first-child{border-top:0}
+.fgrp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 12px;font-weight:600;font-size:14px}
+.fgrp>summary::-webkit-details-marker{display:none}
+.fgrp>summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;flex:none;margin-right:2px}
+.fgrp[open]>summary::before{transform:rotate(45deg) translate(-2px,-1px)}
+.fgrp>summary:hover{background:var(--soft)}
+.fgrp .n{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:500;background:var(--amarillo);color:var(--amarillo-ink);border-radius:999px;padding:1px 8px}
+.fgrp .n:empty{display:none}
+.fgrp .checks{padding:2px 12px 12px}
+.fgrp .tsubs{align-items:center;margin:0 12px 12px;padding:2px 0 2px 10px;border-left:3px solid var(--acento)}
+.tsubs>b{flex:none;font-size:12px;font-weight:600;color:var(--muted)}
+.tsubs label{font-size:12.5px;padding:3px 9px}
+.tsubs label:has(input:checked){background:var(--acento);border-color:var(--acento);color:var(--acento-ink)}
+.fsum{margin:0;font-size:14px;line-height:1.45;background:var(--soft);border-left:3px solid var(--amarillo);padding:9px 12px;border-radius:0 8px 8px 0}
+.fsum span{display:block;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+.foto{display:flex;align-items:center;gap:12px;font-weight:400}
+.foto .avatar{width:56px;height:56px;border-style:dashed;border-color:var(--faint);color:var(--faint);font-size:20px}
+.foto .avatar.has{border-style:solid;border-color:var(--ink)}
+[hidden]{display:none!important}
+.row>*{min-width:0}
+.dlg select,.dlg input,.dlg textarea{max-width:100%;min-width:0}
+.grp-t,.dlg .grp-t{font-size:11px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 4px}
+.concept .none{font-size:13px;color:var(--faint)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+.err{color:var(--danger);font-size:13px;min-height:1em}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:calc(100vw - 32px)}
+.foot-txt{display:inline-flex;align-items:center;gap:10px}
+.foot-logo{width:30px;height:30px;flex:none}
+.foot-legal{display:flex;gap:14px;align-items:center;font-size:12px}
+.foot-legal a{color:var(--muted);text-decoration-thickness:1.5px}
+footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease both}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="top">
+    <div>
+      <div class="brand-wrap city-wrap">
+        <h1 class="brand"><svg class="logo" viewBox="-2.0 -2.0 484.2 209.1" role="img" aria-label="La Escena Local" focusable="false"><polygon points="0.0,202.9 31.2,52.9 482.2,2.5 451.0,152.5" fill="#FFD36B"/><path style="fill:var(--acento);stroke:var(--acento)" transform="translate(36.0,34.6)" d="M3.504 0.0V-31.68H10.416V0.0ZM4.944 0.0V-5.808H23.808V0.0Z M32.976 0.672Q30.864 0.672 29.232 -0.16799999999999998Q27.6 -1.008 26.688000000000002 -2.592Q25.776 -4.176 25.776 -6.5280000000000005Q25.776 -8.592 26.567999999999998 -9.984Q27.36 -11.376 28.896 -12.24Q30.432000000000002 -13.104000000000001 32.688 -13.68Q34.944 -14.256 37.824 -14.688Q39.36 -14.928 40.344 -15.144Q41.328 -15.36 41.808 -15.864Q42.288 -16.368000000000002 42.288 -17.328Q42.288 -18.672 41.327999999999996 -19.631999999999998Q40.367999999999995 -20.592 38.304 -20.592Q36.912 -20.592 35.736000000000004 -20.112000000000002Q34.56 -19.632 33.72 -18.672Q32.88 -17.712 32.496 -16.224L26.4 -18.096Q26.976 -20.064 28.055999999999997 -21.503999999999998Q29.136 -22.944 30.671999999999997 -23.927999999999997Q32.208 -24.912 34.176 -25.392Q36.144 -25.872 38.448 -25.872Q42.144000000000005 -25.872 44.472 -24.695999999999998Q46.8 -23.52 47.952 -21.048000000000002Q49.104 -18.576 49.104 -14.688V-10.368Q49.104 -8.688 49.176 -6.960000000000001Q49.248000000000005 -5.232 49.368 -3.48Q49.488 -1.728 49.632000000000005 0.0H43.536Q43.344 -1.2 43.176 -2.7600000000000002Q43.007999999999996 -4.32 42.912 -5.904H42.048Q41.376000000000005 -4.08 40.128 -2.592Q38.88 -1.104 37.08 -0.21600000000000003Q35.28 0.672 32.976 0.672ZM35.903999999999996 -4.32Q36.816 -4.32 37.752 -4.656000000000001Q38.688 -4.992 39.576 -5.5920000000000005Q40.464 -6.192 41.208 -7.104Q41.952 -8.016 42.432 -9.168000000000001L42.336 -13.200000000000001L43.44 -12.96Q42.576 -12.336 41.42400000000001 -11.975999999999999Q40.272000000000006 -11.616 39.048 -11.424Q37.824 -11.232000000000001 36.623999999999995 -10.992Q35.424 -10.752 34.488 -10.368Q33.552 -9.984 33.0 -9.336Q32.448 -8.688 32.448 -7.5360000000000005Q32.448 -6.048 33.408 -5.184Q34.368 -4.32 35.903999999999996 -4.32Z" stroke-width="1.6" stroke-linejoin="round"/><path style="fill:var(--amarillo-ink);stroke:var(--amarillo-ink)" transform="translate(38.4,146.5)" d="M8.76 0.0V-79.2H26.16V0.0ZM20.759999999999998 0.0V-14.04H69.84V0.0ZM20.759999999999998 -33.6V-46.44H63.839999999999996V-33.6ZM20.759999999999998 -65.28V-79.2H69.6V-65.28Z M104.03999999999999 1.68Q97.68 1.68 92.52000000000001 0.48Q87.36 -0.72 83.64 -2.9999999999999996Q79.92 -5.279999999999999 77.64 -8.459999999999999Q75.36 -11.639999999999999 74.64 -15.6L87.84 -21.0Q88.32 -18.36 90.47999999999999 -16.08Q92.64 -13.799999999999999 96.30000000000001 -12.419999999999998Q99.96000000000001 -11.04 105.12 -11.04Q110.64 -11.04 113.64 -12.66Q116.64 -14.28 116.64 -17.28Q116.64 -19.56 114.96000000000001 -20.88Q113.28 -22.2 110.03999999999999 -23.159999999999997Q106.8 -24.119999999999997 102.24000000000001 -24.96Q97.8 -26.04 93.18 -27.24Q88.56 -28.439999999999998 84.66 -30.599999999999998Q80.76 -32.76 78.30000000000001 -36.3Q75.84 -39.839999999999996 75.84 -45.36Q75.84 -51.12 78.96000000000001 -55.44Q82.08 -59.76 88.08 -62.22Q94.08 -64.67999999999999 102.72 -64.67999999999999Q110.52000000000001 -64.67999999999999 116.4 -62.58Q122.28 -60.48 126.06 -56.58Q129.84 -52.68 131.16 -47.28L117.12 -42.6Q116.64 -45.48 114.78 -47.64Q112.92 -49.8 109.86 -50.879999999999995Q106.8 -51.96 102.72 -51.96Q97.56 -51.96 94.74000000000001 -50.28Q91.92 -48.6 91.92 -45.839999999999996Q91.92 -43.559999999999995 93.78 -42.12Q95.64 -40.68 99.0 -39.78Q102.36 -38.879999999999995 106.92 -37.92Q111.72 -36.96 116.28 -35.7Q120.84 -34.44 124.5 -32.4Q128.16 -30.36 130.32 -27.0Q132.48 -23.64 132.48 -18.36Q132.48 -12.12 129.12 -7.619999999999999Q125.75999999999999 -3.12 119.39999999999999 -0.7200000000000001Q113.03999999999999 1.68 104.03999999999999 1.68Z M169.68 1.68Q161.51999999999998 1.68 155.39999999999998 -0.7200000000000001Q149.28 -3.12 145.2 -7.4399999999999995Q141.12 -11.76 139.07999999999998 -17.7Q137.04 -23.64 137.04 -30.72Q137.04 -38.16 139.14 -44.339999999999996Q141.24 -50.519999999999996 145.32 -55.08Q149.4 -59.64 155.39999999999998 -62.16Q161.39999999999998 -64.67999999999999 169.07999999999998 -64.67999999999999Q176.76 -64.67999999999999 182.45999999999998 -62.16Q188.16 -59.64 191.7 -55.14Q195.24 -50.64 196.56 -44.519999999999996L180.6 -39.36Q180.24 -43.08 178.62 -45.78Q177.0 -48.48 174.3 -49.86Q171.6 -51.239999999999995 168.24 -51.239999999999995Q164.76 -51.239999999999995 162.24 -49.86Q159.72 -48.48 157.98000000000002 -45.9Q156.24 -43.32 155.34 -39.66Q154.44 -36.0 154.44 -31.439999999999998Q154.44 -24.96 156.18 -20.46Q157.92 -15.959999999999999 161.33999999999997 -13.62Q164.76 -11.28 169.79999999999998 -11.28Q174.6 -11.28 177.48 -13.14Q180.35999999999999 -15.0 181.74 -17.939999999999998Q183.12 -20.88 183.48 -24.0L198.6 -20.64Q198.0 -15.959999999999999 196.01999999999998 -11.879999999999999Q194.04 -7.8 190.44 -4.8Q186.83999999999997 -1.7999999999999998 181.73999999999998 -0.05999999999999994Q176.64 1.68 169.68 1.68Z M234.11999999999998 1.68Q226.32 1.68 220.26 -0.47999999999999987Q214.2 -2.6399999999999997 210.0 -6.719999999999999Q205.79999999999998 -10.799999999999999 203.57999999999998 -16.8Q201.35999999999999 -22.8 201.35999999999999 -30.36Q201.35999999999999 -37.8 203.45999999999998 -44.099999999999994Q205.56 -50.4 209.64 -55.019999999999996Q213.72 -59.64 219.6 -62.16Q225.48 -64.67999999999999 232.92 -64.67999999999999Q240.11999999999998 -64.67999999999999 245.76 -62.339999999999996Q251.39999999999998 -60.0 255.17999999999998 -55.32Q258.96 -50.64 260.7 -43.86Q262.44 -37.08 261.96 -28.32L212.51999999999998 -27.84V-37.32L252.0 -37.68L245.88 -32.879999999999995Q246.71999999999997 -39.24 245.03999999999996 -43.32Q243.35999999999999 -47.4 240.18 -49.31999999999999Q237.0 -51.239999999999995 233.16 -51.239999999999995Q228.6 -51.239999999999995 225.12 -48.839999999999996Q221.64 -46.44 219.71999999999997 -41.81999999999999Q217.79999999999998 -37.199999999999996 217.79999999999998 -30.72Q217.79999999999998 -20.52 222.29999999999998 -15.719999999999999Q226.79999999999998 -10.92 234.11999999999998 -10.92Q237.48 -10.92 239.82 -11.82Q242.15999999999997 -12.719999999999999 243.65999999999997 -14.16Q245.15999999999997 -15.6 246.05999999999997 -17.4Q246.95999999999998 -19.2 247.56 -21.0L262.56 -17.759999999999998Q261.48 -13.32 259.38 -9.780000000000001Q257.28 -6.24 253.79999999999998 -3.66Q250.32 -1.08 245.45999999999998 0.29999999999999993Q240.6 1.68 234.11999999999998 1.68Z M270.96 0.0V-38.16V-63.0H285.11999999999995L284.99999999999994 -44.16H287.4Q288.96 -51.0 291.84 -55.56Q294.71999999999997 -60.12 299.09999999999997 -62.39999999999999Q303.47999999999996 -64.67999999999999 309.47999999999996 -64.67999999999999Q320.4 -64.67999999999999 326.09999999999997 -57.0Q331.79999999999995 -49.32 331.79999999999995 -32.879999999999995V0.0H314.4V-30.959999999999997Q314.4 -41.04 311.46 -45.66Q308.52 -50.28 302.87999999999994 -50.28Q298.08 -50.28 294.84 -47.28Q291.59999999999997 -44.28 289.97999999999996 -39.42Q288.35999999999996 -34.56 288.23999999999995 -28.56V0.0Z M357.84 1.68Q352.55999999999995 1.68 348.47999999999996 -0.42000000000000004Q344.4 -2.52 342.12 -6.4799999999999995Q339.84 -10.44 339.84 -16.32Q339.84 -21.48 341.81999999999994 -24.96Q343.79999999999995 -28.439999999999998 347.64 -30.599999999999998Q351.47999999999996 -32.76 357.12 -34.2Q362.76 -35.64 369.96 -36.72Q373.79999999999995 -37.32 376.26 -37.86Q378.71999999999997 -38.4 379.91999999999996 -39.66Q381.11999999999995 -40.92 381.11999999999995 -43.32Q381.11999999999995 -46.68 378.7199999999999 -49.08Q376.31999999999994 -51.48 371.15999999999997 -51.48Q367.67999999999995 -51.48 364.73999999999995 -50.28Q361.79999999999995 -49.08 359.69999999999993 -46.68Q357.59999999999997 -44.28 356.64 -40.559999999999995L341.4 -45.239999999999995Q342.84 -50.16 345.53999999999996 -53.76Q348.23999999999995 -57.36 352.0799999999999 -59.82Q355.91999999999996 -62.28 360.84 -63.48Q365.76 -64.67999999999999 371.52 -64.67999999999999Q380.76 -64.67999999999999 386.58 -61.739999999999995Q392.4 -58.8 395.28 -52.62Q398.15999999999997 -46.44 398.15999999999997 -36.72V-25.919999999999998Q398.15999999999997 -21.72 398.34 -17.4Q398.52 -13.08 398.81999999999994 -8.7Q399.11999999999995 -4.32 399.47999999999996 0.0H384.23999999999995Q383.76 -3.0 383.34 -6.8999999999999995Q382.91999999999996 -10.799999999999999 382.67999999999995 -14.76H380.52Q378.84 -10.2 375.71999999999997 -6.4799999999999995Q372.59999999999997 -2.76 368.09999999999997 -0.5399999999999999Q363.59999999999997 1.68 357.84 1.68ZM365.15999999999997 -10.799999999999999Q367.43999999999994 -10.799999999999999 369.78 -11.64Q372.11999999999995 -12.48 374.3399999999999 -13.98Q376.55999999999995 -15.479999999999999 378.41999999999996 -17.759999999999998Q380.28 -20.04 381.47999999999996 -22.919999999999998L381.23999999999995 -33.0L383.99999999999994 -32.4Q381.84 -30.84 378.96 -29.939999999999998Q376.08 -29.04 373.02 -28.56Q369.96 -28.08 366.96 -27.479999999999997Q363.96 -26.88 361.62 -25.92Q359.28 -24.96 357.9 -23.34Q356.52 -21.72 356.52 -18.84Q356.52 -15.12 358.91999999999996 -12.959999999999999Q361.32 -10.799999999999999 365.15999999999997 -10.799999999999999Z" stroke-width="3.2" stroke-linejoin="round"/><path style="fill:var(--acento);stroke:var(--acento)" transform="translate(317.9,202.7)" d="M2.3652 0.0V-21.384000000000004H7.030800000000001V0.0ZM3.3372000000000006 0.0V-3.9204000000000008H16.070400000000003V0.0Z M35.2188 0.45360000000000006Q32.886 0.45360000000000006 31.0392 -0.2754000000000001Q29.192400000000003 -1.0044000000000002 27.880200000000002 -2.4138000000000006Q26.568000000000005 -3.823200000000001 25.871400000000005 -5.880600000000001Q25.174800000000005 -7.9380000000000015 25.174800000000005 -10.594800000000001Q25.174800000000005 -14.385600000000002 26.503200000000003 -16.864200000000004Q27.8316 -19.342800000000004 30.148200000000003 -20.590200000000003Q32.464800000000004 -21.837600000000002 35.38080000000001 -21.837600000000002Q37.64880000000001 -21.837600000000002 39.49560000000001 -21.108600000000003Q41.342400000000005 -20.379600000000003 42.6546 -18.970200000000006Q43.966800000000006 -17.560800000000004 44.67960000000001 -15.471000000000004Q45.39240000000001 -13.381200000000002 45.39240000000001 -10.692000000000002Q45.39240000000001 -7.9380000000000015 44.67960000000001 -5.864400000000001Q43.966800000000006 -3.7908000000000004 42.62220000000001 -2.3814Q41.27760000000001 -0.9720000000000002 39.39840000000001 -0.2592000000000001Q37.519200000000005 0.45360000000000006 35.2188 0.45360000000000006ZM35.348400000000005 -3.2724000000000006Q37.0656 -3.2724000000000006 38.232000000000006 -4.114800000000001Q39.39840000000001 -4.957200000000001 40.01400000000001 -6.5448Q40.62960000000001 -8.1324 40.62960000000001 -10.432800000000002Q40.62960000000001 -12.830400000000003 39.99780000000001 -14.515200000000004Q39.36600000000001 -16.200000000000003 38.16720000000001 -17.091Q36.9684 -17.982000000000003 35.251200000000004 -17.982000000000003Q33.5664 -17.982000000000003 32.3838 -17.123400000000004Q31.201200000000004 -16.2648 30.5694 -14.644800000000002Q29.937600000000003 -13.024800000000003 29.937600000000003 -10.627200000000002Q29.937600000000003 -8.877600000000001 30.310200000000002 -7.5006Q30.682800000000004 -6.123600000000001 31.363200000000006 -5.184000000000001Q32.043600000000005 -4.244400000000001 33.048 -3.758400000000001Q34.052400000000006 -3.2724000000000006 35.348400000000005 -3.2724000000000006Z M66.2904 0.45360000000000006Q63.795600000000015 0.45360000000000006 61.835400000000014 -0.24300000000000002Q59.875200000000014 -0.9396000000000001 58.49820000000001 -2.3166Q57.12120000000001 -3.6936000000000004 56.408400000000015 -5.734800000000001Q55.69560000000001 -7.776000000000002 55.69560000000001 -10.465200000000001Q55.69560000000001 -13.186800000000002 56.42460000000001 -15.292800000000002Q57.15360000000001 -17.3988 58.53060000000001 -18.873000000000005Q59.90760000000001 -20.347200000000004 61.786800000000014 -21.092400000000005Q63.66600000000001 -21.837600000000002 65.96640000000001 -21.837600000000002Q67.74840000000002 -21.837600000000002 69.27120000000002 -21.367800000000003Q70.79400000000001 -20.898000000000003 71.89560000000002 -20.023200000000003Q72.99720000000002 -19.148400000000002 73.62900000000002 -17.884800000000002Q74.26080000000002 -16.6212 74.29320000000001 -15.033600000000002L69.98400000000001 -13.899600000000003Q69.98400000000001 -15.260400000000002 69.3846 -16.167600000000004Q68.78520000000002 -17.074800000000003 67.82940000000002 -17.544600000000003Q66.87360000000001 -18.014400000000002 65.80440000000002 -18.014400000000002Q64.86480000000002 -18.014400000000002 63.941400000000016 -17.641800000000003Q63.018000000000015 -17.2692 62.25660000000001 -16.410600000000002Q61.49520000000001 -15.552000000000003 61.02540000000001 -14.158800000000003Q60.55560000000001 -12.765600000000003 60.55560000000001 -10.756800000000002Q60.55560000000001 -8.1324 61.317000000000014 -6.512400000000001Q62.078400000000016 -4.892400000000001 63.40680000000002 -4.131000000000001Q64.73520000000002 -3.3696000000000006 66.38760000000002 -3.3696000000000006Q68.16960000000002 -3.3696000000000006 69.15780000000001 -4.0986Q70.14600000000002 -4.8276 70.58340000000001 -5.9778Q71.02080000000001 -7.128000000000001 71.05320000000002 -8.424000000000001L75.13560000000001 -7.743600000000002Q75.10320000000002 -6.026400000000001 74.61720000000001 -4.5198Q74.1312 -3.0132000000000003 73.09440000000001 -1.8954000000000002Q72.05760000000001 -0.7776000000000001 70.37280000000001 -0.162Q68.68800000000002 0.45360000000000006 66.2904 0.45360000000000006Z M83.85120000000002 0.0 91.17360000000002 -21.384000000000004H97.97760000000002L105.30000000000001 0.0H100.24560000000002L94.83480000000002 -17.690400000000004H94.34880000000001L88.90560000000002 0.0ZM87.96600000000001 -4.212000000000001V-7.387200000000001H101.86560000000001V-4.212000000000001Z M115.37640000000002 0.0V-21.384000000000004H120.04200000000002V0.0ZM116.34840000000001 0.0V-3.9204000000000008H129.0816V0.0Z" stroke-width="1.8" stroke-linejoin="round"/></svg><button type="button" class="bcity" id="cityBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Cambiar de ciudad"><span id="bcity">Murcia</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></h1>
+        <div class="city-panel" id="cityPanel" hidden>
+          <input id="cityQ" type="search" placeholder="Busca tu ciudad" aria-label="Buscar ciudad" autocomplete="off">
+          <div class="city-list" id="cityList" role="listbox" aria-label="Ciudades"></div>
+        </div>
+      </div>
+      <p class="tagline"><span class="slogan"><span>Encuentra tu gente.</span> <span>Que tu gente te encuentre.</span></span><span class="sub">Proyectos, grupos y espacios de tu ciudad.</span></p>
+    </div>
+    <button class="cta" id="openAdd" type="button">¡Únete a la escena local!</button>
+  </div>
+  <div class="notice" id="notice" hidden></div>
+</header>
+
+<section class="wrap controls" aria-label="Buscar">
+  <div class="search">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <input id="q" type="search" autocomplete="off" placeholder="Busca: salsa, impro, jam de poesía, semillas…" aria-label="Buscar en la escena">
+    <button class="clear" id="clear" type="button" aria-label="Borrar la búsqueda" hidden>×</button>
+  </div>
+  <div class="ctl ctl-fams">
+    <span class="ctl-l" id="famLbl">¿Qué buscas?</span>
+    <div class="famchips" id="famchips" role="group" aria-labelledby="famLbl"></div>
+    <div class="catchips" id="catchips" role="group" aria-label="Categorías" hidden></div>
+    <div class="catchips subchips" id="subchips" role="group" aria-label="Subcategorías" hidden></div>
+  </div>
+  <div class="ctl">
+    <span class="ctl-l" id="doorsLbl">¿En qué formato?</span>
+    <div class="seg" id="doors" role="group" aria-labelledby="doorsLbl"></div>
+  </div>
+</section>
+
+<section class="wrap resbar" aria-label="Resultados">
+  <div class="rsum"><span class="count" id="count"></span><span class="active" id="active"></span></div>
+  <div class="rtools">
+    <span class="ctl-l" id="kindLbl">Mostrar:</span>
+    <div class="vsw kindsw" id="kinds" role="group" aria-labelledby="kindLbl"></div>
+    <div class="vsw" id="views" role="group" aria-label="Ver como"><button type="button" data-view="mapa">Mapa</button><button type="button" data-view="lista">Lista</button></div>
+  </div>
+</section>
+
+<section class="wrap map-band" aria-label="Mapa de la escena">
+  <div class="mapbox" id="map"><div class="loading">Cargando la escena…</div></div>
+</section>
+
+<main class="wrap" id="lista">
+  <div id="out"></div>
+</main>
+
+<footer class="wrap">
+  <span class="foot-txt"><svg class="foot-logo" viewBox="18 18 204 204" aria-hidden="true" focusable="false"><circle style="stroke:var(--ink)" cx="120" cy="120" r="98" fill="none" stroke-width="3.6" opacity="0.7"/><path style="stroke:var(--ink)" d="M132.0 112.0Q176.3 117.4 214.7 94.6" fill="none" stroke-width="4.0" stroke-linecap="round" stroke-dasharray="9 7" opacity="0.7"/><path style="stroke:var(--ink)" d="M132.0 112.0Q153.4 70.9 145.4 25.3" fill="none" stroke-width="4.0" stroke-linecap="round" stroke-dasharray="9 7" opacity="0.7"/><path style="stroke:var(--ink)" d="M132.0 112.0Q101.8 67.5 50.7 50.7" fill="none" stroke-width="4.0" stroke-linecap="round" stroke-dasharray="9 7" opacity="0.7"/><path style="stroke:var(--ink)" d="M132.0 112.0Q73.0 110.5 25.3 145.4" fill="none" stroke-width="4.0" stroke-linecap="round" stroke-dasharray="9 7" opacity="0.7"/><path style="stroke:var(--ink)" d="M132.0 112.0Q95.9 157.0 94.6 214.7" fill="none" stroke-width="4.0" stroke-linecap="round" stroke-dasharray="9 7" opacity="0.7"/><path style="stroke:var(--ink)" d="M132.0 112.0Q147.5 160.4 189.3 189.3" fill="none" stroke-width="4.0" stroke-linecap="round" stroke-dasharray="9 7" opacity="0.7"/><circle cx="132" cy="112" r="62" fill="#FFD36B"/><path style="fill:var(--amarillo-ink);stroke:var(--amarillo-ink)" d="M115.5 72.0L172.9 72.0L169.4 88.4L130.9 88.4L127.4 104.8L156.1 104.8L152.6 121.2L123.9 121.2L120.4 137.6L159.0 137.6L155.5 154.0L98.1 154.0Z" stroke-width="1.2" stroke-linejoin="miter"/><circle style="fill:var(--acento)" cx="214.7" cy="94.6" r="12"/><circle style="fill:var(--ink)" cx="145.4" cy="25.3" r="8"/><circle cx="50.7" cy="50.7" r="12" fill="#FFD36B"/><circle style="fill:var(--ink)" cx="25.3" cy="145.4" r="8"/><circle style="fill:var(--acento)" cx="94.6" cy="214.7" r="12"/><circle style="fill:var(--ink)" cx="189.3" cy="189.3" r="8"/></svg><span>Cada ficha se revisa a mano antes de publicarse. Las básicas son gratis.</span></span>
+  <nav class="foot-legal" aria-label="Información legal"><a href="privacidad.html">Privacidad</a><a href="aviso-legal.html">Aviso legal</a></nav>
+</footer>
+
+<dialog id="dlgF" class="fsheet" aria-labelledby="fsName">
+  <div class="fs-in"><button type="button" class="fs-x" id="fsClose" aria-label="Cerrar">×</button><div id="fsBody"></div></div>
+</dialog>
+
+<dialog id="dlg">
+  <form class="dlg" id="addForm" novalidate>
+    <h2 id="dlgTitle">Únete a la escena local</h2>
+    <p class="lead" id="dlgLead">Es gratis. Revisamos cada ficha a mano y te escribimos para confirmarla.</p>
+    <div class="vsw" role="group" aria-label="Qué quieres hacer"><button type="button" data-ftype="ficha" aria-pressed="true">Proponer un proyecto</button><button type="button" data-ftype="embajador" aria-pressed="false">Ayudar en mi ciudad</button></div>
+    <input type="hidden" id="fType" value="ficha">
+    <details class="rules-d" id="rules"><summary>¿Quién puede estar?</summary>
+      <div class="rules">
+        <span><b>Entra en La Escena Local quien convoca</b>: proyectos, grupos y espacios que abren algo al público de forma regular en la ciudad. Clases, quedadas, jams, funciones propias, mercadillos o una sala para otros.</span>
+        <span>Quien solo actúa cuando lo contratan (grupos, solistas, DJs) aparece a través del ciclo o la sala que lo programa. El deporte entra si es de barrio y abierto (pachangas, skate, combate histórico); se quedan fuera los gimnasios, el fitness y las ligas de pago, las consultas y terapias individuales, el ocio comercial y lo que solo existe en internet.</span>
+      </div>
+    </details>
+
+    <fieldset class="step" id="s1"><legend id="s1t">¿Quiénes sois?</legend>
+      <label for="fName"><span id="lNameTxt">Nombre del proyecto</span><input id="fName" required maxlength="80"></label>
+      <div class="field" id="lFormat">¿Qué sois?
+        <div class="kinds">
+          <label class="kindopt"><input type="radio" name="fmt" value="persona" checked><b>Una persona</b><small>Un proyecto que llevas tú: das clases, organizas, creas.</small></label>
+          <label class="kindopt"><input type="radio" name="fmt" value="colectivo"><b>Un grupo</b><small>Colectivo, asociación o compañía: lo lleváis entre varias personas.</small></label>
+          <label class="kindopt"><input type="radio" name="fmt" value="espacio"><b>Un espacio</b><small>Un sitio con nombre propio: sala, estudio, tienda-taller, bar…</small></label>
+        </div>
+        <input type="hidden" id="fFormat" value="persona">
+      </div>
+    </fieldset>
+
+    <fieldset class="step" id="s2"><legend id="s2t">¿De qué va?</legend>
+      <div class="field" id="lFams" hidden>Qué acoge en general <span class="hint">marca disciplinas enteras si en el espacio cabe de todo dentro de ellas</span>
+        <div class="fpick" id="fFams" role="group" aria-label="Familias que acoge"></div>
+      </div>
+      <div class="field" id="lDisc">Categorías <span class="hint">hasta 4 · la primera que marques es la principal · dentro puedes concretar</span>
+        <div class="disc-box" id="fDisc"></div>
+      </div>
+      <label for="fOtra" id="lOtra">¿Otra que no está en la lista? <span class="hint">opcional</span><input id="fOtra" maxlength="60" placeholder="Escríbela y la revisamos"></label>
+    </fieldset>
+
+    <fieldset class="step" id="s3"><legend id="s3t">¿Cómo puede participar la gente?</legend>
+      <div class="field" id="lDoors"><span class="hint">Marca al menos una: es lo que hace que un proyecto entre en La Escena Local.</span>
+        <div class="acts-box" id="fActs"></div>
+      </div>
+      <div class="field" id="lLocal">¿Tenéis local propio?
+        <div class="kinds">
+          <label class="kindopt"><input type="radio" name="loc" value="no" checked><b>No</b><small>Usamos sitios de otros, la calle o casa.</small></label>
+          <label class="kindopt"><input type="radio" name="loc" value="propio"><b>Sí, solo para lo nuestro</b><small>Es nuestro sitio y no tiene nombre aparte.</small></label>
+          <label class="kindopt"><input type="radio" name="loc" value="aparte"><b>Sí, con nombre propio</b><small>Tiene su propio nombre o acoge otras actividades.</small></label>
+        </div>
+        <div class="sede-box" id="lSede" hidden>
+          <p class="hint">Lo damos de alta también como espacio, enlazado a vuestro proyecto: así la gente lo encuentra por su nombre.</p>
+          <div class="row"><label for="fSedeN">Nombre del espacio<input id="fSedeN" maxlength="80" placeholder="Ej. La Fresca"></label><label for="fSedeIg">Instagram del espacio <span class="hint">si tiene</span><input id="fSedeIg" maxlength="31" placeholder="@cuenta"></label></div>
+          <label class="chk"><input type="checkbox" id="fSedeCede"> Lo alquilamos o cedemos a otros proyectos</label>
+          <div class="field" id="lSedeFams" hidden>Qué acoge en general <span class="hint">opcional · disciplinas enteras</span><div class="fpick" id="fSedeFams"></div></div>
+        </div>
+      </div>
+      <div class="row" id="lSpace" hidden>
+        <label for="fKind">Tipo de espacio<input id="fKind" maxlength="60" placeholder="Sala multiusos, academia, tienda-taller…"></label>
+        <label for="fOffers">Qué ofrece a otros <span class="hint">si alquiláis o cedéis</span><input id="fOffers" maxlength="200" placeholder="Alquiler por horas, venta en depósito"></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="step" id="s4"><legend>¿Dónde os encuentra la gente?</legend>
+      <div class="row">
+        <label for="fCity">Ciudad<select id="fCity"></select></label>
+        <label for="fBarrio" id="lBarrio">Barrio o municipio <span class="hint">opcional</span><input id="fBarrio" maxlength="60" placeholder="Ej. El Carmen, Molina de Segura"></label>
+      </div>
+      <div class="field" id="lNets"><span class="hint" id="igHint">Al menos uno: es como os encuentra la gente y como verificamos la ficha.</span>
+        <div class="row3">
+          <label for="fIg">Instagram<input id="fIg" maxlength="31" placeholder="@cuenta"></label>
+          <label for="fFb" id="lFb">Facebook<input id="fFb" maxlength="200" placeholder="facebook.com/tu-pagina"></label>
+          <label for="fSite" id="lSite">Web<input id="fSite" maxlength="200" placeholder="tuweb.es"></label>
+        </div>
+      </div>
+      <label for="fContact">Contacto para verificar <span class="hint">opcional, no se publica</span><input id="fContact" maxlength="120" placeholder="Correo o teléfono"></label>
+    </fieldset>
+
+    <fieldset class="step" id="s5"><legend id="s5t">¿Cómo os presentáis?</legend>
+      <div class="field" id="lFoto">Foto o logo <span class="hint">opcional · mejor cuadrada; la recortamos al centro</span>
+      <div class="foto"><span class="avatar" id="fFotoPrev" aria-hidden="true">+</span><button type="button" class="ghost" id="fFotoBtn">Elegir imagen</button><button type="button" class="linkbtn" id="fFotoX" hidden>Quitar</button><input type="file" id="fFoto" accept="image/jpeg,image/png,image/webp,image/heic,image/*" hidden></div>
+    </div>
+      <label for="fDesc">Cuéntalo en una frase<textarea id="fDesc" rows="2" maxlength="280" placeholder="Qué hacéis y cuándo"></textarea></label>
+      <details class="fgrp more" id="lMore"><summary>Más datos <span class="hint">opcional · dirección, horario, precios…</span></summary>
+        <div class="more-in">
+          <div class="row"><label for="fDir">Dirección <span class="hint">si tenéis sitio fijo</span><input id="fDir" maxlength="120"></label><label for="fHor">Horario<input id="fHor" maxlength="160" placeholder="Martes y jueves, 19:00"></label></div>
+          <label for="fInfo">Más información <span class="hint">precios, qué traer, cómo apuntarse…</span><textarea id="fInfo" rows="3" maxlength="600"></textarea></label>
+        </div>
+      </details>
+    </fieldset>
+    <div class="hp" aria-hidden="true"><label for="fWeb">Deja esto vacío<input id="fWeb" tabindex="-1" autocomplete="off"></label></div>
+    <p class="fsum" id="fSum" aria-live="polite" hidden></p>
+    <div class="consent">
+      <p class="legal-note">Usamos estos datos para revisar tu propuesta, publicar la ficha si procede y escribirte para verificarla. El contacto de verificación no se publica. Puedes pedir que los cambiemos o los borremos cuando quieras. Más información en la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a> y el <a href="aviso-legal.html" target="_blank" rel="noopener">aviso legal</a>.</p>
+      <label class="chk" for="fConsent"><input type="checkbox" id="fConsent"> <span>He leído la política de privacidad y acepto que se traten estos datos para revisar mi propuesta y, si es una ficha, publicarla.</span></label>
+    </div>
+    <div class="err" id="fErr" role="alert"></div>
+    <div class="dlg-actions">
+      <button type="button" class="ghost" id="cancelAdd">Cancelar</button>
+      <button type="submit" class="cta" id="sendAdd">Enviar para revisión</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgR">
+  <form class="dlg" id="repForm" novalidate>
+    <h2>Avisar de un error</h2>
+    <p id="repWhat"></p>
+    <label for="rMotivo">¿Qué pasa?<select id="rMotivo">
+      <option>Ya no existe o está inactivo</option><option>Los datos están mal</option><option>No es parte de la escena</option><option>Es mi proyecto y quiero gestionarlo</option>
+    </select></label>
+    <label for="rMas">Algo más <span class="hint">opcional</span><textarea id="rMas" rows="2" maxlength="200"></textarea></label>
+    <p class="legal-note">No incluyas datos personales. <a href="privacidad.html" target="_blank" rel="noopener">Privacidad</a></p>
+    <div class="err" id="rErr" role="alert"></div>
+    <div class="dlg-actions">
+      <button type="button" class="ghost" id="cancelRep">Cancelar</button>
+      <button type="submit" class="cta">Enviar aviso</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// ---------- Conexión ----------
+const CFG = { url:'https://edywflfxiwcujhkjgowu.supabase.co', key:'sb_publishable_lV05cEROK_oS3JIPv0xDIw_3hku5Xar' };
+async function api(path, opts={}){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), 8000);
+  try{
+    const r=await fetch(CFG.url+'/rest/v1/'+path,{...opts,signal:ctrl.signal,headers:{apikey:CFG.key,'Content-Type':'application/json',...(opts.headers||{})}});
+    const txt=await r.text(); if(!r.ok) throw new Error(txt||('HTTP '+r.status));
+    return txt?JSON.parse(txt):null;
+  } finally { clearTimeout(t); }
+}
+
+// ---------- Catálogo ----------
+const CATALOGO={"fam":["Baile","Artes escénicas","Música","Palabras","Imagen","Oficios y artesanía","Cuerpo y mente","Deporte de barrio","Tierra y social","Encuentros"],"d":[["Baile","Latinos y afrocaribeños",["latinos","ritmos latinos","bailes latinos","salsa/bachata"],null],["Baile","Salsa",["casino","rueda de casino","timba","salsa cubana","salsa en linea"],"Latinos y afrocaribeños"],["Baile","Bachata",["bachata sensual","bachata dominicana"],"Latinos y afrocaribeños"],["Baile","Kizomba",["urban kiz","semba","kizz"],"Latinos y afrocaribeños"],["Baile","Merengue",[],"Latinos y afrocaribeños"],["Baile","Cumbia",[],"Latinos y afrocaribeños"],["Baile","Zouk",["brazilian zouk"],"Latinos y afrocaribeños"],["Baile","Swing y rock'n'roll",["swing","bailes swing"],null],["Baile","Lindy hop",["lindy"],"Swing y rock'n'roll"],["Baile","Balboa",[],"Swing y rock'n'roll"],["Baile","Shag",["collegiate shag"],"Swing y rock'n'roll"],["Baile","Charlestón",[],"Swing y rock'n'roll"],["Baile","Boogie-woogie",["boogie","boogie woogie"],"Swing y rock'n'roll"],["Baile","Rock'n'roll",["rock and roll","rocanrol","rock acrobatico"],"Swing y rock'n'roll"],["Baile","Flamenco y bailes tradicionales",["folclore","folklore","danzas tradicionales","coros y danzas"],null],["Baile","Baile flamenco",["baile por bulerias","flamenco baile"],"Flamenco y bailes tradicionales"],["Baile","Sevillanas",["baile por sevillanas","rumbas"],"Flamenco y bailes tradicionales"],["Baile","Jota",["jotas","jota aragonesa"],"Flamenco y bailes tradicionales"],["Baile","Bailes regionales",["parrandas","malaguenas","verdiales","muineira","sardana","isa","seguidillas","fandango","aurresku","chotis","danzas populares"],"Flamenco y bailes tradicionales"],["Baile","Danza escénica",["danza"],null],["Baile","Ballet",["ballet clasico","danza clasica","barra al suelo","ballet y clasico"],"Danza escénica"],["Baile","Contemporánea",["danza contemporanea","contemporaneo","danza moderna"],"Danza escénica"],["Baile","Jazz y lírico",["jazz dance","lirico","modern jazz"],"Danza escénica"],["Baile","Claqué",["tap","tap dance"],"Danza escénica"],["Baile","Danzas urbanas",["danza urbana","street dance","baile urbano"],null],["Baile","Breaking",["breakdance","break","bboy","bgirl"],"Danzas urbanas"],["Baile","Hip hop",["hiphop","hip hop dance"],"Danzas urbanas"],["Baile","Popping y locking",["popping","locking"],"Danzas urbanas"],["Baile","House dance",["house danza"],"Danzas urbanas"],["Baile","Waacking y voguing",["waacking","voguing","vogue"],"Danzas urbanas"],["Baile","Dancehall",[],"Danzas urbanas"],["Baile","Danza libre y consciente",["danza consciente","movimiento libre"],null],["Baile","Contact improvisación",["contact","contact impro"],"Danza libre y consciente"],["Baile","Danza libre",["5 ritmos","cinco ritmos"],"Danza libre y consciente"],["Baile","Ecstatic dance",[],"Danza libre y consciente"],["Baile","Biodanza",[],"Danza libre y consciente"],["Baile","Tango y vals",["tango","milonga","tango argentino","vals"],null],["Baile","Danzas del mundo",["bailes del mundo","folk y danzas del mundo"],null],["Baile","Bal folk",["folk europeo"],"Danzas del mundo"],["Baile","Danza oriental",["danza del vientre","bellydance","tribal"],"Danzas del mundo"],["Baile","Danzas africanas",["danza africana","afro"],"Danzas del mundo"],["Baile","Bollywood",["danza india"],"Danzas del mundo"],["Artes escénicas","Teatro",["interpretacion","teatro amateur","actuacion"],null],["Artes escénicas","Teatro de texto",[],"Teatro"],["Artes escénicas","Teatro físico y gestual",["teatro fisico","mimo","gestual"],"Teatro"],["Artes escénicas","Teatro social y del oprimido",["teatro del oprimido","teatro foro","teatro social"],"Teatro"],["Artes escénicas","Teatro musical",["musicales","musical"],"Teatro"],["Artes escénicas","Microteatro",[],"Teatro"],["Artes escénicas","Impro",["improvisacion","improvisacion teatral","teatro de improvisacion"],null],["Artes escénicas","Impro corta y match",["match de impro","match","impro corta"],"Impro"],["Artes escénicas","Formato largo",["long form","impro larga"],"Impro"],["Artes escénicas","Impro musical",[],"Impro"],["Artes escénicas","Humor y clown",["humor","comedia"],null],["Artes escénicas","Stand-up y monólogos",["stand up","standup","monologos","comedia stand up"],"Humor y clown"],["Artes escénicas","Clown",["payaso","payasa"],"Humor y clown"],["Artes escénicas","Bufón",[],"Humor y clown"],["Artes escénicas","Sketch",["sketches"],"Humor y clown"],["Artes escénicas","Circo",["circo contemporaneo"],null],["Artes escénicas","Aéreos",["telas","tela aerea","aro","trapecio"],"Circo"],["Artes escénicas","Acrobacia y portés",["acrobacias","acrobacia","portes","acroportes"],"Circo"],["Artes escénicas","Malabares y manipulación",["malabares","malabarismo","diabolo","poi"],"Circo"],["Artes escénicas","Equilibrios",["cable","funambulismo","zancos","rola bola","equilibrismo"],"Circo"],["Artes escénicas","Títeres y objetos",[],null],["Artes escénicas","Títeres",["guinol"],"Títeres y objetos"],["Artes escénicas","Marionetas",[],"Títeres y objetos"],["Artes escénicas","Teatro de objetos",[],"Títeres y objetos"],["Artes escénicas","Sombras",["teatro de sombras"],"Títeres y objetos"],["Artes escénicas","Cabaret, drag y burlesque",["cabaret y drag"],null],["Artes escénicas","Drag",["drag queen","drag king"],"Cabaret, drag y burlesque"],["Artes escénicas","Burlesque",[],"Cabaret, drag y burlesque"],["Artes escénicas","Cabaret y varieté",["cabaret","variete","varietes"],"Cabaret, drag y burlesque"],["Artes escénicas","Magia",["mago","maga"],null],["Artes escénicas","Cartomagia",[],"Magia"],["Artes escénicas","Magia de cerca",["close up"],"Magia"],["Artes escénicas","Mentalismo",[],"Magia"],["Artes escénicas","Magia escénica",[],"Magia"],["Artes escénicas","Performance",["arte de accion","happening"],null],["Música","Electrónica",["musica electronica"],null],["Música","Techno",["tekno","tecno"],"Electrónica"],["Música","House",["deep house"],"Electrónica"],["Música","Drum and bass",["dnb","drum n bass","neurofunk","liquid"],"Electrónica"],["Música","Jungle",[],"Electrónica"],["Música","Dubstep",["bass music"],"Electrónica"],["Música","Hard",["hardtechno","hard techno","hardstyle","gabber"],"Electrónica"],["Música","Ambient y experimental",["ambient","experimental","noise"],"Electrónica"],["Música","DJ y producción",["dj","djs","produccion musical","pinchar","ableton"],"Electrónica"],["Música","Rock, pop e indie",[],null],["Música","Rock",[],"Rock, pop e indie"],["Música","Punk y hardcore",["punk","hardcore"],"Rock, pop e indie"],["Música","Metal",["heavy"],"Rock, pop e indie"],["Música","Pop",[],"Rock, pop e indie"],["Música","Indie",[],"Rock, pop e indie"],["Música","Jazz, blues y soul",["jazz y blues"],null],["Música","Jazz",[],"Jazz, blues y soul"],["Música","Blues",[],"Jazz, blues y soul"],["Música","Soul y funk",["soul","funk"],"Jazz, blues y soul"],["Música","Flamenco",["rumba","rumba flamenca"],null],["Música","Cante",["cante flamenco","cantaor","cantaora"],"Flamenco"],["Música","Guitarra flamenca",["toque"],"Flamenco"],["Música","Percusión y cajón",["cajon","cajon flamenco"],"Flamenco"],["Música","Compás y palmas",["palmas","compas"],"Flamenco"],["Música","Hip hop y urbano",["musica urbana"],null],["Música","Rap",["mc","rimas"],"Hip hop y urbano"],["Música","Beatbox",[],"Hip hop y urbano"],["Música","Trap",[],"Hip hop y urbano"],["Música","Reguetón",["reggaeton"],"Hip hop y urbano"],["Música","Tradicional y del mundo",["musica del mundo","world music"],null],["Música","Música tradicional",["musica popular","folclore musical","cuadrillas","auroros","rondalla","rondallas","verdiales","gaita","dulzaina","tamboril","muineira","sardana","txalaparta","timple","pandas"],"Tradicional y del mundo"],["Música","Folk",[],"Tradicional y del mundo"],["Música","Música celta",["celta"],"Tradicional y del mundo"],["Música","Músicas latinas",["son cubano","musica latina"],"Tradicional y del mundo"],["Música","Músicas africanas",["musica africana"],"Tradicional y del mundo"],["Música","Cantautores",["cantautor","cantautora","cancion de autor","acustico"],null],["Música","Clásica y antigua",["musica clasica","clasica"],null],["Música","Cámara",["musica de camara"],"Clásica y antigua"],["Música","Música antigua",["barroca","renacentista"],"Clásica y antigua"],["Música","Ópera y lírica",["opera","zarzuela","lirica"],"Clásica y antigua"],["Música","Bandas y orquestas amateur",["banda de musica","orquesta","bandas","agrupacion musical"],"Clásica y antigua"],["Música","Voz y coro",[],null],["Música","Coros",["coro","coral"],"Voz y coro"],["Música","Técnica vocal",["canto","clases de canto"],"Voz y coro"],["Música","Percusión",["tambores"],null],["Música","Batucada",["samba reggae","samba"],"Percusión"],["Música","Percusión africana",["djembe","yembe"],"Percusión"],["Música","Body percussion",["percusion corporal"],"Percusión"],["Música","Instrumentos",["aprender un instrumento","clases de musica"],null],["Música","Guitarra",[],"Instrumentos"],["Música","Piano y teclados",["piano","teclado"],"Instrumentos"],["Música","Ukelele",[],"Instrumentos"],["Música","Viento",["trompeta","saxo","flauta","clarinete"],"Instrumentos"],["Música","Cuerda frotada",["violin","viola","violonchelo","contrabajo"],"Instrumentos"],["Música","Batería",[],"Instrumentos"],["Palabras","Poesía",["poetas","poemas"],null],["Palabras","Slam y spoken word",["slam poetico","poetry slam","spoken word","jam poetica"],"Poesía"],["Palabras","Recital",["recitales","lectura poetica"],"Poesía"],["Palabras","Poesía visual",[],"Poesía"],["Palabras","Escritura",["taller de escritura"],null],["Palabras","Relato",["relatos","cuento"],"Escritura"],["Palabras","Novela",[],"Escritura"],["Palabras","Microrrelato",["microrelato","microficcion"],"Escritura"],["Palabras","Guion",["guionismo"],"Escritura"],["Palabras","Escritura creativa",["escritura rapida"],"Escritura"],["Palabras","Lectura",["libros"],null],["Palabras","Club de lectura",["clubes de lectura"],"Lectura"],["Palabras","Lectura en voz alta",[],"Lectura"],["Palabras","Oralidad",["narracion oral","tradicion oral"],null],["Palabras","Cuentacuentos",["cuentos","narracion","narradores"],"Oralidad"],["Palabras","Trovo y repentismo",["trovo","trovos","troveros","repentismo","bertsolarismo","bertsos","decima","verseadores"],"Oralidad"],["Palabras","Freestyle",["batallas de gallos","gallos","improvisacion rap"],"Oralidad"],["Palabras","Autoedición",["edicion independiente"],null],["Palabras","Fanzines",["fanzine","zine","zines"],"Autoedición"],["Palabras","Microedición",["microeditorial","editorial independiente"],"Autoedición"],["Imagen","Dibujo e ilustración",["dibujo"],null],["Imagen","Dibujo del natural",["croquis"],"Dibujo e ilustración"],["Imagen","Urban sketching",["urban sketchers","sketching"],"Dibujo e ilustración"],["Imagen","Ilustración",["laminas","ilustradora","ilustrador"],"Dibujo e ilustración"],["Imagen","Dibujo con modelo",["modelo vivo","figura humana"],"Dibujo e ilustración"],["Imagen","Pintura",[],null],["Imagen","Acuarela",[],"Pintura"],["Imagen","Óleo",[],"Pintura"],["Imagen","Acrílico",[],"Pintura"],["Imagen","Cómic",["tebeo"],null],["Imagen","Cómic y novela gráfica",["novela grafica"],"Cómic"],["Imagen","Manga",[],"Cómic"],["Imagen","Fotografía",["foto","fotografo","fotografa"],null],["Imagen","Analógica y laboratorio",["revelado","analogica","carrete","laboratorio"],"Fotografía"],["Imagen","Fotografía de calle",["street photography","foto de calle"],"Fotografía"],["Imagen","Retrato",[],"Fotografía"],["Imagen","Fotolibro",[],"Fotografía"],["Imagen","Grabado y estampación",["estampacion"],null],["Imagen","Grabado",[],"Grabado y estampación"],["Imagen","Serigrafía",[],"Grabado y estampación"],["Imagen","Linóleo",["linograbado"],"Grabado y estampación"],["Imagen","Risografía",["riso"],"Grabado y estampación"],["Imagen","Cine y audiovisual",["cine","video"],null],["Imagen","Cineclub",["cineforum"],"Cine y audiovisual"],["Imagen","Cortometraje",["cortos"],"Cine y audiovisual"],["Imagen","Documental",[],"Cine y audiovisual"],["Imagen","Animación",["stop motion"],"Cine y audiovisual"],["Imagen","Videoarte",[],"Cine y audiovisual"],["Imagen","Arte urbano",["street art"],null],["Imagen","Graffiti",["grafiti"],"Arte urbano"],["Imagen","Muralismo",["murales"],"Arte urbano"],["Imagen","Stencil y paste-up",["stencil","paste up"],"Arte urbano"],["Imagen","Arte digital",[],null],["Imagen","Ilustración digital",[],"Arte digital"],["Imagen","Diseño gráfico",["diseno"],"Arte digital"],["Imagen","Videomapping",["mapping"],"Arte digital"],["Oficios y artesanía","Cerámica",["barro","alfareria"],null],["Oficios y artesanía","Torno",[],"Cerámica"],["Oficios y artesanía","Modelado a mano",["modelado","churros","pellizco"],"Cerámica"],["Oficios y artesanía","Esmaltes",[],"Cerámica"],["Oficios y artesanía","Raku",[],"Cerámica"],["Oficios y artesanía","Textil",[],null],["Oficios y artesanía","Costura",["coser","patronaje"],"Textil"],["Oficios y artesanía","Punto y ganchillo",["punto","ganchillo","crochet","tejer"],"Textil"],["Oficios y artesanía","Bordado",[],"Textil"],["Oficios y artesanía","Telar",["tejido en telar"],"Textil"],["Oficios y artesanía","Tintes naturales",["tintes"],"Textil"],["Oficios y artesanía","Macramé",[],"Textil"],["Oficios y artesanía","Madera",["ebanisteria"],null],["Oficios y artesanía","Carpintería",[],"Madera"],["Oficios y artesanía","Talla",["talla en madera"],"Madera"],["Oficios y artesanía","Luthería",["luthier"],"Madera"],["Oficios y artesanía","Joyería y metal",[],null],["Oficios y artesanía","Joyería",["joyas","plata","bisuteria"],"Joyería y metal"],["Oficios y artesanía","Orfebrería",["orfebre"],"Joyería y metal"],["Oficios y artesanía","Forja",["herreria"],"Joyería y metal"],["Oficios y artesanía","Papel y libro",["papel","origami"],null],["Oficios y artesanía","Encuadernación",["libretas"],"Papel y libro"],["Oficios y artesanía","Papel hecho a mano",["papel artesanal"],"Papel y libro"],["Oficios y artesanía","Cartonería",["carton"],"Papel y libro"],["Oficios y artesanía","Cuero",[],null],["Oficios y artesanía","Marroquinería",[],"Cuero"],["Oficios y artesanía","Repujado",[],"Cuero"],["Oficios y artesanía","Vidrio",[],null],["Oficios y artesanía","Vidriera",["vitral","vidrieras"],"Vidrio"],["Oficios y artesanía","Soplado",["vidrio soplado"],"Vidrio"],["Oficios y artesanía","Fusing",[],"Vidrio"],["Oficios y artesanía","Fibras vegetales",["esparto y fibras"],null],["Oficios y artesanía","Esparto",[],"Fibras vegetales"],["Oficios y artesanía","Cestería y mimbre",["cesteria","mimbre","cestos"],"Fibras vegetales"],["Oficios y artesanía","Cocina y fermentación",["cocina"],null],["Oficios y artesanía","Fermentados",["kombucha","kefir","kimchi"],"Cocina y fermentación"],["Oficios y artesanía","Pan y masa madre",["pan","masa madre"],"Cocina y fermentación"],["Oficios y artesanía","Conservas",[],"Cocina y fermentación"],["Oficios y artesanía","Cerveza artesana",["cerveza casera"],"Cocina y fermentación"],["Oficios y artesanía","Licores",["licores caseros","destilados"],"Cocina y fermentación"],["Oficios y artesanía","Jabones y cosmética",[],null],["Oficios y artesanía","Jabones",["jabon"],"Jabones y cosmética"],["Oficios y artesanía","Cosmética natural",["cosmetica"],"Jabones y cosmética"],["Oficios y artesanía","Velas",[],"Jabones y cosmética"],["Oficios y artesanía","Reparación",["arreglos","reparar"],null],["Oficios y artesanía","Repair café",[],"Reparación"],["Oficios y artesanía","Reparación de aparatos",["electrodomesticos","reparar electronica"],"Reparación"],["Oficios y artesanía","Upcycling",["reciclaje creativo","reutilizacion"],"Reparación"],["Cuerpo y mente","Yoga",[],null],["Cuerpo y mente","Hatha",[],"Yoga"],["Cuerpo y mente","Vinyasa",[],"Yoga"],["Cuerpo y mente","Kundalini",[],"Yoga"],["Cuerpo y mente","Yin",["yin yoga"],"Yoga"],["Cuerpo y mente","Acroyoga",[],"Yoga"],["Cuerpo y mente","Meditación y mindfulness",["meditacion"],null],["Cuerpo y mente","Mindfulness",["atencion plena"],"Meditación y mindfulness"],["Cuerpo y mente","Meditación budista",["zen","vipassana"],"Meditación y mindfulness"],["Cuerpo y mente","Meditación guiada",[],"Meditación y mindfulness"],["Cuerpo y mente","Respiración y sonido",[],null],["Cuerpo y mente","Respiración",["breathwork"],"Respiración y sonido"],["Cuerpo y mente","Canto de mantras",["kirtan","mantras"],"Respiración y sonido"],["Cuerpo y mente","Baños de sonido",["cuencos","cuencos tibetanos","gong"],"Respiración y sonido"],["Cuerpo y mente","Artes internas",["taichi y chi kung"],null],["Cuerpo y mente","Taichí",["tai chi"],"Artes internas"],["Cuerpo y mente","Chi kung",["qi gong","qigong"],"Artes internas"],["Cuerpo y mente","Conciencia corporal",[],null],["Cuerpo y mente","Estiramientos",["stretching"],"Conciencia corporal"],["Cuerpo y mente","Feldenkrais",[],"Conciencia corporal"],["Cuerpo y mente","Círculos",[],null],["Cuerpo y mente","Círculos de palabra",["circulo de mujeres","circulo de hombres"],"Círculos"],["Cuerpo y mente","Tantra",["tantrico"],"Círculos"],["Deporte de barrio","Artes marciales",[],null],["Deporte de barrio","Capoeira",[],"Artes marciales"],["Deporte de barrio","Aikido",[],"Artes marciales"],["Deporte de barrio","Kung-fu y wushu",["kung fu","wushu"],"Artes marciales"],["Deporte de barrio","Karate y judo",["karate","judo"],"Artes marciales"],["Deporte de barrio","Kendo",[],"Artes marciales"],["Deporte de barrio","Combate histórico",[],null],["Deporte de barrio","Esgrima histórica",["hema"],"Combate histórico"],["Deporte de barrio","Combate medieval",["buhurt","combate pleno"],"Combate histórico"],["Deporte de barrio","Destreza española",["destreza"],"Combate histórico"],["Deporte de barrio","Pachangas y competiciones",["pachanga","pachangas","liga de barrio"],null],["Deporte de barrio","Baloncesto de calle",["streetball","basket 3x3","baloncesto","basket"],"Pachangas y competiciones"],["Deporte de barrio","Fútbol de barrio",["futbol","futbito","futbol sala"],"Pachangas y competiciones"],["Deporte de barrio","Ultimate",["ultimate frisbee","frisbee"],"Pachangas y competiciones"],["Deporte de barrio","Roller derby",[],"Pachangas y competiciones"],["Deporte de barrio","Ruedas y tablas",[],null],["Deporte de barrio","Skate",["skateboarding","skatepark"],"Ruedas y tablas"],["Deporte de barrio","Patinaje",["patines"],"Ruedas y tablas"],["Deporte de barrio","BMX",[],"Ruedas y tablas"],["Deporte de barrio","Movimiento urbano",[],null],["Deporte de barrio","Parkour",["freerunning"],"Movimiento urbano"],["Deporte de barrio","Slackline",[],"Movimiento urbano"],["Deporte de barrio","Calistenia",["street workout"],"Movimiento urbano"],["Deporte de barrio","Escalada y búlder",["escalada","bulder","boulder","rocodromo"],"Movimiento urbano"],["Deporte de barrio","Juegos tradicionales",["juegos populares"],null],["Deporte de barrio","Bolos",["bolo huertano","bolo palma","bolo leones","bolos serranos","birlos"],"Juegos tradicionales"],["Deporte de barrio","Petanca",[],"Juegos tradicionales"],["Deporte de barrio","Pelota y frontón",["fronton","pelota vasca","pelota valenciana","frontenis"],"Juegos tradicionales"],["Deporte de barrio","Calva y rana",["calva","rana","chito","tanguilla","tuta","herradura"],"Juegos tradicionales"],["Tierra y social","Huerta y cultivo",[],null],["Tierra y social","Huertos urbanos",["huerto","huerto urbano","huerto comunitario"],"Huerta y cultivo"],["Tierra y social","Agricultura tradicional",["huerta tradicional"],"Huerta y cultivo"],["Tierra y social","Permacultura",["agroecologia"],"Huerta y cultivo"],["Tierra y social","Agricultura sintrópica",["sintropica"],"Huerta y cultivo"],["Tierra y social","Semillas",["intercambio de semillas","banco de semillas","variedades locales"],"Huerta y cultivo"],["Tierra y social","Naturaleza",[],null],["Tierra y social","Salidas naturalistas",["salidas al campo"],"Naturaleza"],["Tierra y social","Botánica y plantas silvestres",["botanica","plantas","plantas silvestres"],"Naturaleza"],["Tierra y social","Aves",["pajaros","ornitologia"],"Naturaleza"],["Tierra y social","Setas",["micologia"],"Naturaleza"],["Tierra y social","Astronomía",["estrellas"],"Naturaleza"],["Tierra y social","Consumo y residuo",[],null],["Tierra y social","Grupos de consumo",["consumo","cesta","cooperativa de consumo"],"Consumo y residuo"],["Tierra y social","Compostaje",["compost"],"Consumo y residuo"],["Tierra y social","Residuo cero",["zero waste"],"Consumo y residuo"],["Tierra y social","Trueque",[],"Consumo y residuo"],["Tierra y social","Abejas y animales",[],null],["Tierra y social","Apicultura",["abejas","miel"],"Abejas y animales"],["Tierra y social","Movilidad",[],null],["Tierra y social","Bici urbana",["bici","bicicleta"],"Movilidad"],["Tierra y social","Masa crítica",[],"Movilidad"],["Tierra y social","Territorio y patrimonio",["patrimonio"],null],["Tierra y social","Patrimonio agrario",["huerta","acequias","regadio","vega","molinos"],"Territorio y patrimonio"],["Tierra y social","Rutas de patrimonio",["rutas historicas","historia local"],"Territorio y patrimonio"],["Tierra y social","Defensa del paisaje",["paisaje","defensa del territorio"],"Territorio y patrimonio"],["Tierra y social","Red de apoyo vecinal",["apoyo mutuo","ayuda mutua","vecinal"],null],["Tierra y social","Voluntariado",[],"Red de apoyo vecinal"],["Tierra y social","Asociaciones vecinales",["asociacion de vecinos","aavv"],"Red de apoyo vecinal"],["Tierra y social","Despensas solidarias",["banco de alimentos","despensa solidaria"],"Red de apoyo vecinal"],["Encuentros","Juegos",["ludoteca"],null],["Encuentros","Juegos de mesa",["boardgames"],"Juegos"],["Encuentros","Rol",["juegos de rol"],"Juegos"],["Encuentros","Wargames y miniaturas",["wargames","warhammer","miniaturas"],"Juegos"],["Encuentros","Ajedrez",[],"Juegos"],["Encuentros","Cartas coleccionables",["tcg","magic"],"Juegos"],["Encuentros","Intercambio",[],null],["Encuentros","Intercambio de idiomas",["tandem","idiomas","language exchange"],"Intercambio"],["Encuentros","Bancos de tiempo",["banco de tiempo","intercambio de habilidades"],"Intercambio"],["Encuentros","Pensamiento",[],null],["Encuentros","Filosofía",["cafe filosofico"],"Pensamiento"],["Encuentros","Debate",["oratoria"],"Pensamiento"],["Encuentros","Divulgación",["ciencia"],"Pensamiento"],["Encuentros","Tecnología y maker",["maker","hackerspace"],null],["Encuentros","Electrónica y robótica",["arduino","robotica"],"Tecnología y maker"],["Encuentros","Programación",["codigo"],"Tecnología y maker"],["Encuentros","Impresión 3D",[],"Tecnología y maker"],["Encuentros","Software libre",["linux"],"Tecnología y maker"],["Encuentros","Fiestas y tradiciones",["fiestas populares"],null],["Encuentros","Peñas y comparsas",["penas","pena","pena huertana","comparsa","fallas","moros y cristianos","collas"],"Fiestas y tradiciones"],["Encuentros","Fiestas de barrio",["verbena"],"Fiestas y tradiciones"],["Encuentros","Carnaval",["chirigotas","chirigota","murgas"],"Fiestas y tradiciones"],["Encuentros","Aficiones",[],null],["Encuentros","Manga y anime",["anime","otaku"],"Aficiones"],["Encuentros","Cosplay",[],"Aficiones"],["Encuentros","Coleccionismo",[],"Aficiones"]],"a":[["clases","Clases regulares","clases",["clases","cursos regulares"]],["taller","Taller puntual o intensivo","clases",["talleres","intensivo","workshop"]],["curso","Curso o formación","clases",["cursos","formacion"]],["quedada","Quedada o grupo abierto","comunidad",["quedadas","grupo abierto"]],["jam","Jam o micro abierto","comunidad",["jam","jams","jam session","micro abierto","open mic","escenario abierto"]],["slam","Slam o concurso","comunidad",["slam","concurso","batalla","batallas"]],["practica","Práctica abierta","comunidad",["practica","social","sociales","ensayo abierto"]],["intercambio","Intercambio","comunidad",["intercambio","intercambios"]],["salida","Salida o ruta","comunidad",["ruta","rutas","salida","salidas","excursion"]],["colectivo","Trabajo colectivo","comunidad",["jornada","jornadas","voluntariado"]],["funcion","Función o show","eventos",["show","funcion","funciones","espectaculo"]],["concierto","Concierto","eventos",["concierto","conciertos","directo"]],["exposicion","Exposición","eventos",["expo","exposicion"]],["proyeccion","Proyección","eventos",["proyeccion","proyecciones"]],["charla","Charla o presentación","eventos",["charla","charlas","presentacion","conferencia"]],["fiesta","Fiesta o sesión","eventos",["fiesta","fiestas","sesion","pinchada"]],["mercadillo","Mercadillo o feria","venta",["mercadillo","feria","market"]],["estudio","Estudio o taller abierto","venta",["tienda","estudio abierto","venta"]],["alquiler","Alquiler o cesión de sala","espacio",["alquiler","alquilar","sala","cesion","sala para alquilar"]]]};
+// Familias del mapa: salen del catálogo cargado (la base de datos o la demo), en su orden
+let FAMS=[];
+function setFams(){ FAMS=[]; Object.values(S.disc).forEach(d=>{ if(d.familia&&!FAMS.includes(d.familia)) FAMS.push(d.familia); }); }
+const FAMLINES={'Cuerpo y mente':['Cuerpo','y mente'],'Artes escénicas':['Artes','escénicas'],'Oficios y artesanía':['Oficios y','artesanía'],'Deporte de barrio':['Deporte','de barrio'],'Tierra y social':['Tierra','y social']};
+function famLines(f){ if(FAMLINES[f]) return FAMLINES[f]; const w=f.split(' '); if(f.length<=11||w.length<2) return [f]; const k=Math.ceil(w.length/2); return [w.slice(0,k).join(' '),w.slice(k).join(' ')]; }
+const DOORS=[['clases','Clases y talleres','Clases, talleres y cursos'],['comunidad','Participar','Quedadas, jams y prácticas abiertas'],['eventos','Shows','Funciones, conciertos y eventos'],['venta','Creación local','Compra directa a quien lo hace'],['espacio','Espacios','Local propio o sala para otros']];
+const DOORTXT=Object.fromEntries(DOORS.map(d=>[d[0],d[2]]));
+const FORMATS={persona:'Proyecto personal',colectivo:'Grupo o colectivo',escuela:'Escuela',espacio:'Espacio'};
+const CITY_NAMES=['A Coruña','Albacete','Alcalá de Henares','Alcobendas','Alcorcón','Algeciras','Alicante','Almería','Ávila','Badajoz','Badalona','Barakaldo','Barcelona','Bilbao','Burgos','Cáceres','Cádiz','Cartagena','Castellón de la Plana','Ceuta','Ciudad Real','Córdoba','Cuenca','Dos Hermanas','Elche','Fuenlabrada','Getafe','Gijón','Girona','Granada','Guadalajara','Huelva','Huesca','Jaén','Jerez de la Frontera',"L'Hospitalet de Llobregat",'Las Palmas de Gran Canaria','Leganés','León','Lleida','Logroño','Lugo','Madrid','Málaga','Marbella','Mataró','Melilla','Mérida','Móstoles','Murcia','Ourense','Oviedo','Palencia','Palma','Pamplona','Parla','Pontevedra','Reus','Roquetas de Mar','Sabadell','Salamanca','San Cristóbal de La Laguna','San Sebastián','Santa Coloma de Gramenet','Santa Cruz de Tenerife','Santander','Santiago de Compostela','Segovia','Sevilla','Soria','Tarragona','Telde','Terrassa','Teruel','Toledo','Torrejón de Ardoz','Valencia','Valladolid','Vigo','Vitoria-Gasteiz','Zamora','Zaragoza'];
+// ---------- Demostración (todo inventado) ----------
+// [nombre, ciudad, formato, disciplinas, actividades, barrio, descripción, instagram, destacado, verificado, actúa en, tipo de espacio, ofrece]
+// Datos extra de la demo (en la web real los rellena cada proyecto)
+const DEMO_EXTRA={
+  'Clave del Segura':{hor:'Lunes y miércoles de 20:00 a 22:00 · social los viernes a las 22:00',dir:'Calle Pintor Sobejano 4, Murcia',fb:'https://www.facebook.com/clavedelsegura',info:'La primera clase es de prueba y gratuita. No hace falta venir con pareja: rotamos en todas las clases.'},
+  'La Nave del Carmen':{fam:['Baile','Artes escénicas','Música'],dir:'Calle Cartagena 51, Murcia',hor:'Abierto de martes a domingo · funciones los sábados',web:'https://lanavedelcarmen.es',info:'Alquiler de sala desde 15 €/hora para ensayos y clases. Escríbenos por Instagram con fecha y hora.'},
+  'Lindy Pimentón':{sedeN:'La Nave del Carmen'},
+  'Academia Duende':{local:true,fmt:'colectivo'},
+  'Tango Azahar':{ig:'',fb:'https://www.facebook.com/tangoazahar',hor:'Milonga los domingos de 20:00 a 23:30'}
+};
+const DEMO=[
+ ['Clave del Segura','Murcia','escuela',['Salsa','Bachata'],['clases','practica'],'Santa Eulalia','Clases semanales de salsa cubana y rueda de casino. Social los viernes.','clave.delsegura',1,1,['Estudio Compás']],
+ ['Lindy Pimentón','Murcia','colectivo',['Lindy hop','Balboa'],['clases','practica'],'El Carmen','Lindy hop y balboa desde cero. Bailes sociales mensuales con música en directo.','lindy.pimenton',0,1,['La Nave del Carmen']],
+ ['Tango Azahar','Murcia','colectivo',['Tango y vals'],['clases','practica'],'Centro','Milongas los domingos y prácticas abiertas entre semana.','tango.azahar',0,0,['Estudio Compás']],
+ ['Academia Duende','Murcia','escuela',['Baile flamenco'],['clases'],'San Antolín','Baile flamenco y sevillanas en su propio estudio, para adultos de cualquier nivel.','academia.duende',0,0,[]],
+ ['Impro Bancal','Murcia','colectivo',['Impro'],['taller','funcion'],'San Antolín','Compañía de improvisación con talleres trimestrales y un show propio cada mes.','impro.bancal',1,1,['Bar La Acequia']],
+ ['Los Sin Guion','Murcia','colectivo',['Impro','Stand-up y monólogos'],['jam'],'La Flota','Jam de impro cada dos semanas. Puedes salir a escena sin experiencia.','lossinguion',0,0,['La Nave del Carmen']],
+ ['Nariz de Pimiento','Murcia','persona',['Clown'],['taller'],'El Carmen','Talleres de clown para adultos con una payasa de largo oficio.','narizdepimiento',0,0,['La Nave del Carmen']],
+ ['Bajo Frecuencia','Murcia','colectivo',['Drum and bass','Jungle'],['fiesta'],'Espinardo','Colectivo de drum and bass y jungle que organiza una fiesta al mes en sala pequeña.','bajo.frecuencia',1,1,['La Nave del Carmen']],
+ ['Jam del Martes','Murcia','colectivo',['Jazz'],['jam'],'Santa Eulalia','Jam session de jazz cada martes. Trae tu instrumento.','jamdelmartes.mu',0,0,['Bar La Acequia']],
+ ['Verso Suelto','Murcia','colectivo',['Poesía','Escritura creativa'],['jam','slam'],'Santa Eulalia','Jam de poesía los lunes y un concurso de escritura rápida al mes.','versosuelto.mu',0,0,['Bar La Acequia']],
+ ['Coro Las Cigarras','Murcia','colectivo',['Coros'],['practica'],'Vistalegre','Coro amateur de música popular. Abre plazas en septiembre.','coro.cigarras',0,0,['Ateneo de Vistalegre']],
+ ['Plata y Esparto','Murcia','persona',['Joyería'],['mercadillo','taller'],'Centro','Joyería en plata con motivos de la huerta. Vende en mercadillos y da talleres de iniciación.','plata.esparto',1,1,['Patio Esparto']],
+ ['Taller Filigrana','Murcia','persona',['Joyería'],['clases'],'San Antolín','Orfebre que enseña joyería a la cera perdida en grupos de cuatro.','tallerfiligrana',0,0,['Patio Esparto']],
+ ['Pepa Garabato','Murcia','persona',['Ilustración'],['mercadillo','taller'],'El Carmen','Ilustradora. Vende láminas en mercadillos y da talleres de dibujo para adultos.','pepagarabato',0,0,['Patio Esparto']],
+ ['Barro Vivo','Murcia','escuela',['Cerámica'],['curso','estudio'],'Molina de Segura','Taller de cerámica con cursos de torno de ocho semanas.','barrovivo.mu',0,0,[]],
+ ['Tinta Bancal','Murcia','colectivo',['Serigrafía','Fanzines'],['taller','mercadillo'],'Centro','Estudio de serigrafía y autoedición. Organiza un mercadillo de fanzines.','tintabancal',0,0,['Patio Esparto']],
+ ['La Gramola Itinerante','Murcia','colectivo',['Poesía','Fanzines','Jazz'],['jam','concierto'],'Vistalegre','Mezcla micro abierto, fanzines y música en directo en un mismo encuentro mensual.','gramolaitinerante',0,0,['Ateneo de Vistalegre']],
+ ['Cineclub Ventana','Murcia','colectivo',['Cine y audiovisual'],['proyeccion','charla'],'El Carmen','Proyecciones quincenales con coloquio después de la película.','cineclubventana',0,0,['La Nave del Carmen']],
+ ['Tándem Murcia','Murcia','colectivo',['Intercambio de idiomas'],['quedada'],'Centro','Intercambios de idiomas semanales en cafeterías del centro.','tandem.murcia',0,0,[]],
+ ['Semillas del Segura','Murcia','colectivo',['Semillas','Huertos urbanos'],['intercambio','charla','taller'],'Espinardo','Red de intercambio de variedades locales. Charlas y talleres abiertos a todo el mundo.','semillasdelsegura',0,0,['Ateneo de Vistalegre']],
+ ['Raíz Común','Murcia','colectivo',['Permacultura','Huertos urbanos'],['colectivo','taller'],'Espinardo','Huerto comunitario con jornadas abiertas de permacultura.','raizcomun',0,0,[]],
+ ['Yoga en la Huerta','Murcia','persona',['Yoga','Meditación y mindfulness'],['clases','salida'],'La Alberca','Yoga y meditación en grupos pequeños, con sesiones al aire libre en primavera.','yogaenlahuerta',0,0,[]],
+ ['Dado Gordo','Murcia','colectivo',['Juegos de mesa'],['quedada'],'Vistalegre','Quedadas de juegos de mesa los jueves.','dadogordo',0,0,['Ateneo de Vistalegre']],
+ ['Canasta Abierta','Murcia','colectivo',['Baloncesto de calle'],['quedada'],'La Paz','Pachangas de baloncesto los sábados por la mañana. Se juega con quien venga, sin equipos fijos.','canasta.abierta',0,0,[]],
+ ['Bloque Norte','Murcia','colectivo',['Breaking','Hip hop'],['clases','slam'],'Espinardo','Breaking y hip hop. Batallas abiertas cada trimestre.','bloquenorte.crew',0,0,['Estudio Compás']],
+ ['La Nave del Carmen','Murcia','espacio',['Swing y rock\'n\'roll','Impro','Stand-up y monólogos','Clown','Electrónica','Cine y audiovisual'],['alquiler','funcion'],'El Carmen','Nave con tarima y equipo de sonido que alquilan por horas profes y colectivos.','lanavedelcarmen',1,1,[],'Sala multiusos',['Alquiler por horas','Escenario para funciones','Equipo de sonido']],
+ ['Patio Esparto','Murcia','espacio',['Joyería','Ilustración','Serigrafía','Fanzines'],['alquiler','estudio','mercadillo'],'Centro','Tienda colectiva donde artesanos venden en depósito y dan talleres en la trastienda.','patioesparto',0,0,[],'Tienda-taller',['Venta en depósito','Mercadillo mensual','Taller para cursos']],
+ ['Bar La Acequia','Murcia','espacio',['Impro','Jazz','Poesía','Escritura creativa'],['alquiler'],'Santa Eulalia','Bar con escenario pequeño que cede la noche a jams, impro y poesía.','bar.laacequia',0,0,[],'Bar con escenario',['Escenario gratis con la consumición']],
+ ['Estudio Compás','Murcia','espacio',['Salsa','Bachata','Tango y vals','Danzas urbanas'],['alquiler'],'San Antolín','Dos salas con espejo y tarima que comparten varias escuelas de baile.','estudiocompas',0,0,[],'Estudio de danza',['Alquiler de sala con espejo']],
+ ['Ateneo de Vistalegre','Murcia','espacio',['Coros','Poesía','Semillas','Huertos urbanos','Juegos de mesa'],['alquiler','quedada'],'Vistalegre','Centro social del barrio con salas gratuitas para colectivos sin ánimo de lucro.','ateneovistalegre',0,0,[],'Centro social',['Salas gratuitas para colectivos']],
+ ['Son de Perchel','Málaga','escuela',['Salsa','Bachata'],['clases','practica'],'El Perchel','Escuela de salsa y bachata con sociales los sábados.','sondeperchel',1,1,[]],
+ ['Swing Boquerón','Málaga','colectivo',['Lindy hop','Balboa'],['clases','practica'],'Soho','Lindy hop y shag. Bailes en la calle los domingos.','swingboqueron',0,1,[]],
+ ['Impro Espeto','Málaga','colectivo',['Impro'],['curso','funcion'],'Lagunillas','Liga de impro con funciones semanales y cursos.','impro.espeto',1,1,['El Almacén de Lagunillas']],
+ ['Terral Bass','Málaga','colectivo',['Drum and bass'],['fiesta'],'Soho','Colectivo de drum and bass con fiesta propia cada mes.','terral.bass',0,0,[]],
+ ['Bolos de la Axarquía','Málaga','colectivo',['Bolos'],['quedada','slam'],'Ciudad Jardín','Partidas abiertas de bolos los domingos y una liga de barrio en primavera.','bolosaxarquia',0,0,[]],
+ ['Arena y Plata','Málaga','persona',['Joyería'],['mercadillo'],'Soho','Joyería con metal reciclado. Vende en mercadillos de la ciudad.','arenayplata',0,0,[]],
+ ['El Almacén de Lagunillas','Málaga','espacio',['Impro','Clown'],['alquiler','funcion'],'Lagunillas','Antiguo almacén convertido en sala para funciones y talleres.','almacenlagunillas',0,0,[],'Sala multiusos',['Alquiler por horas','Escenario para funciones']],
+ ['Casino Realejo','Granada','escuela',['Salsa'],['clases','practica'],'Realejo','Salsa cubana y rueda de casino. Social los jueves.','casinorealejo',1,1,['Corrala del Realejo']],
+ ['Grave Nevado','Granada','colectivo',['Drum and bass','Jungle'],['fiesta'],'Zaidín','Colectivo de drum and bass y jungle con fiestas propias en salas pequeñas.','gravenevado',0,0,[]],
+ ['Filigrana Nazarí','Granada','persona',['Joyería'],['estudio','curso'],'Albaicín','Joyería con técnica de filigrana y cursos cortos.','filigrananazari',0,0,[]],
+ ['Corrala del Realejo','Granada','espacio',['Jazz','Salsa'],['alquiler','jam'],'Realejo','Bar con escenario donde pasan jams y sociales de salsa.','corraladelrealejo',0,0,[],'Bar con escenario',['Escenario gratis con la consumición']]
+];
+
+// ---------- Estado ----------
+const S={mode:'live',city:'Murcia',q:'',door:'',cities:[],disc:{},discById:{},acts:{},cache:{},cur:null,open:null,loading:true};
+const $=s=>document.querySelector(s);
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const igUrl=h=>'https://www.instagram.com/'+encodeURIComponent(h)+'/';
+const today=new Date().toISOString().slice(0,10);
+const cityObj=n=>S.cities.find(c=>c.nombre===n);
+const famOf=d=>(S.disc[d]&&S.disc[d].familia)||'';
+const actName=id=>(S.acts[id]&&S.acts[id].n)||id;
+// Árbol: Disciplina (familia) › Categoría › Subcategoría. Una ficha etiquetada en una subcategoría está también en su categoría.
+const parOf=d=>(S.disc[d]&&S.disc[d].padre)||null;
+const catOf=d=>parOf(d)||d;
+const isCat=d=>!!S.disc[d]&&!S.disc[d].padre;
+const kidsOf=d=>Object.keys(S.disc).filter(x=>S.disc[x].padre===d);
+const pathOf=d=>parOf(d)?parOf(d)+' › '+d:d;
+const doorsOf=acts=>[...new Set(acts.map(a=>S.acts[a]&&S.acts[a].p).filter(Boolean))];
+const STOPI=['la','el','los','las','de','del','y','en','the','a'];
+function initials(n){ const w=String(n).split(/\s+/).filter(x=>x&&!STOPI.includes(x.toLowerCase())); const a=w.length?w:[String(n)]; return ((a[0][0]||'')+((a[1]||'')[0]||'')).toUpperCase(); }
+function imgUrl(v){ return !v?'':/^(https?:|blob:|data:)/.test(v)?v:CFG.url+'/storage/v1/object/public/logos/'+encodeURI(v); }
+// «Solo espacio»: un local que solo se alquila o cede. Si además da clases u organiza, también cuenta como proyecto.
+const pure=e=>e.fmt==='espacio'&&!e.doors.some(d=>d!=='espacio');
+const counted=e=>!pure(e);
+function famCount(items,f){ return items.filter(e=>famsOf(e).includes(f)).length; }
+function loadCatalog(){ S.disc={}; S.discById={}; CATALOGO.d.forEach(([f,n,sin,par],i)=>{ S.disc[n]={id:i+1,familia:f,sin,padre:par||null}; S.discById[i+1]=n; }); S.acts={}; CATALOGO.a.forEach(([id,n,p,sin])=>{ S.acts[id]={n,p,sin}; }); setFams(); }
+S.view='mapa'; S.t=''; S.cede=false; S.kind='ambos';
+try{ const sv=JSON.parse(localStorage.getItem('laescena')||'{}'); if(sv.city) S.city=sv.city; if(sv.view==='lista') S.view='lista'; }catch(e){}
+function save(){ try{ localStorage.setItem('laescena',JSON.stringify({city:S.city,view:S.view})); }catch(e){} }
+
+// ---------- Carga ----------
+async function boot(){
+  S.loading=true; S.cache={}; render();
+  if(location.hash!=='#demo'){
+    try{
+      const [cs,ds,as,cnt]=await Promise.all([
+        api('ciudades?select=id,nombre,provincia&order=nombre'),
+        api('disciplinas?select=id,nombre,familia,sinonimos,padre_id&order=orden').catch(()=>api('disciplinas?select=id,nombre,familia,sinonimos&order=orden')),
+        api('actividades?select=id,nombre,puerta,sinonimos&order=orden'),
+        api('conteo_fichas?select=ciudad_id,fichas')
+      ]);
+      const counts={}; cnt.forEach(r=>counts[r.ciudad_id]=+r.fichas);
+      S.cities=cs.map(c=>({id:c.id,nombre:c.nombre,provincia:c.provincia,n:counts[c.id]||0}));
+      S.disc={}; S.discById={}; ds.forEach(d=>{ S.disc[d.nombre]={id:d.id,familia:d.familia,sin:d.sinonimos||[],pid:d.padre_id||null,padre:null}; S.discById[d.id]=d.nombre; });
+      Object.values(S.disc).forEach(d=>{ if(d.pid) d.padre=S.discById[d.pid]||null; }); setFams();
+      S.acts={}; as.forEach(a=>{ S.acts[a.id]={n:a.nombre,p:a.puerta,sin:a.sinonimos||[]}; });
+      S.mode='live';
+    }catch(e){ setupDemo(); }
+  } else setupDemo();
+  let want=null; try{ want=new URL(location.href).searchParams.get('f'); }catch(e){}
+  if(want){
+    if(S.mode==='demo'){ const c=CITY_NAMES.find(n=>want.startsWith('d'+n)); if(c) S.city=c; }
+    else { try{ const r=await api('fichas?select=ciudad_id&id=eq.'+encodeURIComponent(want)); const c=r&&r[0]&&S.cities.find(x=>x.id===r[0].ciudad_id); if(c) S.city=c.nombre; }catch(e){} }
+  }
+  if(!cityObj(S.city)) S.city='Murcia';
+  fillForm();
+  await selectCity(S.city);
+  if(want&&S.cur&&byId(want)) openFicha(want,false);
+}
+function setupDemo(){
+  S.mode='demo';
+  loadCatalog();
+  S.cities=CITY_NAMES.map((n,i)=>({id:i+1,nombre:n,n:DEMO.filter(r=>r[1]===n).length}));
+}
+function finalize(items){
+  return {items};
+}
+async function loadCity(name){
+  if(S.cache[name]) return S.cache[name];
+  let items=[];
+  if(S.mode==='demo'){
+    const rows=DEMO.filter(r=>r[1]===name);
+    items=rows.map((r,i)=>({id:'d'+name+i,img:'',n:r[0],fmt:r[2]==='escuela'?'colectivo':r[2],d:r[3],acts:r[4],doors:doorsOf(r[4]),b:r[5],t:r[6],ig:r[7],feat:!!r[8],ver:!!r[9],kind:r[11]||'',offers:r[12]||[],fb:'',web:'',dir:'',hor:'',info:'',fam:[],local:false,sede:null,...(DEMO_EXTRA[r[0]]||{})}));
+    items.forEach(e=>{ if(e.sedeN){ const s2=items.find(x=>x.n===e.sedeN); if(s2) e.sede=s2.id; } });
+  } else {
+    const c=cityObj(name);
+    if(c&&c.n>0){
+      const q=`fichas?select=id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,{EXTRA}ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)&ciudad_id=eq.${c.id}&aprobada=eq.true&order=nombre`;
+      // De más a menos campos, por si alguna actualización de la base de datos aún no se ha aplicado
+      let rows=null; for(const x of ['facebook,web,direccion,horario,mas_info,familias,local,sede_id,','facebook,web,direccion,horario,mas_info,familias,','facebook,web,direccion,horario,mas_info,','']){ try{ rows=await api(q.replace('{EXTRA}',x)); break; }catch(e){ if(!x) throw e; } }
+      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null}));
+    }
+  }
+  const data=finalize(items); S.cache[name]=data; return data;
+}
+async function selectCity(name){
+  S.city=name; save(); S.loading=true; render();
+  try{ S.cur=await loadCity(name); }catch(e){ S.cur={items:[]}; toast('No se pudo cargar la ciudad. Prueba de nuevo en un momento.'); }
+  S.loading=false; render();
+}
+
+// ---------- Búsqueda ----------
+const STOP=['para','de','la','el','en','un','una','los','las','con','y','que','donde'];
+// Primero el nombre exacto; una familia nunca se confunde con el sinónimo de una disciplina; después los sinónimos
+function resolve(q){ const nq=norm(q); if(!nq) return null;
+  for(const n of Object.keys(S.disc)) if(norm(n)===nq) return n;
+  if(FAMS.some(f=>norm(f)===nq)) return null;
+  for(const [n,d] of Object.entries(S.disc)) if(d.sin.some(x=>norm(x)===nq)) return n;
+  return null; }
+function resolveFam(q){ const nq=norm(q); return FAMS.find(f=>norm(f)===nq)||null; }
+function resolveAct(q){ const nq=norm(q); if(!nq) return null; for(const [id,a] of Object.entries(S.acts)){ if(norm(a.n)===nq||a.sin.some(s=>norm(s)===nq)) return id; } return null; }
+const byId=id=>S.cur.items.find(x=>x.id===id);
+// Las disciplinas son siempre las de la propia ficha: en un lugar, las que suele acoger
+function discsOf(e){ return e.d.filter(x=>S.disc[x]); }
+// …y con lo que tienen encima (Salsa → también Latinos y afrocaribeños)
+function upOf(e){ const o=[]; discsOf(e).forEach(d=>{ [d,parOf(d)].forEach(x=>{ if(x&&!o.includes(x)) o.push(x); }); }); return o; }
+// Familias de una ficha: las que acoge en general (espacios) y las de sus disciplinas
+const famsOf=e=>[...new Set([...(e.fam||[]),...discsOf(e).map(famOf)])].filter(Boolean);
+// Coincidencia «en general»: la ficha no ha marcado eso en concreto, pero sí lo que lo contiene
+// (la categoría de encima o, en un espacio, la disciplina entera). Devuelve eso más general.
+function genOf(e,t){ if(!t||!S.disc[t]||upOf(e).includes(t)) return ''; const p=parOf(t); if(p&&discsOf(e).includes(p)) return p; return (e.fam||[]).includes(famOf(t))?famOf(t):''; }
+const genHit=(e,t)=>!!genOf(e,t);
+const genNote=(e,t)=>{ const g=genOf(e,t), sp=e.fmt==='espacio'; return `<p class="gen-note">${sp?'Este espacio acoge':'Hace'} ${esc(g)}, pero no ha informado sobre ${esc(t)} en concreto. ¡${sp?'Contacta con el espacio':'Escríbele'} para salir de dudas!</p>`; };
+function hay(e){ return norm([e.n,FORMATS[e.fmt],e.kind,upOf(e).join(' '),upOf(e).map(d=>(S.disc[d].sin||[]).join(' ')).join(' '),famsOf(e).join(' '),e.doors.map(d=>DOORTXT[d]).join(' '),e.acts.map(a=>actName(a)+' '+((S.acts[a]||{}).sin||[]).join(' ')).join(' '),e.offers.join(' '),e.b,e.t].join(' ')); }
+function matches(e,q){
+  const nq=norm(q); if(!nq) return true;
+  const target=resolve(q);
+  if(target) return upOf(e).includes(target)||genHit(e,target);
+  const fam=resolveFam(q); if(fam) return famsOf(e).includes(fam);
+  const act=resolveAct(q); if(act) return e.acts.includes(act);
+  const h=hay(e), words=nq.split(/\s+/).filter(w=>w.length>1&&!STOP.includes(w)), stem=w=>w.length>5?w.slice(0,w.length-2):w;
+  return words.length?words.every(w=>h.includes(stem(w))):h.includes(nq);
+}
+// Cada ficha sale una vez en el flujo normal; los espacios tienen su propia entrada
+// Cada ficha es un proyecto (persona o grupo) o un espacio: «Mostrar» elige cuáles, «¿En qué formato?» filtra dentro
+const isSpace=e=>e.fmt==='espacio';
+const cedeOk=e=>e.doors.includes('espacio')||e.acts.includes('alquiler');
+const kindOk=e=>S.kind==='ambos'||(S.kind==='e'?isSpace(e):!isSpace(e));
+const doorOk=e=>kindOk(e)&&(!S.door||e.doors.includes(S.door))&&(!(S.kind==='e'&&S.cede)||cedeOk(e));
+const textOk=e=>!S.t||matches(e,S.t);
+function hl(text,q){ const nq=norm(q); if(!nq||nq.length<2) return esc(text); const i=norm(text).indexOf(nq); if(i<0) return esc(text); return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+nq.length))+'</mark>'+esc(text.slice(i+nq.length)); }
+
+// ---------- Pintado ----------
+const chev='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+function renderTop(){
+  const n=$('#notice'); n.hidden=S.mode!=='demo';
+  if(S.mode==='demo') n.innerHTML='<b>Demostración</b><span>Datos inventados para enseñar cómo funciona. Los enlaces abren Instagram de verdad, así que pueden llevar a cuentas que no existen. Lo que envíes aquí no se guarda.</span>';
+  $('#bcity').textContent=S.city; document.title='La Escena Local · '+S.city;
+  $('#kinds').innerHTML=[['ambos','Ambos'],['p','Proyectos'],['e','Espacios']].map(([k,l])=>`<button type="button" data-kind="${k}" aria-pressed="${S.kind===k}">${l}</button>`).join('');
+  $('#doors').innerHTML=[['','Todo']].concat(DOORS.filter(d=>d[0]!=='espacio').map(d=>[d[0],d[1]])).map(([k,l])=>`<button type="button" class="pill" aria-pressed="${k===S.door}" data-door="${k}">${l}</button>`).join('')
+    +(S.kind==='e'?`<button type="button" class="pill pill-sub" data-cede="1" aria-pressed="${!!S.cede}">Se alquilan o ceden</button>`:'');
+  $('#clear').hidden=!S.t;
+  if(document.activeElement!==$('#q')) $('#q').value=S.t;
+}
+function renderCityList(){
+  const q=$('#cityQ').value.trim(), nq=norm(q);
+  const match=c=>!nq||norm(c.nombre).includes(nq)||norm(c.provincia||'').includes(nq);
+  // Solo ciudades con fichas (y la actual, por si se llegó a ella por un enlace)
+  const list=S.cities.filter(c=>(c.n>0||c.nombre===S.city)&&match(c));
+  const opt=c=>`<button type="button" role="option" class="city-opt${c.nombre===S.city?' cur':''}" data-city="${esc(c.nombre)}"><span>${esc(c.nombre)}</span><small>${c.n?c.n+' fichas':'por construir'}</small></button>`;
+  const msg=nq&&!list.length?`<div class="grp">${esc(q)} aún no tiene escena</div>`:'';
+  $('#cityList').innerHTML=msg+list.map(opt).join('')
+    +`<button type="button" class="city-opt city-new" data-propose-city="${esc(q)}"><span>${nq&&!list.length?'Ayúdanos a abrir '+esc(q):'¿No está tu ciudad? Propónla'}</span><small>→</small></button>`;
+}
+// Proyecto ↔ su sede (un espacio con ficha propia)
+function relHTML(e){
+  const all=S.cur?S.cur.items:[], sede=e.sede&&all.find(x=>x.id===e.sede), hosted=all.filter(x=>x.sede===e.id);
+  return (sede?`<p class="sub rel"><span>Su casa:</span><button type="button" class="linkbtn" data-open-ficha="${esc(sede.id)}">${esc(sede.n)} →</button></p>`:'')
+    +(hosted.length?`<p class="sub rel"><span>Aquí tiene su sede:</span>${hosted.map(h=>`<button type="button" class="linkbtn" data-open-ficha="${esc(h.id)}">${esc(h.n)}</button>`).join('')}</p>`:'');
+}
+function nets(e){ const l=[]; if(e.fb) l.push(`<a class="net" href="${esc(e.fb)}" target="_blank" rel="noopener noreferrer">Facebook</a>`); if(e.web) l.push(`<a class="net" href="${esc(e.web)}" target="_blank" rel="noopener noreferrer">Web</a>`); return l.join(''); }
+function igBlock(e){ return e.ig?`<span class="handle"><a class="ig" href="${igUrl(e.ig)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(e.ig)} en Instagram">@${esc(e.ig)}</a></span>`:''; }
+function card(e){
+  const ds=discsOf(e), space=e.fmt==='espacio', fm=space?(e.fam||[]):[], tgt=resolve(S.q);
+  const kind=FORMATS[e.fmt]+(e.kind?' · '+e.kind:'');
+  return `<article class="card${e.feat?' feat':''}" data-ficha="${esc(e.id)}">
+    <span class="kind">${esc(kind)}</span>
+    <div class="card-head"><div class="who"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span><h3><button type="button" class="cname" data-open-ficha="${esc(e.id)}">${hl(e.n,S.q)}</button></h3></div><div class="badges">${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.ver&&!e.feat?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div>
+    ${e.acts.length?`<ul class="doors">${e.acts.map(a=>`<li>${esc(actName(a))}</li>`).join('')}</ul>`:e.doors.length?`<ul class="doors">${e.doors.map(d=>`<li>${DOORTXT[d]}</li>`).join('')}</ul>`:''}
+    ${e.t?`<p class="desc">${hl(e.t,S.q)}</p>`:''}
+    ${e.offers.length?`<ul class="offers">${e.offers.map(o=>`<li>${hl(o,S.q)}</li>`).join('')}</ul>`:''}
+    ${fm.length?`<p class="sub"><span>Acoge:</span></p><div class="tags">${fm.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}
+    ${ds.length?`${space?`<p class="sub"><span>${fm.length?'En concreto:':'Suele acoger:'}</span></p>`:''}<div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
+    ${relHTML(e)}
+    ${genHit(e,tgt)?genNote(e,tgt):''}
+    <div class="meta"><span class="place">${esc(e.b||S.city)}</span><span class="links">${igBlock(e)}${nets(e)}</span></div>
+    <button type="button" class="report" data-report="${esc(e.id)}" data-rname="${esc(e.n)}">Avisar de un error</button>
+  </article>`;
+}
+// Una fila compacta por ficha (como en el panel); al pulsarla se abre la ficha completa
+function frow(e){
+  const ds=discsOf(e), space=e.fmt==='espacio', fm=space?(e.fam||[]):[], tgt=resolve(S.q);
+  const all=S.cur?S.cur.items:[], sede=e.sede&&all.find(x=>x.id===e.sede);
+  const acts=(e.acts.length?e.acts.map(actName):e.doors.map(d=>DOORTXT[d])).slice(0,3);
+  const meta=[FORMATS[e.fmt]+(e.kind?' · '+e.kind:''), e.b||e.muni||'', sede?'su casa: '+sede.n:''].filter(Boolean).join(' · ');
+  const link=e.ig?`<a class="netbtn" href="${igUrl(e.ig)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(e.ig)} en Instagram">@${esc(e.ig)}</a>`
+    :e.fb?`<a class="netbtn" href="${esc(e.fb)}" target="_blank" rel="noopener noreferrer">Facebook</a>`:e.web?`<a class="netbtn" href="${esc(e.web)}" target="_blank" rel="noopener noreferrer">Web</a>`:'';
+  return `<article class="frow${e.feat?' feat':''}" data-ficha="${esc(e.id)}">
+    <span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
+    <div class="fr-main">
+      <div class="fr-top"><h3><button type="button" class="cname" data-open-ficha="${esc(e.id)}">${hl(e.n,S.q||S.t)}</button></h3>${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.ver?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div>
+      <small class="fr-meta">${esc(meta)}${acts.length?`<span class="fr-acts">${acts.map(a=>`<span>${esc(a)}</span>`).join('')}</span>`:''}</small>
+      ${fm.length||ds.length?(()=>{ const tg=fm.map(f=>`<span class="f">${space?'Acoge ':''}${esc(f)}</span>`).concat(ds.map((d,i)=>`<span class="${i===0&&!space?'p':''}">${esc(d)}</span>`)), more=tg.length-3; return `<div class="fr-tags">${tg.slice(0,3).join('')}${more>0?`<span class="more" title="Ver todas en la ficha">+${more}</span>`:''}</div>`; })():''}
+      ${e.t?`<p class="fr-desc">${hl(e.t,S.t)}</p>`:''}
+      ${genHit(e,tgt)?`<p class="fr-gen">${space?'Acoge':'Hace'} ${esc(genOf(e,tgt))} en general; no ha concretado ${esc(tgt)}. Contacta para salir de dudas.</p>`:''}
+    </div>
+    <div class="fr-side">${link}</div>
+  </article>`;
+}
+function invite(){
+  return `<div class="invite"><span class="kind">${esc(S.city)} · por construir</span>
+    <h3>La escena de <span>${esc(S.city)}</span> está por construir</h3>
+    <p>Todavía no hay fichas aquí. Si conoces un proyecto, un colectivo o un espacio donde pasan cosas, propónlo: lo revisamos a mano y lo publicamos.</p>
+    <div class="acts"><button type="button" class="cta" data-open="ficha">¡Únete a la escena local!</button><button type="button" class="ghost" data-open="embajador">Quiero ayudar en ${esc(S.city)}</button></div></div>`;
+}
+function render(){
+  renderTop();
+  if(S.loading||!S.cur){ $('#count').textContent=''; $('#map').innerHTML='<div class="loading">Cargando la escena…</div>'; $('#out').innerHTML=''; return; }
+  const all=S.cur.items, lista=S.view==='lista';
+  document.querySelector('.map-band').hidden=lista;
+  document.querySelectorAll('#views button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===S.view)));
+  if(!lista) renderMap(all.filter(e=>doorOk(e)&&textOk(e)));
+  renderFamChips(all); renderCatChips(all);
+  const exact=S.q?all.filter(e=>norm(e.n)===norm(S.q)):[];
+  const famOk=e=>!S.open||famsOf(e).includes(S.open), tg=resolve(S.q);
+  const res=(exact.length?exact:all.filter(e=>doorOk(e)&&famOk(e)&&matches(e,S.q)&&textOk(e))).sort((a,b)=>(genHit(a,tg)-genHit(b,tg))||(!!b.isNew-!!a.isNew)||(b.feat-a.feat)||(b.ver-a.ver)||a.n.localeCompare(b.n,'es'));
+  const target=resolve(S.q), door=DOORS.find(d=>d[0]===S.door);
+  const nn=res.length, noun=S.kind==='e'?(nn===1?'espacio ':'espacios '):S.kind==='p'?(nn===1?'proyecto ':'proyectos '):'';
+  $('#count').innerHTML=`<strong>${nn}</strong> ${noun}en ${esc(S.city)}`;
+  const act=[]; if(S.kind!=='ambos') act.push(['kind',S.kind==='e'?'Solo espacios':'Solo proyectos']); if(door) act.push(['door',door[1]]); if(S.cede) act.push(['cede','Se alquilan o ceden']); if(S.open) act.push(['fam',S.open]);
+  if(S.q) act.push(['cat',target?pathOf(target):S.q]); if(S.t) act.push(['t','«'+S.t+'»']);
+  $('#active').innerHTML=act.map(([k,l])=>`<button type="button" data-unset="${k}" aria-label="Quitar el filtro ${esc(l)}">${esc(l)}</button>`).join('')+(act.length>1?'<button type="button" class="all" data-unset="all">Borrar todo</button>':'');
+  if(!all.length){ $('#out').innerHTML=invite(); return; }
+  if(!res.length){ $('#out').innerHTML=`<div class="invite"><h3>Aún no hay nada así en ${esc(S.city)}</h3><p>Si conoces a alguien que lo haga, o un sitio donde pase, propónlo.</p><div class="acts"><button type="button" class="cta" data-open="ficha">¡Únete a la escena local!</button><button type="button" class="ghost" data-reset="1">Ver todo ${esc(S.city)}</button></div></div>`; return; }
+  $('#out').innerHTML=`<div class="rows">${res.map(frow).join('')}</div>`; // filas compactas en las dos vistas; al pulsar, la ficha completa
+}
+// Con una disciplina elegida, debajo salen sus categorías (las que tienen fichas);
+// con una categoría elegida, sus subcategorías en una fila más
+function renderCatChips(all){
+  const box=$('#catchips'), sub=$('#subchips'); if(!S.open){ box.hidden=sub.hidden=true; box.innerHTML=sub.innerHTML=''; return; }
+  const base=all.filter(e=>doorOk(e)&&textOk(e)), c={}, t=resolve(S.q), tc=t?catOf(t):null;
+  base.forEach(e=>upOf(e).forEach(d=>c[d]=(c[d]||0)+1));
+  const ds=Object.keys(S.disc).filter(d=>isCat(d)&&S.disc[d].familia===S.open&&(c[d]||d===tc));
+  box.hidden=!ds.length; box.innerHTML=ds.map(d=>`<button type="button" data-cat="${esc(d)}" aria-pressed="${tc===d}">${esc(d)}<small>${c[d]||0}</small></button>`).join('');
+  const ks=tc&&famOf(tc)===S.open?kidsOf(tc).filter(d=>c[d]||d===t):[];
+  sub.hidden=!ks.length; sub.innerHTML=ks.length?`<span class="sub-l">${esc(tc)} ›</span>`+ks.map(d=>`<button type="button" data-cat="${esc(d)}" aria-pressed="${t===d}">${esc(d)}<small>${c[d]||0}</small></button>`).join(''):'';
+}
+// Las familias, como fila de botones (en el mapa también están en el anillo)
+function renderFamChips(all){
+  const box=$('#famchips'), base=all.filter(e=>doorOk(e)&&textOk(e)), cur=S.open;
+  const n=f=>base.filter(e=>famsOf(e).includes(f)).length;
+  if(!all.length){ box.innerHTML=''; return; }
+  box.innerHTML=`<button type="button" data-fchip="" aria-pressed="${!cur}">Todas</button>`+FAMS.map(f=>{ const k=n(f); return `<button type="button" data-fchip="${esc(f)}" aria-pressed="${cur===f}" class="${k?'':'off'}">${esc(f)}<small>${k}</small></button>`; }).join('');
+}
+
+// Vista del mapa (zoom y desplazamiento): se guarda entre renders
+const V={home:null,cur:null,key:'',anim:0};
+function fitAspect(b,A){ let {x,y,w,h}=b; if(h/w<A){ const nh=w*A; y-=(nh-h)/2; h=nh; } else { const nw=h/A; x-=(nw-w)/2; w=nw; } return {x,y,w,h}; }
+const atHome=()=>!!(V.cur&&V.home&&Math.abs(V.cur.w-V.home.w)<2&&Math.abs(V.cur.x-V.home.x)<2&&Math.abs(V.cur.y-V.home.y)<2);
+function setVB(v){
+  V.cur=v; const sv=$('#map .msvg'); if(!sv) return;
+  sv.setAttribute('viewBox',`${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`);
+  const z=V.home?V.home.w/v.w:1; sv.style.setProperty('--z',z.toFixed(3));
+  // Los nombres largos de disciplina se recortan según el espacio que hay a este zoom
+  sv.querySelectorAll('.rl[data-gap]').forEach(t=>{ const full=t.dataset.full, max=Math.max(4,Math.floor(+t.dataset.gap*z/(+t.dataset.cw))); const txt=full.length>max?full.slice(0,max-1).trimEnd()+'…':full; if(t.textContent!==txt) t.textContent=txt; });
+  const home=atHome(); sv.style.touchAction=home?'pan-y':'none';
+  const hb=$('#mapHome'); if(hb) hb.hidden=home&&!S.open&&!S.q;
+}
+function clampV(v){
+  const H=V.home, A=H.h/H.w, w=Math.min(H.w,Math.max(H.w*0.1,v.w)), h=w*A;
+  // Sin salirse del mapa: los bordes de la vista quedan dentro de la vista completa
+  const cx=v.x+v.w/2, cy=v.y+v.h/2;
+  const x=Math.max(H.x,Math.min(H.x+H.w-w,cx-w/2)), y=Math.max(H.y,Math.min(H.y+H.h-h,cy-h/2));
+  return {x,y,w,h};
+}
+function animTo(t){
+  cancelAnimationFrame(V.anim); const f=V.cur;
+  if(!f||matchMedia('(prefers-reduced-motion: reduce)').matches){ setVB(t); return; }
+  const t0=performance.now(), D=520, ease=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+  const step=now=>{ const u=Math.min(1,(now-t0)/D), k=ease(u); setVB({x:f.x+(t.x-f.x)*k,y:f.y+(t.y-f.y)*k,w:f.w+(t.w-f.w)*k,h:f.h+(t.h-f.h)*k}); if(u<1) V.anim=requestAnimationFrame(step); };
+  V.anim=requestAnimationFrame(step);
+}
+function zoomAt(f,px,py,smooth){
+  const v=V.cur, H=V.home; const w=Math.min(H.w,Math.max(H.w*0.1,v.w/f)), r=w/v.w;
+  const t=clampV({x:px-(px-v.x)*r,y:py-(py-v.y)*r,w,h:v.h*r});
+  smooth?animTo(t):(cancelAnimationFrame(V.anim),setVB(t));
+}
+function focusBox(sv,sel,pad,minFrac){
+  let b=null;
+  sv.querySelectorAll(sel).forEach(el=>{ let r; try{ r=el.getBBox(); }catch(e){ return; } if(!r||(!r.width&&!r.height)) return;
+    b=b?{x1:Math.min(b.x1,r.x),y1:Math.min(b.y1,r.y),x2:Math.max(b.x2,r.x+r.width),y2:Math.max(b.y2,r.y+r.height)}:{x1:r.x,y1:r.y,x2:r.x+r.width,y2:r.y+r.height}; });
+  const H=V.home; if(!b) return H;
+  let box=fitAspect({x:b.x1-pad,y:b.y1-pad,w:b.x2-b.x1+2*pad,h:b.y2-b.y1+2*pad},H.h/H.w);
+  if(box.w<H.w*minFrac){ const w=H.w*minFrac, h=w*H.h/H.w; box={x:box.x+box.w/2-w/2,y:box.y+box.h/2-h/2,w,h}; }
+  return clampV(box);
+}
+// Arrastrar, pellizcar y rueda (con Ctrl o el gesto del trackpad)
+function bindPanZoom(sv){
+  const pts=new Map(); let last=null, dist=0, moved=0, pinch=null;
+  const toV=(cx,cy)=>{ const r=sv.getBoundingClientRect(), v=V.cur; return {x:v.x+(cx-r.left)/r.width*v.w,y:v.y+(cy-r.top)/r.height*v.h}; };
+  sv.addEventListener('pointerdown',e=>{ if(e.button>0) return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=0; last={x:e.clientX,y:e.clientY};
+    if(pts.size===2){ const [p,q]=[...pts.values()]; pinch={d:Math.hypot(p.x-q.x,p.y-q.y)}; } });
+  sv.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId)) return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size>=2&&pinch){ const [p,q]=[...pts.values()], d=Math.hypot(p.x-q.x,p.y-q.y), m=toV((p.x+q.x)/2,(p.y+q.y)/2); if(pinch.d>0) zoomAt(d/pinch.d,m.x,m.y); pinch.d=d; moved=99; return; }
+    if(atHome()&&e.pointerType==='touch') return; // en la vista completa, un dedo hace scroll de la página
+    const dx=e.clientX-last.x, dy=e.clientY-last.y; moved+=Math.abs(dx)+Math.abs(dy); last={x:e.clientX,y:e.clientY};
+    if(moved>6){ if(!sv.classList.contains('dragging')){ sv.classList.add('dragging'); try{ sv.setPointerCapture(e.pointerId); }catch(_){} }
+      const r=sv.getBoundingClientRect(), v=V.cur; cancelAnimationFrame(V.anim); setVB(clampV({x:v.x-dx/r.width*v.w,y:v.y-dy/r.height*v.h,w:v.w,h:v.h})); }
+  });
+  const end=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch=null; if(!pts.size) sv.classList.remove('dragging'); };
+  sv.addEventListener('pointerup',end); sv.addEventListener('pointercancel',end);
+  sv.addEventListener('click',e=>{ if(moved>6){ e.stopPropagation(); e.preventDefault(); moved=0; } },true);
+  sv.addEventListener('wheel',e=>{ if(!e.ctrlKey&&!e.metaKey) return; e.preventDefault(); const m=toV(e.clientX,e.clientY); zoomAt(Math.exp(-e.deltaY*0.01),m.x,m.y); },{passive:false});
+}
+
+function renderMap(items){
+  // Tres anillos fijos: disciplinas (fuera) → categorías (en medio) → proyectos o lugares (dentro).
+  // Una ficha etiquetada en una subcategoría cuelga de su categoría.
+  // El esqueleto se calcula con todos los proyectos de la ciudad, así no se mueve al filtrar.
+  const all=S.cur.items, places=S.kind==='e', both=S.kind==='ambos', isSp=e=>e.fmt==='espacio';
+  const own=e=>[...new Set(e.d.filter(x=>S.disc[x]).map(catOf))];
+  const T0=resolve(S.q), target=T0?catOf(T0):null, qn=norm(S.q), open=S.open||resolveFam(S.q)||null;
+  const box=$('#map'), cw=Math.max(280,(box&&box.clientWidth)||900), mobile=cw<720;
+  const FL=mobile?13:16, kd=mobile?2.2:1;
+  // Unidades del mapa por píxel en la vista completa, contando con que las etiquetas de familia quepan
+  const sc=(2*(360+40))/Math.max(160,cw-2*0.56*9.5*FL), K=sc;
+  const R1=360, R2=285, R3=172, R4=108, TAU=Math.PI*2, deg=a=>a*180/Math.PI, f1=v=>v.toFixed(1);
+  const pol=(a,r)=>({x:Math.cos(a)*r,y:Math.sin(a)*r});
+  // --- Esqueleto: un hueco por proyecto, agrupados por familia y disciplina principal (la primera de la ficha)
+  const base=all.filter(e=>!isSp(e)&&own(e).length), prim=e=>own(e)[0], fi=f=>FAMS.indexOf(f), di=d=>S.disc[d].id;
+  base.sort((a,b)=>fi(famOf(prim(a)))-fi(famOf(prim(b)))||di(prim(a))-di(prim(b))||a.n.localeCompare(b.n,'es'));
+  const byF={}; FAMS.forEach(f=>byF[f]=base.filter(e=>famOf(prim(e))===f));
+  const GAP=1.3, W=f=>Math.max(byF[f].length,1.5); let T=0; FAMS.forEach(f=>T+=W(f)+GAP);
+  const u=TAU/T, famA={}, sect={}, leafA={}, dAcc={}; let acc=0;
+  FAMS.forEach(f=>{ const w=W(f), st=acc+GAP/2, pad=(w-byF[f].length)/2; famA[f]=st+w/2; sect[f]=[st,st+w];
+    byF[f].forEach((e,i)=>{ const a=st+pad+i+0.5; leafA[e.id]=a; (dAcc[prim(e)]=dAcc[prim(e)]||[]).push(a); }); acc+=w+GAP; });
+  const off=-Math.PI/2-famA[FAMS[0]]*u, ang=x=>x*u+off;
+  // Disciplinas: en la media de sus proyectos; las que solo aparecen como secundarias, dentro del sector de su familia
+  const discA={};
+  Object.entries(dAcc).forEach(([d,as])=>discA[d]=as.reduce((p,q)=>p+q,0)/as.length);
+  const present=new Set(); all.forEach(e=>own(e).forEach(d=>present.add(d))); if(target&&S.disc[target]) present.add(target);
+  FAMS.forEach(f=>{
+    const ds=[...present].filter(d=>famOf(d)===f).sort((a,b)=>di(a)-di(b));
+    ds.filter(d=>discA[d]===undefined).forEach(d=>{ const as=base.filter(e=>famOf(prim(e))===f&&own(e).includes(d)).map(e=>leafA[e.id]); discA[d]=as.length?as.reduce((p,q)=>p+q,0)/as.length:famA[f]; });
+    // separar las que caen juntas, sin salir del sector
+    const list=ds.sort((a,b)=>discA[a]-discA[b]), minSep=Math.min(0.9,(sect[f][1]-sect[f][0])/Math.max(1,list.length));
+    for(let it=0;it<40;it++){ let mv=false; for(let k=1;k<list.length;k++){ const g=discA[list[k]]-discA[list[k-1]]; if(g<minSep){ const p=(minSep-g)/2; discA[list[k-1]]-=p; discA[list[k]]+=p; mv=true; } } if(!mv) break; }
+  });
+  Object.keys(famA).forEach(f=>famA[f]=ang(famA[f])); Object.keys(leafA).forEach(k=>leafA[k]=ang(leafA[k])); Object.keys(discA).forEach(d=>discA[d]=ang(discA[d]));
+  // --- Lo que se dibuja en este modo
+  const leaves=items.filter(e=>isSp(e)||own(e).length);
+  const rL=e=>isSp(e)&&both?R4:R3; // con «Ambos», los espacios van en el anillo central
+  const dOf=e=>own(e);
+  const counts={}; leaves.forEach(e=>dOf(e).forEach(d=>counts[d]=(counts[d]||0)+1));
+  const gF=e=>isSp(e)?(e.fam||[]).filter(f=>FAMS.includes(f)):[]; // familias enteras que acoge un espacio
+  const inF=(e,f)=>dOf(e).some(d=>famOf(d)===f)||gF(e).includes(f);
+  const famN={}; FAMS.forEach(f=>famN[f]=leaves.filter(e=>inF(e,f)).length);
+  // Lugares: en el anillo interior, en la media de lo que acogen, separados entre sí
+  const SL=leaves.filter(isSp);
+  if(SL.length){
+    const RR=both?R4:R3;
+    const L=SL.map(e=>{ const ds=dOf(e).filter(d=>discA[d]!==undefined), as=ds.map(d=>discA[d]).concat(gF(e).map(f=>famA[f])); let x=0,y=0; as.forEach(a=>{ x+=Math.cos(a); y+=Math.sin(a); }); return {e,a:as.length?Math.atan2(y,x):Math.PI/2}; }).sort((p,q)=>p.a-q.a);
+    const sep=Math.min(TAU/Math.max(1,L.length)*0.9,Math.max(22/RR,0.5));
+    for(let it=0;it<60;it++){ let mv=false; for(let k=0;k<L.length;k++){ const A=L[k], B=L[(k+1)%L.length]; if(L.length<2) break; let g=B.a-A.a; if(k===L.length-1) g+=TAU; if(g<sep){ const p=(sep-g)/2; A.a-=p; B.a+=p; mv=true; } } if(!mv) break; }
+    L.forEach(t=>leafA[t.e.id]=t.a);
+  }
+  const maxF=Math.max(1,...FAMS.map(f=>famN[f])), famR=f=>(famN[f]?6+20*Math.pow(famN[f]/maxF,0.8):6)*Math.sqrt(kd);
+  const maxD=Math.max(1,...Object.values(counts)), dR=d=>(2.5+6.5*Math.pow((counts[d]||0)/maxD,0.8))*Math.sqrt(kd);
+  const drawD=Object.keys(discA).filter(d=>counts[d]||d===target);
+  // --- Estados: lo elegido manda; lo demás se apaga
+  const nameHit=leaves.find(e=>norm(e.n)===qn);
+  const any=!!(open||target||nameHit);
+  const famSt=f=>!any?'':(f===open||(target&&famOf(target)===f)?'on':(nameHit&&dOf(nameHit).some(d=>famOf(d)===f)?'':'dim'));
+  const dscSt=d=>{ if(target) return d===target?'on':'dim'; if(open) return famOf(d)===open?'lab':'dim'; if(nameHit) return dOf(nameHit).includes(d)?'lab':'dim'; return ''; };
+  const leafSt=e=>{ if(nameHit) return e===nameHit?'on':'dim'; if(target) return upOf(e).includes(T0)||genHit(e,T0)?'on':'dim'; if(open) return inF(e,open)?'on':'dim'; return ''; };
+  const rlink=(a1,r1,a2,r2)=>{ const m=(r1+r2)/2, A=pol(a1,r1), B=pol(a1,m), C=pol(a2,m), D=pol(a2,r2); return `M${f1(A.x)},${f1(A.y)} C${f1(B.x)},${f1(B.y)} ${f1(C.x)},${f1(C.y)} ${f1(D.x)},${f1(D.y)}`; };
+  const nm=e=>e.n.length>26?e.n.slice(0,25).trimEnd()+'…':e.n;
+  // --- Vista completa (hace falta para saber a qué escala se leerán los textos)
+  const padX=40+0.56*9.5*FL*sc, padY=40+FL*1.5*sc, nat={x:-R1-padX,y:-R1-padY,w:2*(R1+padX),h:2*(R1+padY)};
+  const A=mobile?Math.max(nat.h/nat.w,1.4):nat.h/nat.w, H=fitAspect(nat,A); V.home=H;
+  // --- Etiquetas siempre horizontales, hacia el centro del círculo:
+  //     a los lados, a la izquierda o la derecha del punto; arriba y abajo, debajo o encima.
+  const side=a=>{ const c=Math.cos(a), sn=Math.sin(a); return Math.abs(c)<0.38?(sn<0?'below':'above'):(c>0?'left':'right'); };
+  const boxOf=(n,k)=>{ const p=pol(n.a,n.r), fu=11.5/k, w=n.lab.length*fu*(n.bold?0.6:0.55), d=n.dr+0.6*fu, sd=side(n.a); let x1,x2,y1,y2;
+    if(sd==='below'){ x1=p.x-w/2; x2=p.x+w/2; y1=p.y+n.dr+0.1*fu; y2=y1+1.25*fu; }
+    else if(sd==='above'){ x1=p.x-w/2; x2=p.x+w/2; y2=p.y-n.dr-0.1*fu; y1=y2-1.25*fu; }
+    else if(sd==='left'){ x2=p.x-d; x1=x2-w; y1=p.y-0.65*fu; y2=p.y+0.65*fu; }
+    else { x1=p.x+d; x2=x1+w; y1=p.y-0.65*fu; y2=p.y+0.65*fu; }
+    const m=2/k; return {x1:Math.min(x1,p.x-n.dr)-m,x2:Math.max(x2,p.x+n.dr)+m,y1:Math.min(y1,p.y-n.dr)-m,y2:Math.max(y2,p.y+n.dr)+m}; };
+  const hit=(P,Q)=>P.x1<Q.x2&&Q.x1<P.x2&&P.y1<Q.y2&&Q.y1<P.y2;
+  const wrap=x=>{ while(x>Math.PI) x-=TAU; while(x<-Math.PI) x+=TAU; return x; };
+  // Separa los nodos que se pisan moviéndolos a lo largo de su anillo
+  function relax(nodes,k){
+    for(let it=0;it<400;it++){
+      const bx=nodes.map(n=>boxOf(n,k)); let mv=false;
+      for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){
+        if(!hit(bx[i],bx[j])) continue; const sg=wrap(nodes[j].a-nodes[i].a)>=0?1:-1, st=0.012*(nodes[i].r===nodes[j].r?1:0.7);
+        nodes[i].a-=sg*st; nodes[j].a+=sg*st; mv=true;
+      }
+      if(!mv) break;
+    }
+    return nodes.map(n=>boxOf(n,k));
+  }
+  const union=bs=>bs.reduce((u,b)=>({x1:Math.min(u.x1,b.x1),y1:Math.min(u.y1,b.y1),x2:Math.max(u.x2,b.x2),y2:Math.max(u.y2,b.y2)}),{x1:1e9,y1:1e9,x2:-1e9,y2:-1e9});
+  // --- Qué se despliega: con una familia abierta, todas sus disciplinas y sus proyectos (o lugares) se reparten y llevan nombre
+  const fo=open||(target&&FAMS.includes(famOf(target))?famOf(target):null);
+  let layD=[], layL=[];
+  if(fo){ layD=drawD.filter(d=>famOf(d)===fo); layL=leaves.filter(e=>inF(e,fo)); }
+  else if(nameHit){ layD=drawD.filter(d=>dOf(nameHit).includes(d)); layL=[nameHit]; }
+  else if(places&&!mobile){ layL=leaves.slice(); }
+  const posA={};
+  const zNow=V.cur&&V.key.split('|')[0]===S.city?H.w/V.cur.w:1;
+  let zPick=zNow, layBox=null;
+  if(layD.length||layL.length){
+    const dOrd=d=>S.disc[d].id, mk=()=>{
+      const ds=layD.slice().sort((x,y)=>dOrd(x)-dOrd(y)), ls=layL.slice().sort((x,y)=>{ const px=dOf(x).find(d=>layD.includes(d)), py=dOf(y).find(d=>layD.includes(d)); return (px?dOrd(px):0)-(py?dOrd(py):0)||x.n.localeCompare(y.n,'es'); });
+      const c=fo?famA[fo]:null;
+      return [...ds.map((d,i)=>({key:'d:'+d,a:fo?c+(i-(ds.length-1)/2)*0.05:discA[d],r:R2,lab:d,dr:dR(d),bold:1})),
+              ...ls.map((e,i)=>({key:'l:'+e.id,a:fo?c+(i-(ls.length-1)/2)*0.04:leafA[e.id],r:rL(e),lab:nm(e),dr:0,leaf:1}))];
+    };
+    const fam0=fo?pol(famA[fo],R1):null;
+    const tryZ=z=>{ const k=z*cw/H.w, ns=mk(); ns.forEach(n=>{ if(n.leaf) n.dr=3.2/k; }); const bs=relax(ns,k); let u=union(bs); if(fam0) u=union([u,{x1:fam0.x-30,x2:fam0.x+30,y1:fam0.y-30,y2:fam0.y+30}]);
+      if(!fo&&nameHit){ const fl=60*H.w/(z*cw); [...new Set(dOf(nameHit).map(famOf))].filter(f=>FAMS.includes(f)).forEach(f=>{ const q=pol(famA[f],R1); u=union([u,{x1:q.x-fl,x2:q.x+fl,y1:q.y-30,y2:q.y+30}]); }); }
+      return {ns,u}; };
+    const zoomed=!!(fo||target||nameHit);
+    const cands=zoomed?(mobile?[4,3.4,2.8,2.3,1.9,1.5,1.2,1]:[1.6,1.4,1.25,1.1,1]):[zNow];
+    let res=null;
+    for(const z of cands){ res=tryZ(z); zPick=z; if(!zoomed) break; const vw=H.w/z, vh=H.h/z; if(res.u.x2-res.u.x1<=vw*0.94&&res.u.y2-res.u.y1<=vh*0.94) break; }
+    res.ns.forEach(n=>posA[n.key]=n.a); layBox=res.u;
+  }
+  const angD=d=>posA['d:'+d]??discA[d], angL=e=>posA['l:'+e.id]??leafA[e.id];
+  const htext=(a,p,dr,txt,cls,extra='')=>{ const sd=side(a);
+    if(sd==='below') return `<text class="hl ${cls}" x="${f1(p.x)}" y="${f1(p.y+dr)}" dy="1.02em" text-anchor="middle"${extra}>${txt}</text>`;
+    if(sd==='above') return `<text class="hl ${cls}" x="${f1(p.x)}" y="${f1(p.y-dr)}" dy="-0.42em" text-anchor="middle"${extra}>${txt}</text>`;
+    if(sd==='left') return `<text class="hl ${cls}" x="${f1(p.x-dr)}" y="${f1(p.y)}" dx="-0.6em" dy=".35em" text-anchor="end"${extra}>${txt}</text>`;
+    return `<text class="hl ${cls}" x="${f1(p.x+dr)}" y="${f1(p.y)}" dx="0.6em" dy=".35em" text-anchor="start"${extra}>${txt}</text>`; };
+  let links='', fams='', discs='', dots='';
+  // Familia → disciplina
+  drawD.forEach(d=>{ const st=dscSt(d), f=famOf(d); if(!FAMS.includes(f)) return;
+    links+=`<path class="lk${st==='dim'?' dim':st?' hot':''}" d="${rlink(famA[f],R1-famR(f),angD(d),R2+dR(d))}"/>`; });
+  // Familia → espacio que la acoge en general (punteada)
+  leaves.forEach((e,i)=>{ const st=leafSt(e), a=angL(e); if(a===undefined) return;
+    gF(e).forEach(f=>{ const fs=famSt(f), hot=st==='on'&&fs!=='dim', cls=hot?' hot':(st==='dim'||fs==='dim')&&any?' dim':'';
+      links+=`<path data-i="${i}" class="lk gen${cls}" d="${rlink(famA[f],R1-famR(f),a,rL(e)+4)}"/>`; }); });
+  // Disciplina → proyecto (la principal, continua; las demás, discontinuas)
+  leaves.forEach((e,i)=>{ const st=leafSt(e), a=angL(e); if(a===undefined) return;
+    dOf(e).forEach((d,k)=>{ if(discA[d]===undefined) return; const ds=dscSt(d), sec=isSp(e)?false:k>0;
+      const hot=st==='on'&&ds!=='dim', cls=hot?' hot':(st==='dim'||ds==='dim')&&any?' dim':'';
+      links+=`<path data-i="${i}" class="lk${sec?' sec':''}${cls}" d="${rlink(angD(d),R2-dR(d),a,rL(e)+4)}"/>`; }); });
+  FAMS.forEach(f=>{
+    const a=famA[f], {x,y}=pol(a,R1), n=famN[f], st=famSt(f), cos=Math.cos(a), sin=Math.sin(a), r=famR(f);
+    const lr=R1+r+10, lx=Math.cos(a)*lr, ly=Math.sin(a)*lr;
+    const anchor=Math.abs(cos)<0.25?'middle':cos>0?'start':'end', dy=Math.abs(cos)<0.25?(sin<0?'-0.25em':'0.95em'):'0.35em';
+    const lines=famLines(f), noun=places?(n===1?'espacio':'espacios'):both?(n===1?'ficha':'fichas'):(n===1?'proyecto':'proyectos');
+    fams+=`<g class="node fam${st==='on'?' on':''}${st==='dim'?' g-dim':''}" tabindex="0" role="button" aria-expanded="${open===f}" data-q="${esc(f)}" aria-label="${esc(f)}: ${n} ${noun}"><title>${esc(f)} · ${n} ${noun}</title>
+      <circle class="halo" cx="${f1(x)}" cy="${f1(y)}" r="${f1(r+7)}"/><circle class="hit" cx="${f1(x)}" cy="${f1(y)}" r="${f1(Math.max(r+12,22*K))}"/>
+      <circle class="fam-dot${n?'':' off'}" cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}"/>
+      <text class="fam-t${n||st==='on'?'':' off'}" x="${f1(lx)}" y="${f1(ly)}" text-anchor="${anchor}">${lines.map((l,k)=>`<tspan x="${f1(lx)}" dy="${k?'1.05em':(lines.length>1&&anchor!=='middle'?'-0.2em':dy)}">${esc(l)}</tspan>`).join('')}</text></g>`;
+  });
+  drawD.forEach(d=>{
+    const st=dscSt(d), a=angD(d), p=pol(a,R2), r=dR(d), n=counts[d]||0;
+    discs+=`<g class="node dsc${st?' '+st:''}${st==='dim'?' g-dim':''}" tabindex="0" role="button" data-q="${esc(d)}" aria-label="${esc(d)}: ${n}"><title>${esc(d)} · ${n}</title><circle class="hit" cx="${f1(p.x)}" cy="${f1(p.y)}" r="11"/><circle class="dd" cx="${f1(p.x)}" cy="${f1(p.y)}" r="${f1(st==='on'?r+2:r)}"/>${htext(a,p,r,esc(d),'d')}</g>`;
+  });
+  const showAll=places&&!mobile&&!any;
+  leaves.forEach((e,i)=>{ const a=angL(e); if(a===undefined) return;
+    const st=leafSt(e), p=pol(a,rL(e)), lab=st==='on'||(showAll&&st!=='dim'), pr=4;
+    const shape=isSp(e)?`<rect class="pd" transform="translate(${f1(p.x)},${f1(p.y)})" x="${-pr}" y="${-pr}" width="${pr*2}" height="${pr*2}" rx="1.5"/>`:`<circle class="pd" cx="${f1(p.x)}" cy="${f1(p.y)}" r="${pr}"/>`;
+    dots+=`<g data-i="${i}" class="node pj${isSp(e)?' sp':''}${e.feat?' feat':''}${st==='on'?' on':''}${lab?' lab':''}${st==='dim'?' g-dim':''}" tabindex="0" role="button" data-q="${esc(e.n)}" data-id="${esc(e.id)}" aria-label="${esc(e.n)}"><circle class="hit-area" cx="${f1(p.x)}" cy="${f1(p.y)}" r="9"/>${shape}${htext(a,p,0,esc(nm(e)),'')}</g>`;
+  });
+  const rings=`<circle class="ring" r="${R1}"/><circle class="ring in" r="${R2}"/><circle class="ring in" r="${R3}"/>${both&&SL.length?`<circle class="ring in" r="${R4}"/>`:''}`;
+  const key=[S.city,S.kind,open||'',T0||'',mobile,nameHit?nameHit.id:''].join('|'), changed=key!==V.key, pk=V.key.split('|');
+  const start=(!V.cur||pk[0]!==S.city||pk[4]!==String(mobile))?H:V.cur;
+  const svg=`<svg class="msvg" viewBox="${start.x.toFixed(1)} ${start.y.toFixed(1)} ${start.w.toFixed(1)} ${start.h.toFixed(1)}" style="aspect-ratio:1 / ${A.toFixed(4)};--s:${(H.w/cw).toFixed(3)};--fl:${FL}px" role="img" aria-label="Mapa de ${places?'los espacios':'la escena'} de ${esc(S.city)}">${rings}${links}${fams}${discs}${dots}</svg>`;
+  const top=`<div class="maptop"><span class="map-hint">${mobile?'Pellizca para acercar':'Ctrl + rueda para acercar · arrastra para moverte'}</span></div>`;
+  const ctl=`<button type="button" class="maphome" id="mapHome" data-home="1" hidden><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2.5 4.5 7 9 11.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Todo el mapa</button>
+    <div class="mapctl"><button type="button" data-zoom="1.5" aria-label="Acercar">+</button><button type="button" data-zoom="0.667" aria-label="Alejar">−</button></div>`;
+  const legend=places
+    ?`<div class="map-legend"><span><i class="sq"></i>Espacio</span><span>Cada espacio se une a lo que suele acoger; con línea de puntos, a las disciplinas que acoge enteras. Toca uno para verlo.</span></div>`
+    :both&&SL.length?`<div class="map-legend"><span><i></i>Proyecto</span><span><i class="sq"></i>Espacio</span><span>Fuera, las disciplinas; en medio, sus categorías; dentro, los proyectos, y en el centro, los espacios.</span></div>`
+    :`<div class="map-legend"><span><i></i>Proyecto</span><span>Fuera, las disciplinas; en medio, sus categorías; dentro, los proyectos. El tamaño es el peso de cada parte en ${esc(S.city)}.</span></div>`;
+  $('#map').innerHTML=top+`<div class="mapview">${svg}${ctl}</div>`+legend;
+  const sv=$('#map .msvg');
+  V.cur=start; setVB(start); bindPanZoom(sv);
+  if(changed){
+    V.key=key;
+    let t=H;
+    if((fo||target||nameHit)&&layBox){
+      let z=zPick, c={x:(layBox.x1+layBox.x2)/2,y:(layBox.y1+layBox.y2)/2};
+      if(target){ // un poco más cerca de la disciplina elegida y sus proyectos
+        const k=z*cw/H.w, bs=[];
+        const tp=pol(angD(target),R2); bs.push({x1:tp.x-20,x2:tp.x+20,y1:tp.y-20,y2:tp.y+20});
+        leaves.filter(e=>leafSt(e)==='on').forEach(e=>bs.push(boxOf({a:angL(e),r:rL(e),lab:nm(e),dr:3.2/k},k)));
+        const u=union(bs); c={x:(u.x1+u.x2)/2,y:(u.y1+u.y2)/2};
+        const z2=Math.min(z*1.3,H.w/((u.x2-u.x1)/0.85),H.h/((u.y2-u.y1)/0.85)); z=Math.max(z,z2);
+      }
+      const w=H.w/z, h=H.h/z; t=clampV({x:c.x-w/2,y:c.y-h/2,w,h});
+    }
+    animTo(t);
+  }
+  sv.querySelectorAll('.pj').forEach(g=>{
+    const on=v=>sv.querySelectorAll(`.lk[data-i="${g.dataset.i}"]`).forEach(l=>l.classList.toggle('hov',v));
+    g.addEventListener('pointerenter',()=>on(true)); g.addEventListener('pointerleave',()=>on(false));
+    g.addEventListener('focus',()=>on(true)); g.addEventListener('blur',()=>on(false));
+  });
+}
+
+// ---------- Ficha completa ----------
+const dlgF=$('#dlgF'); let FOPEN=null;
+const mapsUrl=(dir,city)=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(dir+', '+city);
+function fichaHTML(e){
+  const ds=discsOf(e), space=e.fmt==='espacio', kind=FORMATS[e.fmt]+(e.kind?' · '+e.kind:'');
+  const links=[];
+  if(e.ig) links.push(`<a class="cta" href="${igUrl(e.ig)}" target="_blank" rel="noopener noreferrer">Instagram · @${esc(e.ig)}</a>`);
+  if(e.fb) links.push(`<a class="${links.length?'ghost':'cta'}" href="${esc(e.fb)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
+  if(e.web) links.push(`<a class="${links.length?'ghost':'cta'}" href="${esc(e.web)}" target="_blank" rel="noopener noreferrer">Web</a>`);
+  const info=[];
+  const zona=[e.b,e.muni].filter(Boolean).join(' · ');
+  if(zona) info.push(`<dt>Zona</dt><dd>${esc(zona)}</dd>`);
+  if(e.dir) info.push(`<dt>Dirección</dt><dd><a href="${mapsUrl(e.dir,S.city)}" target="_blank" rel="noopener noreferrer">${esc(e.dir)}</a></dd>`);
+  if(e.hor) info.push(`<dt>Horario</dt><dd>${esc(e.hor)}</dd>`);
+  return `<div class="fs-head"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" onerror="this.remove()">`:''}</span>
+    <div><span class="kind">${esc(kind)}</span><h2 id="fsName">${esc(e.n)}</h2><div class="badges" style="justify-content:flex-start">${e.feat?'<span class="badge">Destacado</span>':''}${e.ver?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div></div>
+    ${links.length?`<div class="fs-links">${links.join('')}</div>`:''}
+    ${e.t?`<p class="fs-text">${esc(e.t)}</p>`:''}
+    ${relHTML(e)}
+    ${e.acts.length||e.doors.length?`<div class="fs-sec"><h3>Abierto al público</h3><ul class="doors">${(e.acts.length?e.acts.map(a=>esc(actName(a))):e.doors.map(d=>DOORTXT[d])).map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
+    ${e.offers.length?`<div class="fs-sec"><h3>Ofrece a otros</h3><ul class="offers">${e.offers.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>`:''}
+    ${space&&(e.fam||[]).length?`<div class="fs-sec"><h3>Acoge</h3><div class="tags">${e.fam.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div></div>`:''}
+    ${ds.length?`<div class="fs-sec"><h3>${space?((e.fam||[]).length?'En concreto':'Suele acoger'):'Qué hace'}</h3><div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}" title="${esc(famOf(t)+' › '+pathOf(t))}">${parOf(t)?`<small>${esc(parOf(t))} ›</small> `:''}${esc(t)}</button>`).join('')}</div></div>`:''}
+    ${genHit(e,resolve(S.q))?genNote(e,resolve(S.q)):''}
+    ${info.length?`<dl class="fs-info">${info.join('')}</dl>`:''}
+    ${e.info?`<div class="fs-sec"><h3>Más información</h3><p class="fs-more">${esc(e.info)}</p></div>`:''}
+    <div class="fs-foot"><button type="button" class="ghost" id="fsShare">Compartir</button><button type="button" class="report" data-report="${esc(e.id)}" data-rname="${esc(e.n)}">Avisar de un error</button></div>`;
+}
+function openFicha(id,push=true){
+  const e=S.cur&&byId(id); if(!e) return;
+  FOPEN=id; $('#fsBody').innerHTML=fichaHTML(e);
+  if(!dlgF.open){ if(dlgF.showModal) dlgF.showModal(); else dlgF.setAttribute('open',''); }
+  dlgF.scrollTop=0;
+  if(push){ try{ const u=new URL(location.href); u.searchParams.set('f',id); history.pushState({f:id},'',u); }catch(err){} }
+}
+function closeFicha(){ if(dlgF.open) dlgF.close(); }
+dlgF.addEventListener('close',()=>{ if(!FOPEN) return; FOPEN=null;
+  try{ if(history.state&&history.state.f) history.back(); else { const u=new URL(location.href); u.searchParams.delete('f'); history.replaceState(null,'',u); } }catch(err){} });
+$('#fsClose').addEventListener('click',closeFicha);
+dlgF.addEventListener('click',e=>{ if(e.target===dlgF) closeFicha(); }); // pulsar fuera cierra
+window.addEventListener('popstate',()=>{ let f=null; try{ f=new URL(location.href).searchParams.get('f'); }catch(err){}
+  if(f&&S.cur&&byId(f)) openFicha(f,false); else if(dlgF.open){ FOPEN=null; dlgF.close(); } });
+dlgF.addEventListener('click',async e=>{
+  if(!e.target.closest('#fsShare')) return;
+  const ent=byId(FOPEN), url=location.href;
+  try{ if(navigator.share){ await navigator.share({title:ent.n+' · La Escena Local',url}); return; } await navigator.clipboard.writeText(url); toast('Enlace copiado.'); }catch(err){ if(err&&err.name!=='AbortError') toast('Copia el enlace de la barra del navegador.'); }
+});
+
+// ---------- Interacción ----------
+let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
+function closeCity(){ $('#cityPanel').hidden=true; $('#cityBtn').setAttribute('aria-expanded','false'); }
+$('#cityList').addEventListener('click',e=>{ const b=e.target.closest('[data-propose-city]'); if(!b) return; e.stopPropagation(); const q=norm(b.dataset.proposeCity||''); closeCity(); openAdd('embajador'); const c=q&&S.cities.find(x=>norm(x.nombre)===q||norm(x.nombre).startsWith(q)); $('#fCity').value=c?c.nombre:''; });
+$('#cityBtn').addEventListener('click',e=>{ e.stopPropagation(); closeDisc(); const p=$('#cityPanel'); p.hidden=!p.hidden; $('#cityBtn').setAttribute('aria-expanded',String(!p.hidden)); if(!p.hidden){ $('#cityQ').value=''; renderCityList(); $('#cityQ').focus(); } });
+$('#cityQ').addEventListener('input',renderCityList);
+function closeDisc(){}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeCity(); closeDisc(); } if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('node')){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click',{bubbles:true})); } });
+const toList=()=>{ const el=$('#lista'); if(el) window.scrollTo({top:el.offsetTop-8,behavior:'smooth'}); };
+document.addEventListener('click',ev=>{
+  const of=ev.target.closest('[data-open-ficha]'); if(of){ openFicha(of.dataset.openFicha); return; }
+  const cd=ev.target.closest('.card[data-ficha],.frow[data-ficha]'); if(cd&&!ev.target.closest('a,button,input')){ openFicha(cd.dataset.ficha); return; }
+  const un=ev.target.closest('[data-unset]'); if(un){ const k=un.dataset.unset;
+    if(k==='kind'||k==='all'){ S.kind='ambos'; S.cede=false; } if(k==='door'||k==='all') S.door=''; if(k==='cede') S.cede=false;
+    if(k==='fam'||k==='all'){ if(S.q&&resolve(S.q)&&famOf(resolve(S.q))===S.open) S.q=''; S.open=null; }
+    if(k==='cat'||k==='all') S.q=''; if(k==='t'||k==='all'){ S.t=''; $('#q').value=''; }
+    render(); return; }
+  const ct=ev.target.closest('[data-cat]'); if(ct){ const d=ct.dataset.cat; S.q=S.q===d?(parOf(d)||''):d; render(); return; }
+  const cd2=ev.target.closest('[data-cede]'); if(cd2){ S.cede=!S.cede; render(); return; }
+  const kd=ev.target.closest('[data-kind]'); if(kd){ S.kind=kd.dataset.kind; if(S.kind!=='e') S.cede=false; render(); return; }
+  const vw=ev.target.closest('[data-view]'); if(vw){ S.view=vw.dataset.view; save(); render(); return; }
+  const fc=ev.target.closest('[data-fchip]'); if(fc){ const f=fc.dataset.fchip; if(fc.closest('#dlgF')){ closeFicha(); S.open=f; S.q='';  render(); toList(); return; } if(fc.closest('.card')){ S.open=f; S.q='';  render(); return; } S.open=(!f||S.open===f)?null:f; S.q='';  closeDisc(); render(); return; }
+  if(!ev.target.closest('.city-wrap')) closeCity();
+  if(!ev.target.closest('.disc-wrap')) closeDisc();
+  const b=ev.target.closest('[data-mode],[data-home],[data-zoom],[data-city],[data-door],[data-fam],[data-q],[data-copy],[data-open],[data-report],[data-reset]'); if(!b) return;
+  if(b.dataset.mode){ const l=b.dataset.mode==='l'; if(l!==(S.door==='espacio')){ S.door=l?'espacio':''; S.q=''; S.open=null;  render(); } return; }
+  if(b.dataset.home){ S.q=''; S.open=null; V.key=''; render(); return; }
+  if(b.dataset.zoom){ const v=V.cur; if(v) zoomAt(+b.dataset.zoom,v.x+v.w/2,v.y+v.h/2,true); return; }
+  if(b.dataset.city!==undefined){ closeCity(); S.q='';  selectCity(b.dataset.city); return; }
+  if(b.dataset.door!==undefined){ const d=b.dataset.door; S.door=(S.door===d&&d)?'':d; render(); return; }
+  if(b.dataset.reset){ S.q=''; S.door=''; S.cede=false; S.kind='ambos'; S.open=null; S.t=''; $('#q').value=''; render(); return; }
+  if(b.dataset.q!==undefined){
+    const v=b.dataset.q, inMap=!!b.closest('#map'), same=!!v&&norm(S.q)===norm(v);
+    if(inMap&&FAMS.includes(v)){ // una familia del mapa: abre o cierra sus disciplinas y filtra la lista
+      if(S.open===v){ S.open=null; S.q=''; } else { S.open=v; S.q=''; }
+      render(); return;
+    }
+    S.q=same&&inMap?'':v;
+    const t=resolve(S.q), fm=resolveFam(S.q);
+    if(t&&FAMS.includes(famOf(t))) S.open=famOf(t); else if(fm) S.open=fm;
+    render();
+    if(S.q&&inMap&&b.classList.contains('pj')&&b.dataset.id) openFicha(b.dataset.id);
+    if(dlgF.open&&!inMap&&b.closest('#dlgF')){ closeFicha(); toList(); }
+    return;
+  }
+  if(b.dataset.open){ openAdd(b.dataset.open); return; }
+  if(b.dataset.report){ if(dlgF.open){ FOPEN&&closeFicha(); } openReport(b.dataset.report,b.dataset.rname); return; }
+  if(b.dataset.copy){ const v=b.dataset.copy, done=()=>{ b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1400); }; try{ navigator.clipboard.writeText(v).then(done).catch(()=>toast('Copia a mano: '+v)); }catch(e){ toast('Copia a mano: '+v); } }
+});
+let qT; $('#q').addEventListener('input',()=>{ clearTimeout(qT); qT=setTimeout(()=>{ S.t=$('#q').value.trim(); render(); },180); });
+// Intro: si lo escrito es una disciplina o una familia, se convierte en ese filtro
+$('#q').addEventListener('keydown',e=>{ if(e.key!=='Enter') return; e.preventDefault(); clearTimeout(qT);
+  const v=$('#q').value.trim(), fv=resolveFam(v), t=resolve(v);
+  if(fv){ S.open=fv; S.q=''; S.t=''; } else if(t){ S.q=t; S.open=famOf(t); S.t=''; } else S.t=v;
+  $('#q').value=S.t; render(); });
+$('#clear').addEventListener('click',()=>{ S.t=''; $('#q').value=''; render(); $('#q').focus(); });
+window.addEventListener('hashchange',()=>boot());
+let rsz; window.addEventListener('resize',()=>{ clearTimeout(rsz); rsz=setTimeout(()=>{ if(S.cur&&!S.loading){ V.key=''; V.cur=null; render(); } },200); });
+
+// ---------- Proponer ----------
+const dlg=$('#dlg');
+function fillForm(){
+  $('#fFams').innerHTML=FAMS.map(f=>`<button type="button" data-ffam="${esc(f)}" aria-pressed="false">${esc(f)}</button>`).join('');
+  $('#fSedeFams').innerHTML=FAMS.map(f=>`<button type="button" data-sfam="${esc(f)}" aria-pressed="false">${esc(f)}</button>`).join('');
+  $('#fCity').innerHTML=S.cities.map(c=>`<option>${esc(c.nombre)}</option>`).join('');
+  $('#fActs').innerHTML=DOORS.map(([p,l])=>{ const as=Object.entries(S.acts).filter(([id,a])=>a.p===p); return as.length?`<details class="fgrp" data-door="${p}"><summary>${esc(l)}<span class="n"></span></summary><div class="checks">${as.map(([id,a])=>`<label><input type="checkbox" value="${esc(id)}" id="act-${esc(id)}">${esc(a.n)}</label>`).join('')}</div></details>`:''; }).join('');
+  // Cada disciplina se abre en sus categorías; al marcar una con subcategorías, aparecen debajo para concretar
+  let k=0;
+  $('#fDisc').innerHTML=FAMS.map(f=>{ const cs=Object.keys(S.disc).filter(d=>isCat(d)&&S.disc[d].familia===f); return cs.length?`<details class="fgrp"><summary>${esc(f)}<span class="n"></span></summary><div class="checks">${cs.map(d=>`<label><input type="checkbox" value="${esc(d)}" id="disc-${k++}">${esc(d)}</label>`).join('')}</div>${cs.filter(d=>kidsOf(d).length).map(d=>`<div class="checks tsubs" data-for="${esc(d)}" hidden><b>${esc(d)} ›</b>${kidsOf(d).map(x=>`<label><input type="checkbox" value="${esc(x)}" data-par="${esc(d)}" id="disc-${k++}">${esc(x)}</label>`).join('')}</div>`).join('')}</details>`:''; }).join('');
+}
+function grpCount(){ document.querySelectorAll('#addForm .fgrp').forEach(g=>{ const o=g.querySelector('.n'); if(!o) return; const n=g.querySelectorAll('input:checked:not([data-par])').length; o.textContent=n?String(n):''; }); }
+function syncForm(){
+  grpCount();
+  const amb=$('#fType').value==='embajador';
+  ['#lFormat','#s2','#s3','#lBarrio','#lFb','#lSite','#rules','#lFoto','#lMore'].forEach(s=>$(s).hidden=amb);
+  document.querySelectorAll('[data-ftype]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ftype===$('#fType').value)));
+  $('#igHint').textContent=amb?'Para escribirte: tu Instagram o un contacto.':'Al menos uno: es como os encuentra la gente y como verificamos la ficha.';
+  $('#s1t').textContent=amb?'¿Quién eres?':'¿Quiénes sois?'; $('#s5t').textContent=amb?'Cuéntanos':'¿Cómo os presentáis?';
+  $('#dlgLead').textContent=amb?'Buscamos gente que conozca la escena de su ciudad y quiera ayudar a mapearla.':'Es gratis. Revisamos cada ficha a mano y te escribimos para confirmarla.';
+  const isEsp=$('#fFormat').value==='espacio', locV=(document.querySelector('input[name="loc"]:checked')||{}).value||'no';
+  // «Se alquila o cede» es cosa de los espacios: un proyecto lo dice a través de su espacio con nombre propio
+  const dg=document.querySelector('#fActs [data-door="espacio"]'); if(dg){ dg.hidden=amb||!isEsp; if(!isEsp) dg.querySelectorAll('input').forEach(i=>i.checked=false); }
+  $('#lSpace').hidden=amb||!isEsp;
+  $('#lLocal').hidden=amb||isEsp; $('#lSede').hidden=amb||isEsp||locV!=='aparte'; $('#lSedeFams').hidden=!$('#fSedeCede').checked;
+    const esp=$('#fFormat').value==='espacio';
+  $('#lFams').hidden=amb||!esp; $('#s2t').textContent=esp?'¿Qué acoge?':'¿De qué va?';
+  $('#lDisc').firstChild.textContent=esp?'En concreto ':'Categorías ';
+  $('#lDisc').querySelector('.hint').textContent=esp?'opcional si has marcado disciplinas enteras · hasta 8 · lo que más se hace allí':'hasta 4 · la primera que marques es la principal · dentro puedes concretar';
+  syncSum();
+  $('#lNameTxt').textContent=amb?'Tu nombre':'Nombre del proyecto';
+  $('#dlgTitle').textContent=amb?'Ayudar en tu ciudad':'Únete a la escena local';
+  $('#fDesc').placeholder=amb?'Qué escena conoces bien y cómo te gustaría ayudar':'Qué hacéis y cuándo';
+}
+$('#fType').addEventListener('change',syncForm);
+document.querySelectorAll('input[name="fmt"]').forEach(r=>r.addEventListener('change',()=>{ $('#fFormat').value=r.value; syncForm(); }));
+document.querySelectorAll('[data-ftype]').forEach(b=>b.addEventListener('click',()=>{ $('#fType').value=b.dataset.ftype; syncForm(); }));
+$('#fFams').addEventListener('click',e=>{ const b=e.target.closest('[data-ffam]'); if(b) b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true')); });
+$('#fActs').addEventListener('change',syncForm);
+document.querySelectorAll('input[name="loc"]').forEach(r=>r.addEventListener('change',syncForm));
+$('#fSedeCede').addEventListener('change',syncForm);
+$('#fSedeFams').addEventListener('click',e=>{ const b=e.target.closest('[data-sfam]'); if(b) b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true')); });
+$('#fDisc').addEventListener('change',e=>{ const i=e.target; if(!i.matches('input')) return;
+  const sp=$('#fFormat').value==='espacio', max=sp?8:4, subs=!i.dataset.par&&[...document.querySelectorAll('#fDisc .tsubs')].find(x=>x.dataset.for===i.value);
+  if(!i.dataset.par&&i.checked&&document.querySelectorAll('#fDisc input:checked:not([data-par])').length>max){ i.checked=false; toast(sp?'Hasta 8 categorías: lo que más se hace allí.':'Hasta 4 categorías: quédate con las que más te definen.'); }
+  if(subs){ subs.hidden=!i.checked; if(!i.checked) subs.querySelectorAll('input').forEach(x=>x.checked=false); }
+  setTimeout(()=>{ grpCount(); syncOrder(); syncSum(); }); });
+function openAdd(type){ $('#addForm').reset(); clearFoto(); discOrder=[]; document.querySelectorAll('#fDisc .tsubs').forEach(x=>x.hidden=true); document.querySelectorAll('#fFams button,#fSedeFams button').forEach(b=>b.setAttribute('aria-pressed','false')); $('#fType').value=type==='embajador'?'embajador':'ficha'; $('#fCity').value=S.city; $('#fErr').textContent=''; syncForm(); if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open',''); $('#fName').focus(); }
+$('#openAdd').addEventListener('click',()=>openAdd('ficha'));
+$('#cancelAdd').addEventListener('click',()=>dlg.close());
+// Foto: se recorta a un cuadrado de 600 px y se comprime en el navegador antes de subirla
+let foto=null, discOrder=[];
+function syncOrder(){ const on=[...document.querySelectorAll('#fDisc input:checked')].map(i=>i.value); discOrder=discOrder.filter(v=>on.includes(v)); on.forEach(v=>{ if(!discOrder.includes(v)) discOrder.push(v); }); }
+// Se envía lo más fino: si dentro de una categoría has concretado, van las subcategorías en su lugar
+function orderedDiscs(){ syncOrder(); const on=new Set(discOrder); return discOrder.filter(v=>!(isCat(v)&&kidsOf(v).some(x=>on.has(x)))).slice(0,8); }
+// La frase que resume la ficha mientras se rellena
+const listJoin=a=>a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1];
+function syncSum(){ const el=$('#fSum'); if(!el) return; if($('#fType').value==='embajador'){ el.hidden=true; return; }
+  const n=$('#fName').value.trim(), fmt=$('#fFormat').value, ds=orderedDiscs(), fams=fmt==='espacio'?[...document.querySelectorAll('#fFams [aria-pressed="true"]')].map(b=>b.dataset.ffam):[];
+  const acts=[...document.querySelectorAll('#fActs input:checked')].map(i=>actName(i.value).toLowerCase());
+  if(!n||(!ds.length&&!fams.length&&!acts.length)){ el.hidden=true; return; }
+  const who={persona:'un proyecto personal',colectivo:'un grupo',espacio:'un espacio'}[fmt]||'un proyecto';
+  const what=fmt==='espacio'?((fams.length||ds.length)?' que acoge '+listJoin([...fams,...ds].slice(0,4)):''):(ds.length?' de '+listJoin(ds.slice(0,3)):'');
+  const where=$('#fBarrio').value.trim()||$('#fCity').value;
+  const how=acts.length?'. Ofrece '+listJoin(acts.slice(0,4)):'';
+  el.innerHTML=`<span>Así se leerá tu ficha</span>«${esc(n)} es ${who}${esc(what)} en ${esc(where)}${esc(how)}.»`; el.hidden=false; }
+['input','change'].forEach(t=>$('#addForm').addEventListener(t,()=>setTimeout(syncSum)));
+$('#fFams').addEventListener('click',()=>setTimeout(syncSum));
+function clearFoto(){ if(foto&&foto.url) URL.revokeObjectURL(foto.url); foto=null; const pv=$('#fFotoPrev'); pv.innerHTML='+'; pv.classList.remove('has'); $('#fFotoX').hidden=true; $('#fFotoBtn').textContent='Elegir imagen'; $('#fFoto').value=''; }
+function toBlob(c,type,q){ return new Promise(r=>c.toBlob(r,type,q)); }
+async function prepFoto(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=await new Promise((ok,ko)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=ko; i.src=url; });
+    const side=Math.min(img.naturalWidth,img.naturalHeight), S2=Math.min(600,side), c=document.createElement('canvas'); c.width=c.height=S2;
+    c.getContext('2d').drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,S2,S2);
+    let b=await toBlob(c,'image/webp',.85); if(!b||b.type!=='image/webp') b=await toBlob(c,'image/jpeg',.85);
+    if(b.size>1000000) b=await toBlob(c,'image/jpeg',.7);
+    return b;
+  } finally { URL.revokeObjectURL(url); }
+}
+$('#fFotoBtn').addEventListener('click',()=>$('#fFoto').click());
+$('#fFotoX').addEventListener('click',clearFoto);
+$('#fFoto').addEventListener('change',async()=>{
+  const f=$('#fFoto').files[0]; if(!f) return;
+  if(f.size>15e6){ toast('Esa imagen es muy grande. Prueba con otra de menos de 15 MB.'); return; }
+  try{
+    const b=await prepFoto(f); clearFoto(); foto={blob:b,url:URL.createObjectURL(b)};
+    const pv=$('#fFotoPrev'); pv.innerHTML=`<img src="${foto.url}" alt="">`; pv.classList.add('has'); $('#fFotoX').hidden=false; $('#fFotoBtn').textContent='Cambiar';
+  }catch(e){ toast('No se pudo leer esa imagen. Prueba con un JPG o PNG.'); }
+});
+async function uploadFoto(){
+  const ext=foto.blob.type==='image/webp'?'webp':'jpg', path='pendientes/'+(crypto.randomUUID?crypto.randomUUID():([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)))+'.'+ext;
+  const r=await fetch(CFG.url+'/storage/v1/object/logos/'+path,{method:'POST',headers:{apikey:CFG.key,Authorization:'Bearer '+CFG.key,'Content-Type':foto.blob.type,'x-upsert':'false'},body:foto.blob});
+  if(!r.ok) throw new Error('foto '+r.status);
+  return path;
+}
+// Facebook y web: se aceptan escritos de cualquier forma y se guardan como enlace completo
+function normFb(v){ v=String(v||'').trim(); if(!v) return ''; v=v.replace(/^@/,'');
+  if(!/facebook\.com|fb\.com/i.test(v)) v='facebook.com/'+v; if(!/^https?:\/\//i.test(v)) v='https://'+v; v=v.replace(/^http:/i,'https:');
+  return /^https:\/\/(www\.|m\.)?(facebook|fb)\.com\/\S{1,200}$/i.test(v)?v:false; }
+function normWeb(v){ v=String(v||'').trim(); if(!v) return ''; if(!/^https?:\/\//i.test(v)) v='https://'+v;
+  try{ const u=new URL(v); return /\./.test(u.hostname)&&!/\s/.test(v)&&v.length<=200?v:false; }catch(e){ return false; } }
+let lastSend=0;
+$('#addForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const amb=$('#fType').value==='embajador', n=$('#fName').value.trim(), ig=$('#fIg').value.trim().replace(/^@/,'');
+  const acts=[...document.querySelectorAll('#fActs input:checked')].map(i=>i.value), doors=doorsOf(acts), otra=$('#fOtra').value.trim();
+  const discs=amb?[]:orderedDiscs(), fams=(!amb&&$('#fFormat').value==='espacio')?[...document.querySelectorAll('#fFams [aria-pressed="true"]')].map(b=>b.dataset.ffam):[];
+  const err=m=>{ $('#fErr').textContent=m; };
+  if(n.length<2) return err('Escribe un nombre.');
+  if(!$('#fConsent').checked){ $('#fConsent').focus(); return err('Marca la casilla de privacidad para poder enviarlo.'); }
+  if(ig&&!/^[A-Za-z0-9._]{1,30}$/.test(ig)) return err('La cuenta de Instagram solo admite letras, números, puntos y guiones bajos.');
+  const fb=amb?'':normFb($('#fFb').value), site=amb?'':normWeb($('#fSite').value);
+  if(fb===false) return err('Ese enlace de Facebook no parece válido. Copia la dirección de tu página.');
+  if(site===false) return err('Esa web no parece válida.');
+  if(!amb&&!ig&&!fb&&!site){ return err('Pon tu Instagram, tu Facebook o tu web: es como te encuentra la gente y como verificamos la ficha.'); }
+  if(!amb&&!acts.length) return err('Marca al menos una cosa que hacéis abierta al público: es lo que hace que un proyecto entre en La Escena Local.');
+  const locV=(document.querySelector('input[name="loc"]:checked')||{}).value||'no', isEsp=$('#fFormat').value==='espacio';
+  const sede=(!amb&&!isEsp&&locV==='aparte')?{nombre:$('#fSedeN').value.trim(),instagram:$('#fSedeIg').value.trim().replace(/^@/,'')||null,cede:$('#fSedeCede').checked,familias:[...document.querySelectorAll('#fSedeFams [aria-pressed="true"]')].map(b=>b.dataset.sfam)}:null;
+  if(sede&&sede.nombre.length<2) return err('Escribe el nombre de vuestro espacio.');
+  if(sede&&sede.instagram&&!/^[A-Za-z0-9._]{1,30}$/.test(sede.instagram)) return err('El Instagram del espacio solo admite letras, números, puntos y guiones bajos.');
+  if(!amb&&!discs.length&&!otra&&!fams.length) return err($('#fFormat').value==='espacio'?'Marca al menos una disciplina entera o una categoría de lo que acoge el espacio.':'Marca al menos una categoría, o escribe la tuya.');
+  if(amb&&!ig&&!$('#fContact').value.trim()) return err('Déjanos tu Instagram o un contacto para escribirte.');
+  if(Date.now()-lastSend<30000) return err('Acabas de enviar una propuesta. Espera unos segundos para la siguiente.');
+  const row={tipo:amb?'embajador':'ficha',ciudad:$('#fCity').value,nombre:n,instagram:ig||null,
+    formato:amb?null:$('#fFormat').value, puertas:amb?null:doors.join(','), actividades:amb?null:acts.join(','), disciplinas:amb?null:([...discs,otra].filter(Boolean).join('|')||null),
+    tipo_espacio:!$('#lSpace').hidden?($('#fKind').value.trim()||null):null, ofrece:!$('#lSpace').hidden?($('#fOffers').value.trim()||null):null,
+    barrio:amb?null:($('#fBarrio').value.trim()||null), descripcion:$('#fDesc').value.trim()||null, contacto:$('#fContact').value.trim()||null};
+  const finish=m=>{ lastSend=Date.now(); dlg.close(); toast(m); };
+  if($('#fWeb').value) return finish('Recibido. Lo revisamos y te escribimos.');
+  if(S.mode==='demo'){
+    if(!amb){
+      const data=await loadCity(row.ciudad);
+      data.items.push({id:'n'+Date.now(),n,fmt:row.formato,d:discs,fam:fams,acts,doors,b:row.barrio||'',t:row.descripcion||'Propuesta pendiente de revisión.',ig,fb:fb||'',web:site||'',dir:$('#fDir').value.trim(),hor:$('#fHor').value.trim(),info:$('#fInfo').value.trim(),img:foto?foto.url:'',feat:false,ver:false,isNew:true,at:[],hosts:[],kind:row.tipo_espacio||'',offers:row.ofrece?row.ofrece.split(',').map(s=>s.trim()).filter(Boolean):[]});
+      const last=data.items[data.items.length-1]; last.local=!isEsp&&locV==='propio'; last.sede=null;
+      if(sede){ const sid='n'+Date.now()+'s'; data.items.push({id:sid,n:sede.nombre,fmt:'espacio',d:[],fam:sede.familias,acts:sede.cede?['alquiler']:[],doors:sede.cede?['espacio']:[],b:row.barrio||'',t:'Espacio pendiente de revisión.',ig:sede.instagram||'',fb:'',web:'',dir:'',hor:'',info:'',img:'',feat:false,ver:false,isNew:true,local:false,sede:null,kind:'',offers:[]}); last.sede=sid; }
+      foto=null; // la tarjeta de la demo sigue usando la imagen
+      if(row.ciudad!==S.city) await selectCity(row.ciudad); else render();
+    }
+    return finish('En la demostración aparece al momento. En la web real queda pendiente de revisión.');
+  }
+  $('#sendAdd').disabled=true;
+  let sinFoto=false;
+  if(!amb&&foto){ try{ row.imagen=await uploadFoto(); }catch(e){ sinFoto=true; } }
+  try{
+    if(amb) await api('propuestas',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
+    else await api('rpc/enviar_ficha',{method:'POST',body:JSON.stringify({p:{ciudad:row.ciudad,nombre:n,instagram:ig,formato:row.formato,disciplinas:discs,otra,actividades:acts,puertas:doors,
+      tipo_espacio:row.tipo_espacio,ofrece:row.ofrece,barrio:row.barrio,descripcion:row.descripcion,contacto:row.contacto,imagen:row.imagen||null,
+      facebook:fb||null,web:site||null,familias:fams,local:!amb&&!isEsp&&locV==='propio',espacio:sede,direccion:$('#fDir').value.trim()||null,horario:$('#fHor').value.trim()||null,mas_info:$('#fInfo').value.trim()||null}})});
+    finish(amb?'Gracias. Te escribimos para hablar de tu ciudad.':'Recibido'+(sinFoto?' (la foto no se pudo subir; nos la puedes mandar por Instagram)':'')+'. Lo revisamos a mano y te escribimos para confirmarlo.'); }
+  catch(e){ err(/Demasiad|cola/.test(String(e&&e.message))?'Ahora mismo hay muchos envíos. Prueba en un rato o escríbenos por Instagram.':'No se pudo enviar. Revisa la conexión y prueba otra vez.'); }
+  finally{ $('#sendAdd').disabled=false; }
+});
+
+// ---------- Avisos ----------
+const dlgR=$('#dlgR'); let repId=null;
+function openReport(id,name){ repId=id; $('#repForm').reset(); $('#repWhat').textContent='Sobre «'+name+'». Lo revisamos a mano.'; $('#rErr').textContent=''; if(dlgR.showModal) dlgR.showModal(); else dlgR.setAttribute('open',''); }
+$('#cancelRep').addEventListener('click',()=>dlgR.close());
+$('#repForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  const motivo=($('#rMotivo').value+($('#rMas').value.trim()?': '+$('#rMas').value.trim():'')).slice(0,280);
+  if(S.mode==='demo'){ dlgR.close(); return toast('En la demostración los avisos no se envían.'); }
+  try{ await api('avisos_ficha',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({ficha_id:repId,motivo})}); dlgR.close(); toast('Gracias. Lo revisamos.'); }
+  catch(e){ const m=String(e&&e.message); if(/Ya tenemos avisos/.test(m)){ dlgR.close(); return toast('Gracias. Ya tenemos avisos sobre esta ficha y los estamos revisando.'); } $('#rErr').textContent=/Demasiad/.test(m)?'Ahora mismo hay muchos avisos. Prueba en un rato.':'No se pudo enviar. Prueba otra vez.'; }
+});
+
+boot();
+</script>
+</body>
+</html>
