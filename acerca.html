@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qué es · La Escena Local</title>
+<meta name="description" content="Qué es La Escena Local, quién puede aparecer, cómo se revisan las fichas y qué puedes esperar de la web.">
+<link rel="canonical" href="https://laescenalocal.es/acerca.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="La Escena Local">
+<meta property="og:title" content="Qué es La Escena Local">
+<meta property="og:description" content="Un directorio y un mapa de la escena pequeña de cada ciudad: quién convoca, qué hace y dónde.">
+<meta property="og:image" content="https://laescenalocal.es/img/og.png">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="theme-color" content="#FFD36B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--amarillo:#FFD36B;--amarillo-ink:#2B1B3D;--bg:#FAF5F0;--surface:#FFFFFF;--ink:#2B1B3D;--muted:#5F5568;--line:#E8DFDE;--soft:#F3ECE9;--acento:#117266;--no:#B4472F;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;--body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17101F;--surface:#211829;--ink:#F4EEF2;--muted:#B3A8BA;--line:#352A40;--soft:#2A2034;--acento:#3CC4AE;--no:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17101F;--surface:#211829;--ink:#F4EEF2;--muted:#B3A8BA;--line:#352A40;--soft:#2A2034;--acento:#3CC4AE;--no:#FF8A80;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16.5px;line-height:1.62}
+.wrap{max-width:740px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 56px}
+.home{display:inline-block}
+.home img{height:72px;width:auto;display:block}
+.home .dk{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .home .lt{display:none} :root:not([data-theme="light"]) .home .dk{display:block}}
+.back{display:inline-block;margin:18px 0 6px;font-size:14px;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,7vw,46px);line-height:1.05;letter-spacing:-.02em;margin:10px 0 12px}
+.lead{font-size:clamp(18px,2.6vw,20.5px);line-height:1.5;margin:0 0 18px}
+.lead b{background:linear-gradient(transparent 62%,var(--amarillo) 62%);font-weight:600}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(22px,4vw,26px);line-height:1.15;margin:44px 0 10px;scroll-margin-top:16px}
+h3{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.25;margin:22px 0 4px}
+p,li{margin:0 0 10px}
+ul{padding-left:20px;margin:0 0 12px}
+a{color:inherit;text-decoration-color:var(--amarillo);text-decoration-thickness:3px;text-underline-offset:3px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 6px;padding:0;list-style:none}
+.toc li{margin:0}
+.toc a{display:inline-block;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:14px;text-decoration:none}
+.toc a:hover{border-color:var(--ink)}
+.rule{border:2px solid var(--ink);background:var(--amarillo);color:var(--amarillo-ink);border-radius:16px;padding:16px 18px;margin:14px 0 18px;font-family:var(--display);font-weight:600;font-size:clamp(18px,3vw,21px);line-height:1.3}
+.rule small{display:block;font-family:var(--body);font-weight:400;font-size:15px;line-height:1.5;margin-top:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+@media (max-width:620px){.two{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px 6px}
+.box h3{margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.box h3 i{font-style:normal;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:14px;flex:none}
+.box.si h3 i{background:var(--acento);color:#fff}
+.box.no h3 i{background:var(--no);color:#fff}
+.box ul{padding-left:18px}
+.box li{font-size:15px;margin-bottom:7px}
+.case{border-top:1px solid var(--line);padding:14px 0 4px}
+.case:first-of-type{border-top:0}
+.case h3{margin:0 0 4px}
+.case p{margin:0 0 8px}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:1px 9px;margin-left:6px;vertical-align:2px;border:1px solid var(--line);color:var(--muted)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:12px 0}
+.steps li{counter-increment:s;position:relative;padding-left:44px;margin-bottom:14px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px}
+.expect{display:grid;gap:10px;margin:14px 0}
+.expect div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.expect b{display:block;font-family:var(--display);font-weight:600;font-size:17px;margin-bottom:2px}
+.expect p{margin:0;font-size:15px;color:var(--muted)}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.cta{display:inline-block;border:2px solid var(--ink);background:var(--amarillo);color:var(--amarillo-ink);border-radius:999px;padding:11px 20px;font-family:var(--display);font-weight:600;font-size:16.5px;text-decoration:none;box-shadow:0 3px 0 var(--ink)}
+.ghost{display:inline-block;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:11px 18px;font-weight:500;text-decoration:none}
+.cta:hover,.ghost:hover{transform:translateY(-1px)}
+.note{font-size:14px;color:var(--muted)}
+footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;font-size:13px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<main class="wrap">
+<a class="home" href="./" aria-label="Volver a La Escena Local"><img class="lt" src="img/logo-light.svg" alt="La Escena Local"><img class="dk" src="img/logo-dark.svg" alt=""></a>
+<a class="back" href="./">← Volver a la escena</a>
+
+<h1>Encuentra tu gente. Que tu gente te encuentre.</h1>
+<p class="lead">La Escena Local es un directorio y un mapa de <b>la escena pequeña de cada ciudad</b>: los proyectos, grupos y espacios que abren algo al público. Quién da clases de swing, dónde hay una jam, qué colectivo monta noches de drum and bass, qué sala cede su espacio a una compañía de impro.</p>
+<p>Empezamos por Murcia, pero la web está pensada para toda España. Las ciudades van entrando poco a poco, y mientras una ciudad se llena la marcamos como <b>abriendo</b>: ya puedes ver sus proyectos, pero aún faltan muchos. Una ciudad nunca se cierra: puede recibir fichas nuevas siempre. Cuando tiene suficiente escena para ser útil, la damos por <b>abierta</b>, que es su lanzamiento oficial.</p>
+<p>Mientras abrimos una ciudad, las primeras fichas las creamos nosotros a partir de lo que nos recomienda la gente. Después, cada proyecto hace la suya, siempre gratis.</p>
+
+<ul class="toc" aria-label="En esta página">
+<li><a href="#para-que">Para qué sirve</a></li>
+<li><a href="#quien">Quién puede estar</a></li>
+<li><a href="#dudosos">Casos dudosos</a></li>
+<li><a href="#fichas">Cómo se hace una ficha</a></li>
+<li><a href="#esperar">Qué puedes esperar</a></li>
+<li><a href="#ayudar">Cómo ayudar</a></li>
+</ul>
+
+<h2 id="para-que">Para qué sirve</h2>
+<h3>Si buscas</h3>
+<p>Para encontrar dónde aprender, participar, ver o comprar algo hecho a mano en tu ciudad, más allá de lo que ya sale en las agendas oficiales y en las búsquedas de Instagram. Puedes buscar por lo que te interesa (impro, cerámica, juegos de mesa, huerto), por lo que quieres hacer (aprender, participar, ver, comprar) o por el nombre de un proyecto o un sitio. Y el mapa te enseña de un vistazo cómo está conectada la escena: qué hace cada cual y dónde pasa.</p>
+<h3>Si haces algo</h3>
+<p>Para que te encuentre gente nueva, sin depender del algoritmo ni de pagar publicidad. Aparecer es gratis. Tu ficha enlaza a tu Instagram, tu web o donde estés, y te sitúa junto a quienes hacen cosas parecidas, que muchas veces son tu mejor público.</p>
+
+<h2 id="quien">Quién puede estar</h2>
+<div class="rule">Entra quien convoca: proyectos, grupos y espacios que abren algo al público, de forma regular, en la ciudad.<small>Y damos prioridad a lo que cuesta encontrar. El sentido de la web es dar visibilidad a quien no la tiene fácil.</small></div>
+<div class="two">
+<div class="box si"><h3><i aria-hidden="true">✓</i>Sí</h3><ul>
+<li>Clases, talleres y cursos que se repiten.</li>
+<li>Quedadas, jams, prácticas abiertas, clubes y grupos.</li>
+<li>Colectivos que montan funciones, noches, ciclos o mercadillos.</li>
+<li>Salas y locales con programación propia, o que ceden su espacio a otros proyectos.</li>
+<li>Centros sociales, huertos comunitarios, asociaciones de barrio.</li>
+<li>Deporte de barrio abierto: pachangas, skate, combate histórico.</li>
+</ul></div>
+<div class="box no"><h3><i aria-hidden="true">×</i>De momento, no</h3><ul>
+<li>Quien solo actúa cuando lo contratan (grupos, solistas, DJs): aparece a través de la sala o el ciclo que lo programa.</li>
+<li>Gimnasios, fitness y ligas de pago.</li>
+<li>Consultas y terapias individuales.</li>
+<li>Ocio comercial y empresas como tales.</li>
+<li>Lo que solo existe en internet.</li>
+</ul></div>
+</div>
+
+<h2 id="dudosos">Casos dudosos</h2>
+<p>Hay propuestas que no encajan del todo en el sí o en el no. Así las resolvemos:</p>
+<div class="case"><h3>Instituciones y fundaciones</h3>
+<p>Su programación general (exposiciones, ciclos, conciertos) ya se encuentra en otras agendas. Entran por lo que tienen de comunitario y participativo: un coro abierto, un taller gratuito que se repite, un club de lectura. Lo que cuenta es lo que convocan, no lo grandes que sean.</p></div>
+<div class="case"><h3>Festivales</h3>
+<p>Los pequeños festivales que organizan colectivos de la ciudad encajan muy bien, porque crean comunidad. La ficha es del colectivo que lo organiza, que tiene vida todo el año, y el festival aparece como una de las cosas que hace. Los festivales comerciales o de marca quedan fuera.</p></div>
+<div class="case"><h3>Músicos y DJs</h3>
+<p>Entra quien convoca: el colectivo que monta una noche al mes, quien organiza una jam, quien lleva un ciclo. Quien solo toca cuando le contratan no tiene ficha propia, pero puede aparecer vinculado a la sala o al ciclo donde actúa.</p></div>
+<div class="case"><h3>Salas y bares con música</h3>
+<p>No hace falta que estén todas. Entran las que tienen una programación propia con identidad (una jam fija, un ciclo, una noche de la casa) o las que abren su espacio a proyectos de la escena. Una forma rápida de verlo: si ese sitio desapareciera, ¿cambiaría la escena de la ciudad?</p></div>
+<p class="note">Si tienes dudas sobre un caso, propónlo igualmente y lo hablamos. Estos criterios irán mejorando con lo que nos vayáis contando.</p>
+
+<h2 id="fichas">Cómo se hace una ficha</h2>
+<ol class="steps">
+<li><b>La propone el propio proyecto o alguien que lo conoce.</b> Desde el botón «Únete a la escena», con lo que hace, dónde y cómo contactar.</li>
+<li><b>Una persona la revisa a mano.</b> Comprobamos que encaja en los criterios y que los datos tienen sentido. No se publica nada de forma automática.</li>
+<li><b>Intentamos confirmarla con el proyecto.</b> Cuando lo conseguimos, la ficha lleva la marca <i>Verificado</i>.</li>
+<li><b>Quien aparece manda sobre su ficha.</b> Puede pedir cambios o retirarla cuando quiera, escribiendo a <a href="mailto:info.laescenalocal@gmail.com">info.laescenalocal@gmail.com</a>. Y cualquiera puede avisar de un error desde la propia ficha.</li>
+</ol>
+
+<h2 id="esperar">Qué puedes esperar (y qué no)</h2>
+<div class="expect">
+<div><b>Es gratis aparecer</b><p>Para la escena pequeña, siempre. Si algún día hay fichas destacadas para sostener el proyecto, estarán señaladas como tales y nunca ocultarán al resto.</p></div>
+<div><b>No está todo</b><p>La web crece con lo que la gente propone. Si echas algo en falta, es justo lo que necesitamos que nos cuentes.</p></div>
+<div><b>No es una agenda</b><p>Te dice quién hace qué y dónde, no qué pasa este sábado. Para fechas y horarios, sigue el enlace de cada ficha.</p></div>
+<div><b>Algún dato puede quedarse viejo</b><p>Los proyectos cambian de sala, de día o desaparecen. Si ves algo mal, avisa desde la ficha y lo corregimos.</p></div>
+<div><b>Sin cuentas, sin rastreo</b><p>No hace falta registrarse, no hay cookies de seguimiento ni publicidad, y no vendemos datos. Los detalles están en la <a href="privacidad.html">política de privacidad</a>.</p></div>
+</div>
+<p>La Escena Local es un proyecto independiente: sin empresa ni institución detrás, hecho a mano y ciudad a ciudad.</p>
+
+<h2 id="ayudar">Cómo ayudar</h2>
+<ul>
+<li><b>Propón una ficha</b>, tuya o de alguien que conozcas.</li>
+<li><b>Recomiéndanos un proyecto</b> o un espacio que tenga que estar en la escena. Nos basta el nombre y a qué se dedica; nosotros le escribimos.</li>
+<li><b>Avisa de errores</b> desde cualquier ficha.</li>
+<li><b>Compártela</b> con quien esté buscando su gente.</li>
+</ul>
+<div class="ctas"><a class="cta" href="./?unete=ficha">Proponer una ficha</a><a class="ghost" href="./?unete=sugerencia">Recomendar un proyecto</a></div>
+<p class="note">¿Algo más? Escríbenos a <a href="mailto:info.laescenalocal@gmail.com">info.laescenalocal@gmail.com</a>.</p>
+
+<footer><a href="./">La Escena Local</a><a href="privacidad.html">Política de privacidad</a><a href="aviso-legal.html">Aviso legal</a><span>Actualizado el 21 de octubre de 2026</span></footer>
+</main>
+</body>
+</html>
