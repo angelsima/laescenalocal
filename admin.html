@@ -64,6 +64,7 @@ header{padding:16px 0 8px;display:flex;justify-content:space-between;align-items
 .av.sp{border-radius:12px;border-color:var(--acento);border-width:2px}
 .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .item .main{min-width:0}
+.vtick{display:inline-grid;place-items:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:#1f8a70;color:#fff;font:700 12px/1 var(--body,sans-serif);vertical-align:2px}
 .item .main b{display:block;font-family:var(--display);font-size:17px;line-height:1.2}
 .item small{color:var(--muted);display:block}
 .item .tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
@@ -348,7 +349,7 @@ function item(f){
   const ds=discsOf(f);
   return `<article class="item${f.aprobada?'':' pend'}" data-id="${f.id}">
     <span class="av${f.formato==='espacio'?' sp':''}">${esc(initials(f.nombre))}${f.imagen?`<img src="${esc(imgUrl(f.imagen))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
-    <div class="main"><b>${esc(f.nombre)}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
+    <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
       ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}</div>
     <label class="sw"><input type="checkbox" data-aprob ${f.aprobada?'checked':''}> ¿Aprobada?</label>
     <button class="ghost" type="button" data-edit>Editar</button></article>`;
