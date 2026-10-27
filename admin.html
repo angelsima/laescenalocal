@@ -230,7 +230,7 @@ dialog::backdrop{background:rgba(23,16,31,.55)}
     <div class="field">Qué hacen abiertos al público
       <div class="box" id="eActs"></div>
     </div>
-    <div class="field" id="eFamBox" hidden>Acoge en general <span class="hint">disciplinas enteras; solo para espacios. Si alguien busca algo de dentro, el espacio sale detrás de los que lo tienen marcado, con un aviso.</span>
+    <div class="field" id="eFamBox" hidden><span id="eFamLbl">Acoge en general</span> <span class="hint" id="eFamHint">disciplinas enteras. Si alguien busca algo de dentro, la ficha sale detrás de las que lo tienen marcado, con un aviso.</span>
       <div class="checks" id="eFams" style="padding:4px 0 0"></div>
     </div>
     <div class="field"><span id="dLbl">Categorías</span> <span class="hint" id="dHint">Marca lo más concreto que sepas (Salsa mejor que Latinos): la ficha sale también en lo de encima. La primera es la principal; pulsa ★ para cambiarla.</span>
@@ -517,7 +517,7 @@ function fillSede(){ const city=+$('#eCity').value, cur=ED&&ED.sede||'';
   $('#eSede').innerHTML='<option value="">Ninguna</option>'+opts.map(x=>`<option value="${x.id}"${x.id===cur?' selected':''}>${esc(x.nombre)}${x.aprobada?'':' (sin aprobar)'}</option>`).join(''); }
 function syncFmt(){ const sp=$('#eFormat').value==='espacio';
   $('#locRow').hidden=sp||!HAS_LOCAL; fillSede();
-  const hosted=ED?DB.fichas.filter(x=>x.sede_id===ED.id):[]; $('#eHosted').hidden=!sp||!hosted.length; $('#eHosted').textContent=hosted.length?'Aquí tiene su sede: '+hosted.map(x=>x.nombre).join(', ')+'. Se cambia desde la ficha de cada proyecto.':''; $('#spaceRow').hidden=!sp; $('#eFamBox').hidden=!sp||!HAS_FAM; $('#dLbl').textContent=sp?'En concreto (lo que más se hace allí)':'Categorías'; if(ED) renderFams(); }
+  const hosted=ED?DB.fichas.filter(x=>x.sede_id===ED.id):[]; $('#eHosted').hidden=!sp||!hosted.length; $('#eHosted').textContent=hosted.length?'Aquí tiene su sede: '+hosted.map(x=>x.nombre).join(', ')+'. Se cambia desde la ficha de cada proyecto.':''; $('#spaceRow').hidden=!sp; $('#eFamBox').hidden=!HAS_FAM; $('#eFamLbl').textContent=sp?'Acoge en general':'Toda una disciplina'; $('#eFamHint').textContent=sp?'disciplinas enteras. Si alguien busca algo de dentro, el espacio sale detrás de los que lo tienen marcado, con un aviso.':'para proyectos que hacen de todo dentro de una disciplina (una promotora: Música). En el formulario público pueden marcar hasta 2.'; $('#dLbl').textContent=sp?'En concreto (lo que más se hace allí)':'Categorías'; if(ED) renderFams(); }
 function renderFams(){ $('#eFams').innerHTML=famsOrder().map(f=>`<label><input type="checkbox" data-fam="${esc(f)}"${ED.fams.has(f)?' checked':''}>${esc(f)}</label>`).join(''); }
 function count(){ $('#cDesc').textContent=$('#eDesc').value.length+'/280'; $('#cInfo').textContent=$('#eInfo').value.length+'/600'; }
 $('#eFormat').addEventListener('change',syncFmt);
@@ -602,8 +602,8 @@ $('#form').addEventListener('submit',async ev=>{
   if(fb===false) return err('Ese Facebook no parece válido: pega el enlace de la página.');
   if(web===false) return err('Esa web no parece válida.');
   if(aprob&&!ig&&!fb&&!web) return err('Para aprobarla hace falta Instagram, Facebook o web.');
-  const espF=$('#eFormat').value==='espacio'&&HAS_FAM?[...ED.fams]:[];
-  if(aprob&&!ED.discs.length&&!espF.length) return err('Marca al menos una disciplina (o, en un espacio, una familia) antes de aprobarla.');
+  const espF=HAS_FAM?[...ED.fams]:[];
+  if(aprob&&!ED.discs.length&&!espF.length) return err('Marca al menos una categoría o una disciplina entera antes de aprobarla.');
   const acts=[...ED.acts], puertas=[...new Set([...acts.map(a=>(DB.acts.find(x=>x.id===a)||{}).puerta),...($('#eFormat').value==='espacio'?['espacio']:[])].filter(Boolean))];
   const sp=$('#eFormat').value==='espacio';
   $('#eSave').disabled=true; err('');
