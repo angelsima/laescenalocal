@@ -629,8 +629,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
     <input type="hidden" id="fType" value="ficha">
     <details class="rules-d" id="rules"><summary>¿Quién puede estar?</summary>
       <div class="rules">
-        <span><b>Entra en La Escena Local quien convoca</b>: proyectos, grupos y espacios que abren algo al público de forma regular en la ciudad. Clases, quedadas, jams, funciones propias, mercadillos o una sala para otros.</span>
-        <span>Quien solo actúa cuando lo contratan (grupos, solistas, DJs) aparece a través del ciclo o la sala que lo programa. El deporte entra si es de barrio y abierto (pachangas, skate, combate histórico); se quedan fuera los gimnasios, el fitness y las ligas de pago, las consultas y terapias individuales, el ocio comercial y lo que solo existe en internet.</span>
+        <span><b>Entra en La Escena Local quien forma parte de la escena de la ciudad</b>: proyectos, grupos y espacios que han hecho algo abierto al público aquí en el último año. Clases, quedadas, conciertos, exposiciones, mercadillos, funciones o una sala para otros.</span>
+        <span>Grupos de música, solistas y DJs entran si son de la ciudad y tocan en directo aquí. El deporte entra si es de barrio y abierto (pachangas, skate, combate histórico); se quedan fuera los gimnasios, el fitness y las ligas de pago, las consultas y terapias individuales, el ocio comercial y lo que solo existe en internet.</span>
         <span><a href="acerca.html#quien" target="_blank" rel="noopener">Lee los criterios completos y los casos dudosos</a></span>
       </div>
     </details>
@@ -648,10 +648,10 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
     </fieldset>
 
     <fieldset class="step" id="s2"><legend id="s2t">¿De qué va?</legend>
-      <div class="field" id="lFams" hidden>Qué acoge en general <span class="hint">marca disciplinas enteras si en el espacio cabe de todo dentro de ellas</span>
+      <div class="field" id="lFams" hidden><span id="lFamsTxt">Qué acoge en general </span><span class="hint" id="famsHint">marca disciplinas enteras si en el espacio cabe de todo dentro de ellas</span>
         <div class="fpick" id="fFams" role="group" aria-label="Familias que acoge"></div>
       </div>
-      <div class="field" id="lDisc">Categorías <span class="hint">hasta 4 · la primera que marques es la principal · dentro puedes concretar</span>
+      <div class="field" id="lDisc">Categorías <span class="hint">hasta 4 · la primera que marques es la principal · dentro puedes concretar</span> <span class="hint dcount" id="discN" aria-live="polite"></span>
         <div class="disc-box" id="fDisc"></div>
       </div>
     </fieldset>
@@ -961,7 +961,7 @@ function relHTML(e){
 function nets(e){ const l=[]; if(e.fb) l.push(`<a class="net" href="${esc(e.fb)}" target="_blank" rel="noopener noreferrer">Facebook</a>`); if(e.web) l.push(`<a class="net" href="${esc(e.web)}" target="_blank" rel="noopener noreferrer">Web</a>`); return l.join(''); }
 function igBlock(e){ return e.ig?`<span class="handle"><a class="ig" href="${igUrl(e.ig)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(e.ig)} en Instagram">@${esc(e.ig)}</a></span>`:''; }
 function card(e){
-  const ds=discsOf(e), space=e.fmt==='espacio', fm=space?(e.fam||[]):[], tgt=resolve(S.q);
+  const ds=discsOf(e), space=e.fmt==='espacio', fm=e.fam||[], tgt=resolve(S.q);
   const kind=FORMATS[e.fmt]+(e.kind?' · '+e.kind:'');
   return `<article class="card${e.feat?' feat':''}" data-ficha="${esc(e.id)}">
     <span class="kind">${esc(kind)}</span>
@@ -969,7 +969,7 @@ function card(e){
     ${e.acts.length?`<ul class="doors">${e.acts.map(a=>`<li>${esc(actName(a))}</li>`).join('')}</ul>`:e.doors.length?`<ul class="doors">${e.doors.map(d=>`<li>${DOORTXT[d]}</li>`).join('')}</ul>`:''}
     ${e.t?`<p class="desc">${hl(e.t,S.q)}</p>`:''}
     ${e.offers.length?`<ul class="offers">${e.offers.map(o=>`<li>${hl(o,S.q)}</li>`).join('')}</ul>`:''}
-    ${fm.length?`<p class="sub"><span>Acoge:</span></p><div class="tags">${fm.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}
+    ${fm.length?`${space?'<p class="sub"><span>Acoge:</span></p>':''}<div class="tags">${fm.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}
     ${ds.length?`${space?`<p class="sub"><span>${fm.length?'En concreto:':'Suele acoger:'}</span></p>`:''}<div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
     ${relHTML(e)}
     ${genHit(e,tgt)?genNote(e,tgt):''}
@@ -979,7 +979,7 @@ function card(e){
 }
 // Una fila compacta por ficha (como en el panel); al pulsarla se abre la ficha completa
 function frow(e){
-  const ds=discsOf(e), space=e.fmt==='espacio', fm=space?(e.fam||[]):[], tgt=resolve(S.q);
+  const ds=discsOf(e), space=e.fmt==='espacio', fm=e.fam||[], tgt=resolve(S.q);
   const all=S.cur?S.cur.items:[], sede=e.sede&&all.find(x=>x.id===e.sede);
   const acts=(e.acts.length?e.acts.map(actName):e.doors.map(d=>DOORTXT[d])).slice(0,3);
   const meta=[FORMATS[e.fmt]+(e.kind?' · '+e.kind:''), e.b||e.muni||'', sede?'su casa: '+sede.n:''].filter(Boolean).join(' · ');
@@ -1033,11 +1033,16 @@ function render(){
     $('#out').innerHTML=`<div class="invite"><h3>Aún no hay nada así en ${esc(S.city)}</h3><p>${alt?(S.dym?'Prueba esto:':'Prueba a quitar un filtro:'):'Si conoces a alguien que lo haga, o un sitio donde pase, propónlo.'}</p>${alt?`<div class="nores-alt">${alt}</div><p>Y si conoces a alguien que lo haga, o un sitio donde pase, propónlo.</p>`:''}<div class="acts"><button type="button" class="cta" data-open="ficha">¡Únete a la escena local!</button><button type="button" class="ghost" data-reset="1">Ver todo ${esc(S.city)}</button></div></div>`; return; }
   $('#out').innerHTML=buildNote()+`<div class="rows">${res.map(frow).join('')}</div>`+joinEnd(); // filas compactas; al pulsar, la ficha completa
 }
+// Orden sin ranking: cada visita baraja las fichas con una semilla propia, estable mientras dura la visita
+// (no cambia al filtrar ni al volver atrás). Nadie sale siempre arriba por su nombre ni por su antigüedad.
+const SEED=(()=>{ let v=''; try{ v=sessionStorage.getItem('les-orden')||''; }catch(e){}
+  if(!v){ v=Math.random().toString(36).slice(2,10); try{ sessionStorage.setItem('les-orden',v); }catch(e){} } return v; })();
+const RNK={}; const rnk=id=>{ if(RNK[id]!==undefined) return RNK[id]; let h=2166136261; const t=SEED+'|'+id; for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,16777619); } return RNK[id]=h>>>0; };
 // Resultados con el estado actual (se reutiliza para los contadores)
 function computeRes(all){
   const exact=S.q?all.filter(e=>norm(e.n)===norm(S.q)):[];
   const famOk=e=>!S.open||famsOf(e).includes(S.open), tg=resolve(S.q);
-  return (exact.length?exact:all.filter(e=>doorOk(e)&&famOk(e)&&matches(e,S.q)&&textOk(e))).sort((a,b)=>(genHit(a,tg)-genHit(b,tg))||(!!b.isNew-!!a.isNew)||(b.feat-a.feat)||(b.ver-a.ver)||a.n.localeCompare(b.n,'es'));
+  return (exact.length?exact:all.filter(e=>doorOk(e)&&famOk(e)&&matches(e,S.q)&&textOk(e))).sort((a,b)=>(genHit(a,tg)-genHit(b,tg))||(!!b.isNew-!!a.isNew)||(b.feat-a.feat)||(rnk(a.id)-rnk(b.id)));
 }
 // Cuántas fichas saldrían cambiando solo una parte del estado
 function countIf(patch){ if(!S.cur) return 0; const bak={}; Object.keys(patch).forEach(k=>bak[k]=S[k]); Object.assign(S,patch); const n=computeRes(S.cur.items).length; Object.assign(S,bak); return n; }
@@ -1171,13 +1176,15 @@ function renderMap(items){
   const R1=360, R2=285, R3=172, R4=108, TAU=Math.PI*2, deg=a=>a*180/Math.PI, f1=v=>v.toFixed(1);
   const pol=(a,r)=>({x:Math.cos(a)*r,y:Math.sin(a)*r});
   // --- Esqueleto: un hueco por proyecto, agrupados por familia y disciplina principal (la primera de la ficha)
-  const base=all.filter(e=>!isSp(e)&&own(e).length), prim=e=>own(e)[0], fi=f=>FAMS.indexOf(f), di=d=>S.disc[d].id;
-  base.sort((a,b)=>fi(famOf(prim(a)))-fi(famOf(prim(b)))||di(prim(a))-di(prim(b))||a.n.localeCompare(b.n,'es'));
-  const byF={}; FAMS.forEach(f=>byF[f]=base.filter(e=>famOf(prim(e))===f));
+  //     Un proyecto que solo ha marcado disciplinas enteras (una promotora: «Música») va al final del sector de esa familia
+  const gF=e=>(e.fam||[]).filter(f=>FAMS.includes(f)); // familias enteras de una ficha
+  const base=all.filter(e=>!isSp(e)&&(own(e).length||gF(e).length)), prim=e=>own(e)[0], pfam=e=>prim(e)?famOf(prim(e)):gF(e)[0], fi=f=>FAMS.indexOf(f), di=d=>d?S.disc[d].id:1e9;
+  base.sort((a,b)=>fi(pfam(a))-fi(pfam(b))||di(prim(a))-di(prim(b))||a.n.localeCompare(b.n,'es'));
+  const byF={}; FAMS.forEach(f=>byF[f]=base.filter(e=>pfam(e)===f));
   const GAP=1.3, W=f=>Math.max(byF[f].length,1.5); let T=0; FAMS.forEach(f=>T+=W(f)+GAP);
   const u=TAU/T, famA={}, sect={}, leafA={}, dAcc={}; let acc=0;
   FAMS.forEach(f=>{ const w=W(f), st=acc+GAP/2, pad=(w-byF[f].length)/2; famA[f]=st+w/2; sect[f]=[st,st+w];
-    byF[f].forEach((e,i)=>{ const a=st+pad+i+0.5; leafA[e.id]=a; (dAcc[prim(e)]=dAcc[prim(e)]||[]).push(a); }); acc+=w+GAP; });
+    byF[f].forEach((e,i)=>{ const a=st+pad+i+0.5; leafA[e.id]=a; if(prim(e)) (dAcc[prim(e)]=dAcc[prim(e)]||[]).push(a); }); acc+=w+GAP; });
   const off=-Math.PI/2-famA[FAMS[0]]*u, ang=x=>x*u+off;
   // Disciplinas: en la media de sus proyectos; las que solo aparecen como secundarias, dentro del sector de su familia
   const discA={};
@@ -1185,18 +1192,17 @@ function renderMap(items){
   const present=new Set(); all.forEach(e=>own(e).forEach(d=>present.add(d))); if(target&&S.disc[target]) present.add(target);
   FAMS.forEach(f=>{
     const ds=[...present].filter(d=>famOf(d)===f).sort((a,b)=>di(a)-di(b));
-    ds.filter(d=>discA[d]===undefined).forEach(d=>{ const as=base.filter(e=>famOf(prim(e))===f&&own(e).includes(d)).map(e=>leafA[e.id]); discA[d]=as.length?as.reduce((p,q)=>p+q,0)/as.length:famA[f]; });
+    ds.filter(d=>discA[d]===undefined).forEach(d=>{ const as=base.filter(e=>pfam(e)===f&&own(e).includes(d)).map(e=>leafA[e.id]); discA[d]=as.length?as.reduce((p,q)=>p+q,0)/as.length:famA[f]; });
     // separar las que caen juntas, sin salir del sector
     const list=ds.sort((a,b)=>discA[a]-discA[b]), minSep=Math.min(0.9,(sect[f][1]-sect[f][0])/Math.max(1,list.length));
     for(let it=0;it<40;it++){ let mv=false; for(let k=1;k<list.length;k++){ const g=discA[list[k]]-discA[list[k-1]]; if(g<minSep){ const p=(minSep-g)/2; discA[list[k-1]]-=p; discA[list[k]]+=p; mv=true; } } if(!mv) break; }
   });
   Object.keys(famA).forEach(f=>famA[f]=ang(famA[f])); Object.keys(leafA).forEach(k=>leafA[k]=ang(leafA[k])); Object.keys(discA).forEach(d=>discA[d]=ang(discA[d]));
   // --- Lo que se dibuja en este modo
-  const leaves=items.filter(e=>isSp(e)||own(e).length);
+  const leaves=items.filter(e=>isSp(e)||own(e).length||gF(e).length);
   const rL=e=>isSp(e)&&both?R4:R3; // con «Ambos», los espacios van en el anillo central
   const dOf=e=>own(e);
   const counts={}; leaves.forEach(e=>dOf(e).forEach(d=>counts[d]=(counts[d]||0)+1));
-  const gF=e=>isSp(e)?(e.fam||[]).filter(f=>FAMS.includes(f)):[]; // familias enteras que acoge un espacio
   const inF=(e,f)=>dOf(e).some(d=>famOf(d)===f)||gF(e).includes(f);
   const famN={}; FAMS.forEach(f=>famN[f]=leaves.filter(e=>inF(e,f)).length);
   // Lugares: en el anillo interior, en la media de lo que acogen, separados entre sí
@@ -1372,7 +1378,7 @@ function fichaHTML(e){
     ${e.acts.length||e.doors.length?`<div class="fs-sec"><h3>Abierto al público</h3><ul class="doors">${(e.acts.length?e.acts.map(a=>esc(actName(a))):e.doors.map(d=>DOORTXT[d])).map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
     ${e.offers.length?`<div class="fs-sec"><h3>Ofrece a otros</h3><ul class="offers">${e.offers.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>`:''}
     ${space&&(e.fam||[]).length?`<div class="fs-sec"><h3>Acoge</h3><div class="tags">${e.fam.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div></div>`:''}
-    ${ds.length?`<div class="fs-sec"><h3>${space?((e.fam||[]).length?'En concreto':'Suele acoger'):'Qué hace'}</h3><div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}" title="${esc(famOf(t)+' › '+pathOf(t))}">${parOf(t)?`<small>${esc(parOf(t))} ›</small> `:''}${esc(t)}</button>`).join('')}</div></div>`:''}
+    ${ds.length||(!space&&(e.fam||[]).length)?`<div class="fs-sec"><h3>${space?((e.fam||[]).length?'En concreto':'Suele acoger'):'Qué hace'}</h3><div class="tags">${space?'':(e.fam||[]).map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}" title="${esc(famOf(t)+' › '+pathOf(t))}">${parOf(t)?`<small>${esc(parOf(t))} ›</small> `:''}${esc(t)}</button>`).join('')}</div></div>`:''}
     ${genHit(e,resolve(S.q))?genNote(e,resolve(S.q)):''}
     ${info.length?`<dl class="fs-info">${info.join('')}</dl>`:''}
     ${e.info?`<div class="fs-sec"><h3>Más información</h3><p class="fs-more">${esc(e.info)}</p></div>`:''}
@@ -1586,9 +1592,12 @@ function syncForm(){
   // «Se alquila o cede» es cosa de los espacios: un proyecto lo dice a través de su espacio con nombre propio
   const dg=document.querySelector('#fActs [data-door="espacio"]'); if(dg){ dg.hidden=amb||!isEsp; if(!isEsp) dg.querySelectorAll('input').forEach(i=>i.checked=false); }
     const esp=$('#fFormat').value==='espacio';
-  $('#lFams').hidden=amb||!esp; $('#s2t').textContent=esp?'¿Qué acoge?':'¿De qué va?';
+  $('#lFams').hidden=amb; $('#s2t').textContent=esp?'¿Qué acoge?':'¿De qué va?';
+  $('#lFamsTxt').textContent=esp?'Qué acoge en general ':'Toda una disciplina ';
+  $('#famsHint').textContent=esp?'marca disciplinas enteras si en el espacio cabe de todo dentro de ellas':'opcional · hasta '+MAXFAM+' · si haces de todo dentro de ella (por ejemplo, una promotora de conciertos: Música)';
+  if(!esp) [...document.querySelectorAll('#fFams [aria-pressed="true"]')].slice(MAXFAM).forEach(b=>b.setAttribute('aria-pressed','false'));
   $('#lDisc').firstChild.textContent=esp?'En concreto ':'Categorías ';
-  $('#lDisc').querySelector('.hint').textContent=esp?'opcional si has marcado disciplinas enteras · hasta 8 · lo que más se hace allí':'hasta 4 · la primera que marques es la principal · dentro puedes concretar';
+  $('#lDisc').querySelector('.hint').textContent=esp?'opcional si has marcado disciplinas enteras · hasta 8 · lo que más se hace allí':'hasta 4 · opcional si has marcado una disciplina entera · la primera que marques es la principal · dentro puedes concretar';
   syncSum();
   $('#lNameTxt').textContent=amb?'Proyecto o espacio':'Nombre del proyecto';
   $('#dlgTitle').textContent=amb?'Recomendar un proyecto':'Únete a la escena local';
@@ -1597,11 +1606,14 @@ function syncForm(){
 $('#fType').addEventListener('change',syncForm);
 document.querySelectorAll('input[name="fmt"]').forEach(r=>r.addEventListener('change',()=>{ $('#fFormat').value=r.value; syncForm(); }));
 document.querySelectorAll('[data-ftype]').forEach(b=>b.addEventListener('click',()=>{ $('#fType').value=b.dataset.ftype; syncForm(); }));
-$('#fFams').addEventListener('click',e=>{ const b=e.target.closest('[data-ffam]'); if(b) b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true')); });
+$('#fFams').addEventListener('click',e=>{ const b=e.target.closest('[data-ffam]'); if(!b) return; const on=b.getAttribute('aria-pressed')==='true';
+  if(!on&&$('#fFormat').value!=='espacio'&&pickedFams().length>=MAXFAM){ toast('Hasta '+MAXFAM+' disciplinas enteras: si haces de todo, quédate con las principales.'); return; }
+  b.setAttribute('aria-pressed',String(!on)); syncSum(); });
 $('#fActs').addEventListener('change',syncForm);
 $('#fDisc').addEventListener('change',e=>{ const i=e.target; if(!i.matches('input')) return;
   const sp=$('#fFormat').value==='espacio', max=sp?8:4, subs=!i.dataset.par&&[...document.querySelectorAll('#fDisc .tsubs')].find(x=>x.dataset.for===i.value);
   if(!i.dataset.par&&i.checked&&document.querySelectorAll('#fDisc input:checked:not([data-par])').length>max){ i.checked=false; toast(sp?'Hasta 8 categorías: lo que más se hace allí.':'Hasta 4 categorías: quédate con las que más te definen.'); }
+  if(i.checked&&orderedDiscs().length>MAXTAGS){ i.checked=false; toast('Hasta '+MAXTAGS+' etiquetas en total: quédate con las que mejor te definen.'); }
   if(subs){ subs.hidden=!i.checked; if(!i.checked) subs.querySelectorAll('input').forEach(x=>x.checked=false); }
   setTimeout(()=>{ grpCount(); syncOrder(); syncSum(); }); });
 function openAdd(type){ $('#addForm').reset(); clearFoto(); discOrder=[]; document.querySelectorAll('#fDisc .tsubs').forEach(x=>x.hidden=true); document.querySelectorAll('#fFams button').forEach(b=>b.setAttribute('aria-pressed','false')); $('#fType').value=type==='sugerencia'||type==='embajador'?'sugerencia':'ficha'; $('#fCity').value=S.city; $('#fErr').textContent=''; syncForm(); if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open',''); $('#fName').focus(); }
@@ -1611,15 +1623,18 @@ $('#cancelAdd').addEventListener('click',()=>dlg.close());
 let foto=null, discOrder=[];
 function syncOrder(){ const on=[...document.querySelectorAll('#fDisc input:checked')].map(i=>i.value); discOrder=discOrder.filter(v=>on.includes(v)); on.forEach(v=>{ if(!discOrder.includes(v)) discOrder.push(v); }); }
 // Se envía lo más fino: si dentro de una categoría has concretado, van las subcategorías en su lugar
-function orderedDiscs(){ syncOrder(); const on=new Set(discOrder); return discOrder.filter(v=>!(isCat(v)&&kidsOf(v).some(x=>on.has(x)))).slice(0,8); }
+const MAXTAGS=12, MAXFAM=2;
+function orderedDiscs(){ syncOrder(); const on=new Set(discOrder); return discOrder.filter(v=>!(isCat(v)&&kidsOf(v).some(x=>on.has(x)))); }
+const pickedFams=()=>[...document.querySelectorAll('#fFams [aria-pressed="true"]')].map(b=>b.dataset.ffam);
 // La frase que resume la ficha mientras se rellena
 const listJoin=a=>a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' y '+a[a.length-1];
 function syncSum(){ const el=$('#fSum'); if(!el) return; if($('#fType').value==='sugerencia'){ el.hidden=true; return; }
-  const n=$('#fName').value.trim(), fmt=$('#fFormat').value, ds=orderedDiscs(), fams=fmt==='espacio'?[...document.querySelectorAll('#fFams [aria-pressed="true"]')].map(b=>b.dataset.ffam):[];
+  const n=$('#fName').value.trim(), fmt=$('#fFormat').value, ds=orderedDiscs(), fams=pickedFams();
+  const dn=$('#discN'); if(dn) dn.textContent=ds.length?ds.length+'/'+MAXTAGS+' etiquetas':'';
   const acts=[...document.querySelectorAll('#fActs input:checked')].map(i=>actName(i.value).toLowerCase());
   if(!n||(!ds.length&&!fams.length&&!acts.length)){ el.hidden=true; return; }
   const who={persona:'un proyecto personal',colectivo:'un grupo',espacio:'un espacio'}[fmt]||'un proyecto';
-  const what=fmt==='espacio'?((fams.length||ds.length)?' que acoge '+listJoin([...fams,...ds].slice(0,4)):''):(ds.length?' de '+listJoin(ds.slice(0,3)):'');
+  const what=fmt==='espacio'?((fams.length||ds.length)?' que acoge '+listJoin([...fams,...ds].slice(0,4)):''):((fams.length||ds.length)?' de '+listJoin([...fams,...ds].slice(0,3)):'');
   const where=$('#fCity').value;
   const how=acts.length?'. Ofrece '+listJoin(acts.slice(0,4)):'';
   el.innerHTML=`<span>Así se leerá tu ficha</span>«${esc(n)} es ${who}${esc(what)} en ${esc(where)}${esc(how)}.»`; el.hidden=false; }
@@ -1665,7 +1680,7 @@ $('#addForm').addEventListener('submit',async ev=>{
   ev.preventDefault();
   const amb=$('#fType').value==='sugerencia', n=$('#fName').value.trim(), ig=$('#fIg').value.trim().replace(/^@/,'');
   const acts=[...document.querySelectorAll('#fActs input:checked')].map(i=>i.value), doors=doorsOf(acts);
-  const discs=amb?[]:orderedDiscs(), fams=(!amb&&$('#fFormat').value==='espacio')?[...document.querySelectorAll('#fFams [aria-pressed="true"]')].map(b=>b.dataset.ffam):[];
+  const discs=amb?[]:orderedDiscs().slice(0,MAXTAGS), fams=amb?[]:($('#fFormat').value==='espacio'?pickedFams():pickedFams().slice(0,MAXFAM));
   const err=m=>{ $('#fErr').textContent=m; };
   if(n.length<2) return err('Escribe un nombre.');
   if(!$('#fConsent').checked){ $('#fConsent').focus(); return err('Marca la casilla de privacidad para poder enviarlo.'); }
@@ -1675,7 +1690,7 @@ $('#addForm').addEventListener('submit',async ev=>{
   if(!amb&&!ig&&!site){ return err('Pon tu Instagram o tu web: es como te encuentra la gente y como verificamos la ficha.'); }
   if(!amb&&!acts.length) return err('Marca al menos una cosa que hacéis abierta al público: es lo que hace que un proyecto entre en La Escena Local.');
   const isEsp=$('#fFormat').value==='espacio';
-  if(!amb&&!discs.length&&!fams.length) return err($('#fFormat').value==='espacio'?'Marca al menos una disciplina entera o una categoría de lo que acoge el espacio.':'Marca al menos una categoría.');
+  if(!amb&&!discs.length&&!fams.length) return err($('#fFormat').value==='espacio'?'Marca al menos una disciplina entera o una categoría de lo que acoge el espacio.':'Marca al menos una categoría o una disciplina entera.');
   if(amb&&!ig&&!$('#fDesc').value.trim()) return err('Cuéntanos a qué se dedica o pon su Instagram: así podemos encontrarlo.');
   if(amb&&!$('#fCity').value) return err('Elige la ciudad.');
   if(Date.now()-lastSend<30000) return err('Acabas de enviar una propuesta. Espera unos segundos para la siguiente.');
