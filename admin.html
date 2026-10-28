@@ -64,6 +64,9 @@ header{padding:16px 0 8px;display:flex;justify-content:space-between;align-items
 .av.sp{border-radius:12px;border-color:var(--acento);border-width:2px}
 .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .item .main{min-width:0}
+.dmrow{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.dmrow .ghost{padding:4px 10px;font-size:13px}
+.dmrow .dmst{font-size:12px;color:var(--muted)}
 .vtick{display:inline-grid;place-items:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:#1f8a70;color:#fff;font:700 12px/1 var(--body,sans-serif);vertical-align:2px}
 .item .main b{display:block;font-family:var(--display);font-size:17px;line-height:1.2}
 .item small{color:var(--muted);display:block}
@@ -350,12 +353,33 @@ function item(f){
   return `<article class="item${f.aprobada?'':' pend'}" data-id="${f.id}">
     <span class="av${f.formato==='espacio'?' sp':''}">${esc(initials(f.nombre))}${f.imagen?`<img src="${esc(imgUrl(f.imagen))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
     <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
-      ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}</div>
+      ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}
+      ${f.instagram?`<div class="dmrow"><button class="ghost" type="button" data-dm>✉ Escribir</button>${dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div>`:''}</div>
     <label class="sw"><input type="checkbox" data-aprob ${f.aprobada?'checked':''}> ¿Aprobada?</label>
     <button class="ghost" type="button" data-edit>Editar</button></article>`;
 }
+// ---------- Primer contacto por Instagram: un único mensaje (las solicitudes de mensaje a veces solo admiten uno) ----------
+const fichaUrl=f=>'https://laescenalocal.es/index.html?c='+encodeURIComponent(cityName(f.ciudad_id))+'&f='+f.id;
+const dmMsg=f=>'¡Hola! Soy Ángel y estoy creando La Escena Local, una web para que todos los proyectos y espacios culturales de cada ciudad sean fáciles de encontrar y contactar, y os he hecho una ficha: '+fichaUrl(f)+'\nEchadle un ojo y si hay algo que haya que cambiar, o si no queréis estar ahí, ¡decidme sin problema! Y si podéis recomendársela a gente con proyectos o espacios en '+cityName(f.ciudad_id)+', me ayudáis a que esto vaya creciendo 🙏 ¡Gracias!';
+const notasOf=id=>((DB.priv[id]||{}).notas_internas)||'';
+function dmDate(id){ const m=notasOf(id).match(/Escrito por IG el (\d{1,2}\/\d{1,2})/g); return m?m[m.length-1].replace('Escrito por IG el ',''):''; }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(err){ prompt('Copia el mensaje:',t); return false; } }
+async function dmStep(btn,f){
+  await copyText(dmMsg(f));
+  window.open('https://ig.me/m/'+encodeURIComponent(f.instagram),'_blank','noopener');
+  btn.textContent='✓ Copiado';
+  const d=new Date(), hoy=d.getDate()+'/'+(d.getMonth()+1);
+  if(dmDate(f.id)===hoy){ toast('Mensaje copiado. Pégalo en la conversación y envíalo.'); return; }
+  const nota=(notasOf(f.id)?notasOf(f.id)+' · ':'')+'Escrito por IG el '+hoy;
+  try{ await rest('fichas?id=eq.'+f.id,{method:'PATCH',headers:MIN,body:JSON.stringify({notas_internas:nota.slice(-300)})});
+    DB.priv[f.id]={...(DB.priv[f.id]||{}),notas_internas:nota.slice(-300)};
+    const st=btn.parentElement.querySelector('.dmst')||btn.parentElement.appendChild(Object.assign(document.createElement('span'),{className:'dmst'})); st.textContent='Escrito el '+hoy;
+    toast('Mensaje copiado. Pégalo en la conversación y envíalo. Anotado: escrito el '+hoy+'.'); }
+  catch(err){ toast('Mensaje copiado (no se pudo anotar la fecha).'); }
+}
 $('#list').addEventListener('click',async e=>{
   const it=e.target.closest('.item'); if(!it) return; const id=it.dataset.id;
+  const dm=e.target.closest('[data-dm]'); if(dm){ const f=DB.fichas.find(x=>x.id===id); if(f) await dmStep(dm,f); return; }
   if(e.target.closest('[data-edit]')) return openEd(DB.fichas.find(f=>f.id===id));
   if(e.target.closest('[data-pedit]')) return openFromProp(DB.props.find(p=>p.id===it.dataset.pid));
   if(e.target.closest('[data-pmsg]')){ const p=DB.props.find(x=>x.id===it.dataset.pid); try{ await navigator.clipboard.writeText(msgSugerencia(p)); toast('Mensaje copiado. Pégalo en un DM al proyecto.'); }catch(err){ prompt('Copia el mensaje:',msgSugerencia(p)); } return; }
@@ -641,4 +665,4 @@ $('#newBtn').addEventListener('click',()=>openEd(null));
 (async()=>{ if(!SES){ showLogin(); return; } try{ await start(); }catch(e){ showLogin(); } })();
 </script>
 </body>
-</html>
+  </html>
