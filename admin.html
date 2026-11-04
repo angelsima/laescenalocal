@@ -103,6 +103,14 @@ dialog::backdrop{background:rgba(23,16,31,.55)}
 .fgrp[open]>summary::before{transform:rotate(45deg) translate(-2px,-1px)}
 .fgrp .n{margin-left:auto;font-family:var(--mono);font-size:11px;background:var(--amarillo);color:var(--amarillo-ink);border-radius:999px;padding:1px 8px}
 .fgrp .n:empty{display:none}
+#eDiscs .fhead{display:flex;align-items:center;gap:10px;padding:7px 12px}
+#eDiscs .fhead input{width:17px;height:17px;margin:0;accent-color:var(--ink);flex:none;cursor:pointer}
+#eDiscs .fexp{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;flex:1;font-weight:600;font-size:14px;padding:2px 0}
+#eDiscs .fexp:focus-visible{outline:2px solid var(--amarillo);outline-offset:2px}
+#eDiscs .arr{width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s}
+#eDiscs .fgrp.open .arr{transform:rotate(225deg) translate(-1px,-1px)}
+#eDiscs .fgrp.all>.fhead{background:var(--amarillo);color:var(--amarillo-ink)}
+.chip.fam{border:1.5px solid var(--acento)}
 .checks{display:flex;flex-wrap:wrap;gap:6px;padding:2px 12px 12px}
 .checks label{flex-direction:row;align-items:center;gap:6px;font-weight:400;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;background:var(--surface)}
 .checks label:has(input:checked){border-color:var(--ink);background:var(--amarillo);color:var(--amarillo-ink)}
@@ -230,13 +238,13 @@ dialog::backdrop{background:rgba(23,16,31,.55)}
       <div class="row2"><label>Cómo llegar (dirección o enlace de Google Maps)<input id="eDir" maxlength="120" placeholder="https://maps.app.goo.gl/… o Calle, nº"></label><label>Horario<input id="eHor" maxlength="160"></label></div>
       <label>Más información <span class="hint" id="cInfo">0/600</span><textarea id="eInfo" rows="3" maxlength="600"></textarea></label>
     </div>
-    <div class="field">Qué hacen abiertos al público
+    <div class="field">¿Qué hacen?
       <div class="box" id="eActs"></div>
     </div>
     <div class="field" id="eFamBox" hidden><span id="eFamLbl">Acoge en general</span> <span class="hint" id="eFamHint">disciplinas enteras. Si alguien busca algo de dentro, la ficha sale detrás de las que lo tienen marcado, con un aviso.</span>
       <div class="checks" id="eFams" style="padding:4px 0 0"></div>
     </div>
-    <div class="field"><span id="dLbl">Categorías</span> <span class="hint" id="dHint">Marca lo más concreto que sepas (Salsa mejor que Latinos): la ficha sale también en lo de encima. La primera es la principal; pulsa ★ para cambiarla.</span>
+    <div class="field"><span id="dLbl">¿En qué categoría encajan?</span> <span class="hint" id="dHint"></span>
       <div class="chosen" id="eChosen"></div>
       <div class="box" id="eDiscs"></div>
     </div>
@@ -541,7 +549,7 @@ function fillSede(){ const city=+$('#eCity').value, cur=ED&&ED.sede||'';
   $('#eSede').innerHTML='<option value="">Ninguna</option>'+opts.map(x=>`<option value="${x.id}"${x.id===cur?' selected':''}>${esc(x.nombre)}${x.aprobada?'':' (sin aprobar)'}</option>`).join(''); }
 function syncFmt(){ const sp=$('#eFormat').value==='espacio';
   $('#locRow').hidden=sp||!HAS_LOCAL; fillSede();
-  const hosted=ED?DB.fichas.filter(x=>x.sede_id===ED.id):[]; $('#eHosted').hidden=!sp||!hosted.length; $('#eHosted').textContent=hosted.length?'Aquí tiene su sede: '+hosted.map(x=>x.nombre).join(', ')+'. Se cambia desde la ficha de cada proyecto.':''; $('#spaceRow').hidden=!sp; $('#eFamBox').hidden=!HAS_FAM; $('#eFamLbl').textContent=sp?'Acoge en general':'Toda una disciplina'; $('#eFamHint').textContent=sp?'disciplinas enteras. Si alguien busca algo de dentro, el espacio sale detrás de los que lo tienen marcado, con un aviso.':'para proyectos que hacen de todo dentro de una disciplina (una promotora: Música). En el formulario público pueden marcar hasta 2.'; $('#dLbl').textContent=sp?'En concreto (lo que más se hace allí)':'Categorías'; if(ED) renderFams(); }
+  const hosted=ED?DB.fichas.filter(x=>x.sede_id===ED.id):[]; $('#eHosted').hidden=!sp||!hosted.length; $('#eHosted').textContent=hosted.length?'Aquí tiene su sede: '+hosted.map(x=>x.nombre).join(', ')+'. Se cambia desde la ficha de cada proyecto.':''; $('#spaceRow').hidden=!sp; $('#eFamBox').hidden=true; $('#dLbl').textContent=sp?'¿Qué acoge?':'¿En qué categoría encajan?'; $('#dHint').textContent=(HAS_FAM?(sp?'La casilla de una disciplina = acoge de todo dentro de ella. ':'La casilla de una disciplina = hacen de todo dentro (una promotora: Música; en el formulario público, hasta 2). '):'')+'Despliégala para concretar: marca lo más concreto que sepas (Salsa mejor que Latinos). La primera es la principal; pulsa ★ para cambiarla.'; if(ED) renderDiscs(); }
 function renderFams(){ $('#eFams').innerHTML=famsOrder().map(f=>`<label><input type="checkbox" data-fam="${esc(f)}"${ED.fams.has(f)?' checked':''}>${esc(f)}</label>`).join(''); }
 function count(){ $('#cDesc').textContent=$('#eDesc').value.length+'/280'; $('#cInfo').textContent=$('#eInfo').value.length+'/600'; }
 $('#eFormat').addEventListener('change',syncFmt);
@@ -558,16 +566,20 @@ function renderActs(){
 $('#eActs').addEventListener('change',e=>{ const i=e.target.closest('[data-act]'); if(!i) return; i.checked?ED.acts.add(i.dataset.act):ED.acts.delete(i.dataset.act); const g=i.closest('details'); g.querySelector('.n').textContent=g.querySelectorAll('input:checked').length||''; });
 
 function renderDiscs(){
-  const open=new Set([...document.querySelectorAll('#eDiscs details[open]')].map(d=>d.dataset.f));
+  const open=new Set([...document.querySelectorAll('#eDiscs .fgrp.open')].map(d=>d.dataset.f));
   const box=id=>`<input type="checkbox" data-d="${id}"${ED.discs.includes(id)?' checked':''}>`;
-  $('#eChosen').innerHTML=ED.discs.length?ED.discs.map((id,i)=>{ const d=DB.disc.find(x=>x.id===id), pn=parName(d); return `<span class="chip${i===0?' main':''}">${i===0?'★ ':''}${pn?`<small>${esc(pn)} ›</small>`:''}${esc(discName(id))}${i?`<button type="button" data-main="${id}" title="Hacer principal" aria-label="Hacer principal">★</button>`:''}<button type="button" data-rm="${id}" title="Quitar" aria-label="Quitar">×</button></span>`; }).join(''):'<span class="hint">Ninguna todavía</span>';
-  $('#eDiscs').innerHTML=famsOrder().map(f=>{ const cs=cats(f), n=DB.disc.filter(d=>d.familia===f&&ED.discs.includes(d.id)).length;
-    return `<details class="fgrp" data-f="${esc(f)}"${open.has(f)?' open':''}><summary>${esc(f)}<span class="n">${n||''}</span></summary><div class="tree">${cs.map(c=>{ const ks=kids(c.id); return `<div class="tc"><label>${box(c.id)}${esc(c.nombre)}</label>${ks.length?`<div class="ts">${ks.map(k=>`<label>${box(k.id)}${esc(k.nombre)}</label>`).join('')}</div>`:''}</div>`; }).join('')}</div></details>`; }).join('');
+  const famChips=HAS_FAM?[...ED.fams].map(f=>`<span class="chip fam">${esc(f)} <small>· toda</small><button type="button" data-rmfam="${esc(f)}" title="Quitar" aria-label="Quitar">×</button></span>`):[];
+  const discChips=ED.discs.map((id,i)=>{ const d=DB.disc.find(x=>x.id===id), pn=parName(d); return `<span class="chip${i===0?' main':''}">${i===0?'★ ':''}${pn?`<small>${esc(pn)} ›</small>`:''}${esc(discName(id))}${i?`<button type="button" data-main="${id}" title="Hacer principal" aria-label="Hacer principal">★</button>`:''}<button type="button" data-rm="${id}" title="Quitar" aria-label="Quitar">×</button></span>`; });
+  $('#eChosen').innerHTML=famChips.length||discChips.length?famChips.concat(discChips).join(''):'<span class="hint">Ninguna todavía</span>';
+  $('#eDiscs').innerHTML=famsOrder().map(f=>{ const cs=cats(f), n=DB.disc.filter(d=>d.familia===f&&ED.discs.includes(d.id)).length, on=open.has(f), all=ED.fams.has(f);
+    return `<div class="fgrp${on?' open':''}${all?' all':''}" data-f="${esc(f)}"><div class="fhead">${HAS_FAM?`<input type="checkbox" data-efam="${esc(f)}"${all?' checked':''} aria-label="Toda la disciplina ${esc(f)}" title="Toda la disciplina">`:''}<button type="button" class="fexp" data-exp="${esc(f)}" aria-expanded="${on}">${esc(f)}<span class="arr" aria-hidden="true"></span><span class="n">${n||''}</span></button></div><div class="tree"${on?'':' hidden'}>${cs.map(c=>{ const ks=kids(c.id); return `<div class="tc"><label>${box(c.id)}${esc(c.nombre)}</label>${ks.length?`<div class="ts">${ks.map(k=>`<label>${box(k.id)}${esc(k.nombre)}</label>`).join('')}</div>`:''}</div>`; }).join('')}</div></div>`; }).join('');
 }
-$('#eDiscs').addEventListener('change',e=>{ const i=e.target.closest('[data-d]'); if(!i) return; const id=+i.dataset.d;
+$('#eDiscs').addEventListener('click',e=>{ const x=e.target.closest('[data-exp]'); if(!x) return; const g=x.closest('.fgrp'), on=!g.classList.contains('open'); g.classList.toggle('open',on); x.setAttribute('aria-expanded',String(on)); g.querySelector('.tree').hidden=!on; });
+$('#eDiscs').addEventListener('change',e=>{ const fm=e.target.closest('[data-efam]'); if(fm){ fm.checked?ED.fams.add(fm.dataset.efam):ED.fams.delete(fm.dataset.efam); renderDiscs(); return; } const i=e.target.closest('[data-d]'); if(!i) return; const id=+i.dataset.d;
   if(i.checked){ if(ED.discs.length>=8){ i.checked=false; return toast('Hasta 8 disciplinas.'); } if(!ED.discs.includes(id)) ED.discs.push(id); } else ED.discs=ED.discs.filter(x=>x!==id);
   renderDiscs(); });
-$('#eChosen').addEventListener('click',e=>{ const m=e.target.closest('[data-main]'), r=e.target.closest('[data-rm]');
+$('#eChosen').addEventListener('click',e=>{ const m=e.target.closest('[data-main]'), r=e.target.closest('[data-rm]'), rf=e.target.closest('[data-rmfam]');
+  if(rf){ ED.fams.delete(rf.dataset.rmfam); renderDiscs(); return; }
   if(m){ const id=+m.dataset.main; ED.discs=[id,...ED.discs.filter(x=>x!==id)]; renderDiscs(); }
   if(r){ ED.discs=ED.discs.filter(x=>x!==+r.dataset.rm); renderDiscs(); } });
 
@@ -665,4 +677,4 @@ $('#newBtn').addEventListener('click',()=>openEd(null));
 (async()=>{ if(!SES){ showLogin(); return; } try{ await start(); }catch(e){ showLogin(); } })();
 </script>
 </body>
-  </html>
+</html>
