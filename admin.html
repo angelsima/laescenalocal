@@ -266,7 +266,7 @@ const CFG={url:'https://edywflfxiwcujhkjgowu.supabase.co',key:'sb_publishable_lV
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const DOORS={clases:'Clases y talleres',comunidad:'Participar',eventos:'Shows',venta:'Creación local',espacio:'Espacios'};
 const FICHA_COLS='id,ciudad_id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,aprobada,creado_en,ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)';
-let HAS_EXTRA=true, HAS_FAM=true, HAS_LOCAL=true, HAS_ESTADO=true, SES=null, DB={cities:[],disc:[],acts:[],fichas:[],priv:{},props:[],avisos:[]}, TAB='pend', ED=null, toastT;
+let HAS_EXTRA=true, HAS_FAM=true, HAS_LOCAL=true, HAS_ESTADO=true, SES=null, DB={cities:[],disc:[],acts:[],fichas:[],priv:{},props:[],avisos:[],cambios:[]}, TAB='pend', ED=null, toastT;
 
 /* ---------- sesión ---------- */
 try{ SES=JSON.parse(localStorage.getItem('esc_admin')||'null'); }catch(e){}
@@ -318,12 +318,13 @@ async function loadFichas(){
 async function loadAll(){
   $('#list').innerHTML='<div class="empty">Cargando…</div>';
   try{
-    const [cities,disc,acts,fichas,priv,props,avisos]=await Promise.all([
+    const [cities,disc,acts,fichas,priv,props,avisos,cambios]=await Promise.all([
       rest('ciudades?select=id,nombre,provincia,estado&order=nombre').catch(()=>{ HAS_ESTADO=false; return rest('ciudades?select=id,nombre,provincia&order=nombre'); }), getDisc(), rest('actividades?select=id,nombre,puerta,orden&order=orden'),
       loadFichas(), rest('rpc/admin_privado',{method:'POST',body:'{}'}),
       rest('propuestas?select=id,tipo,ciudad,nombre,instagram,formato,disciplinas,puertas,actividades,tipo_espacio,ofrece,barrio,descripcion,contacto,imagen,creado_en&aprobada=eq.false&order=creado_en.desc'),
-      rest('avisos_ficha?select=id,ficha_id,motivo,creado_en&revisado=eq.false&order=creado_en.desc')]);
-    DB={cities,disc,acts,fichas,priv:Object.fromEntries((priv||[]).map(x=>[x.id,x])),props:props||[],avisos:avisos||[]};
+      rest('avisos_ficha?select=id,ficha_id,motivo,creado_en&revisado=eq.false&order=creado_en.desc'),
+      rest('cambios_ficha?select=id,ficha_id,creado_en,campos,antes,despues,imagen_pendiente&revisado=eq.false&order=creado_en.desc').catch(()=>[])]);
+    DB={cities,disc,acts,fichas,priv:Object.fromEntries((priv||[]).map(x=>[x.id,x])),props:props||[],avisos:avisos||[],cambios:cambios||[]};
   }catch(e){ $('#list').innerHTML='<div class="empty">No se pudo cargar: '+esc(e.message)+'</div>'; return; }
   const cur=$('#fcity').value;
   $('#fcity').innerHTML='<option value="">Todas las ciudades</option>'+DB.cities.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
@@ -343,7 +344,7 @@ document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{ TA
 ['#fq','#fcity'].forEach(s=>$(s).addEventListener('input',render));
 function render(){
   const pend=DB.fichas.filter(f=>!f.aprobada);
-  $('#nPend').textContent=pend.length||''; $('#nAll').textContent=DB.fichas.length||''; $('#nInbox').textContent=(DB.props.length+DB.avisos.length)||'';
+  $('#nPend').textContent=pend.length||''; $('#nAll').textContent=DB.fichas.length||''; $('#nInbox').textContent=(DB.props.length+DB.avisos.length+(DB.cambios||[]).length)||'';
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===TAB)));
   $('#tools').hidden=TAB==='inbox'||TAB==='disc'; $('#list').classList.toggle('bandeja',TAB==='inbox');
   $('#fcity').hidden=$('#newBtn').hidden=TAB==='cities'; $('#fq').placeholder=TAB==='cities'?'Buscar ciudad o provincia':'Buscar por nombre, @instagram o disciplina';
@@ -362,9 +363,34 @@ function item(f){
     <span class="av${f.formato==='espacio'?' sp':''}">${esc(initials(f.nombre))}${f.imagen?`<img src="${esc(imgUrl(f.imagen))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
     <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
       ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}
-      ${f.instagram?`<div class="dmrow"><button class="ghost" type="button" data-dm>✉ Escribir</button>${dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div>`:''}</div>
+      <div class="dmrow">${f.instagram?`<button class="ghost" type="button" data-dm>✉ Escribir</button>`:''}${f.aprobada?'<button class="ghost" type="button" data-elink title="Copia un enlace para que el proyecto cambie su ficha (7 días, un solo uso)">🔗 Enlace para editar</button>':''}${f.instagram&&dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div></div>
     <label class="sw"><input type="checkbox" data-aprob ${f.aprobada?'checked':''}> ¿Aprobada?</label>
     <button class="ghost" type="button" data-edit>Editar</button></article>`;
+}
+// ---------- Enlace para que el proyecto edite su ficha (7 días, un solo uso) ----------
+const editMsg=(f,t)=>'Aquí tenéis un enlace para cambiar vuestra ficha vosotros mismos: https://laescenalocal.es/?editar='+t+'\nFunciona una sola vez y caduca en 7 días. Lo que guardéis se publica al momento (si cambiáis la foto, la reviso antes). ¡Cualquier duda, me decís!';
+async function editLink(btn,f){
+  btn.disabled=true;
+  try{ const t=await rest('rpc/crear_enlace_edicion',{method:'POST',body:JSON.stringify({p_ficha:f.id})});
+    await copyText(editMsg(f,t)); btn.textContent='✓ Enlace copiado'; toast('Mensaje con el enlace copiado. Pégalo en la conversación con '+f.nombre+'. Si generas otro, este deja de valer.'); }
+  catch(err){ toast(/crear_enlace_edicion|404|PGRST202/.test(String(err&&err.message))?'Falta ejecutar sql/enlaces-edicion.sql en Supabase.':'No se pudo crear el enlace: '+(err&&err.message||'')); }
+  finally{ btn.disabled=false; }
+}
+const CAMPO={descripcion:'descripción',instagram:'Instagram',facebook:'Facebook',web:'web',imagen:'quitó la foto',familias:'disciplinas enteras',disciplinas:'categorías',actividades:'formatos','foto nueva':'foto nueva (pendiente)'};
+function cambioDetalle(c){ const a=c.antes||{}, d=c.despues||{}, out=[];
+  ['descripcion','instagram','facebook','web'].forEach(k=>{ if((c.campos||[]).includes(k)) out.push(`<small><b>${CAMPO[k]}:</b> ${esc(a[k]||'—')} → ${esc(d[k]||'—')}</small>`); });
+  if((c.campos||[]).includes('disciplinas')) out.push(`<small><b>categorías:</b> ${esc((a.disciplinas||[]).map(x=>discName(x.id)).join(', ')||'—')} → ${esc((d.disciplinas||[]).map(x=>discName(x.id)).join(', ')||'—')}</small>`);
+  if((c.campos||[]).includes('familias')) out.push(`<small><b>disciplinas enteras:</b> ${esc((a.familias||[]).join(', ')||'—')} → ${esc((d.familias||[]).join(', ')||'—')}</small>`);
+  if((c.campos||[]).includes('actividades')){ const an=x=>(DB.acts.find(y=>y.id===x)||{}).nombre||x; out.push(`<small><b>formatos:</b> ${esc((a.actividades||[]).map(an).join(', ')||'—')} → ${esc((d.actividades||[]).map(an).join(', ')||'—')}</small>`); }
+  if((c.campos||[]).includes('imagen')&&!d.imagen) out.push('<small><b>foto:</b> la han quitado</small>');
+  return out.join(''); }
+async function cambioStep(b,cid){ const c=(DB.cambios||[]).find(x=>x.id===cid); if(!c) return;
+  try{
+    if(b.dataset.cfoto!==undefined){ await rest('fichas?id=eq.'+c.ficha_id,{method:'PATCH',headers:MIN,body:JSON.stringify({imagen:c.imagen_pendiente})}); await rest('cambios_ficha?id=eq.'+cid,{method:'PATCH',headers:MIN,body:JSON.stringify({imagen_pendiente:null})}); toast('Foto publicada.'); }
+    if(b.dataset.cundo!==undefined){ if(!confirm('¿Deshacer este cambio y volver a como estaba la ficha antes?')) return; await rest('rpc/deshacer_cambio',{method:'POST',body:JSON.stringify({p_id:cid})}); toast('Cambio deshecho.'); }
+    if(b.dataset.cdone!==undefined){ await rest('cambios_ficha?id=eq.'+cid,{method:'PATCH',headers:MIN,body:JSON.stringify({revisado:true})}); toast(c.imagen_pendiente?'Visto. La foto nueva queda descartada.':'Visto.'); }
+    await loadAll();
+  }catch(err){ toast('No se pudo: '+(err&&err.message||'')); }
 }
 // ---------- Primer contacto por Instagram: un único mensaje (las solicitudes de mensaje a veces solo admiten uno) ----------
 const fichaUrl=f=>'https://laescenalocal.es/index.html?c='+encodeURIComponent(cityName(f.ciudad_id))+'&f='+f.id;
@@ -388,6 +414,8 @@ async function dmStep(btn,f){
 $('#list').addEventListener('click',async e=>{
   const it=e.target.closest('.item'); if(!it) return; const id=it.dataset.id;
   const dm=e.target.closest('[data-dm]'); if(dm){ const f=DB.fichas.find(x=>x.id===id); if(f) await dmStep(dm,f); return; }
+  const el=e.target.closest('[data-elink]'); if(el){ const f=DB.fichas.find(x=>x.id===id); if(f) await editLink(el,f); return; }
+  const cu=e.target.closest('[data-cundo],[data-cfoto],[data-cdone]'); if(cu) return cambioStep(cu,+it.dataset.cid);
   if(e.target.closest('[data-edit]')) return openEd(DB.fichas.find(f=>f.id===id));
   if(e.target.closest('[data-pedit]')) return openFromProp(DB.props.find(p=>p.id===it.dataset.pid));
   if(e.target.closest('[data-pmsg]')){ const p=DB.props.find(x=>x.id===it.dataset.pid); try{ await navigator.clipboard.writeText(msgSugerencia(p)); toast('Mensaje copiado. Pégalo en un DM al proyecto.'); }catch(err){ prompt('Copia el mensaje:',msgSugerencia(p)); } return; }
@@ -425,6 +453,9 @@ function renderInbox(){
     <div style="display:flex;gap:6px;flex-wrap:wrap">${p.tipo==='sugerencia'?`${p.instagram?`<a class="ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="https://instagram.com/${esc(p.instagram)}" target="_blank" rel="noopener">Ver Instagram</a>`:''}<button class="ghost" data-pmsg type="button">Copiar mensaje</button>`:''}${p.tipo==='ficha'||p.tipo==='sugerencia'?'<button class="ghost" data-pedit type="button">Crear ficha</button>':''}<button class="ghost" data-pdone type="button">Ya visto</button></div></article>`));
   DB.avisos.forEach(a=>{ const f=DB.fichas.find(x=>x.id===a.ficha_id); out.push(`<article class="item" data-aid="${a.id}" data-id="${a.ficha_id}"><div class="main"><span class="k">Aviso de error</span><b>${esc(f?f.nombre:'(ficha borrada)')}</b><small>${esc(a.motivo)}</small></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${f?'<button class="ghost" data-aedit type="button">Abrir ficha</button>':''}<button class="ghost" data-adone type="button">Resuelto</button></div></article>`); });
+  (DB.cambios||[]).forEach(c=>{ const f=DB.fichas.find(x=>x.id===c.ficha_id), dt=new Date(c.creado_en);
+    out.push(`<article class="item" data-cid="${c.id}" data-id="${c.ficha_id}"><div class="main"><span class="k">Cambio hecho por el proyecto · ${dt.getDate()}/${dt.getMonth()+1}</span><b>${esc(f?f.nombre:'(ficha borrada)')}</b><small>${esc((c.campos||[]).map(k=>CAMPO[k]||k).join(', ')||'sin cambios')}</small>${cambioDetalle(c)}${c.imagen_pendiente?`<span class="av" style="width:72px;height:72px;margin-top:6px"><img src="${esc(imgUrl(c.imagen_pendiente))}" alt="Foto nueva"></span>`:''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${c.imagen_pendiente?'<button class="cta" data-cfoto type="button">Publicar la foto</button>':''}${f?'<button class="ghost" data-aedit type="button">Abrir ficha</button>':''}<button class="ghost" data-cundo type="button">Deshacer</button><button class="ghost" data-cdone type="button">Visto</button></div></article>`); });
   $('#list').innerHTML=out.length?out.join(''):'<div class="empty">Bandeja vacía.</div>';
 }
 
