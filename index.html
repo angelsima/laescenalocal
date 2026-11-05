@@ -868,7 +868,8 @@ function hay(e){ return norm([e.n,FORMATS[e.fmt],e.kind,upOf(e).join(' '),upOf(e
 function matches(e,q){
   const nq=norm(q); if(!nq) return true;
   const target=resolve(q);
-  if(target) return upOf(e).includes(target)||genHit(e,target);
+  // Filtro concreto: solo quien lo tiene marcado. Quien hace «Música en general» sale al volver a Música.
+  if(target) return upOf(e).includes(target);
   const fam=resolveFam(q); if(fam) return famsOf(e).includes(fam);
   const act=resolveAct(q); if(act) return e.acts.includes(act);
   const h=hay(e), words=nq.split(/\s+/).filter(w=>w.length>1&&!STOP.includes(w)), stem=w=>w.length>5?w.slice(0,w.length-2):w;
