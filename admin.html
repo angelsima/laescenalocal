@@ -373,7 +373,7 @@ function item(f){
     <span class="av${f.formato==='espacio'?' sp':''}">${esc(initials(f.nombre))}${f.imagen?`<img src="${esc(imgUrl(f.imagen))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
     <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
       ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}
-      <div class="dmrow">${f.instagram?`<button class="ghost" type="button" data-dm>✉ Escribir</button>`:''}${f.aprobada?'<button class="ghost" type="button" data-elink title="Copia un enlace para que el proyecto cambie su ficha (7 días, un solo uso)">🔗 Enlace para editar</button>':''}${f.instagram&&dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div></div>
+      <div class="dmrow">${f.instagram?`<button class="ghost" type="button" data-dm title="Copia un mensaje con el enlace para que el proyecto revise y edite su ficha, y abre su Instagram">✉ Escribir</button>`:''}${f.aprobada?'<button class="ghost" type="button" data-elink title="Copia un enlace para que el proyecto cambie su ficha (7 días, un solo uso)">🔗 Enlace para editar</button>':''}${f.instagram&&dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div></div>
     <label class="sw"><input type="checkbox" data-aprob ${f.aprobada?'checked':''}> ¿Aprobada?</label>
     <button class="ghost" type="button" data-edit>Editar</button></article>`;
 }
@@ -404,22 +404,30 @@ async function cambioStep(b,cid){ const c=(DB.cambios||[]).find(x=>x.id===cid); 
 }
 // ---------- Primer contacto por Instagram: un único mensaje (las solicitudes de mensaje a veces solo admiten uno) ----------
 const fichaUrl=f=>'https://laescenalocal.es/index.html?c='+encodeURIComponent(cityName(f.ciudad_id))+'&f='+f.id;
-const dmMsg=f=>'¡Hola! Soy Ángel y estoy creando La Escena Local, una web para que todos los proyectos y espacios culturales de cada ciudad sean fáciles de encontrar y contactar, y os he hecho una ficha: '+fichaUrl(f)+'\nEchadle un ojo y si hay algo que haya que cambiar, o si no queréis estar ahí, ¡decidme sin problema! Y si podéis recomendársela a gente con proyectos o espacios en '+cityName(f.ciudad_id)+', me ayudáis a que esto vaya creciendo 🙏 ¡Gracias!';
+// El mensaje lleva directamente el enlace para editar la ficha (el proyecto la revisa y cambia o añade lo que quiera)
+const dmMsg=(f,t)=>'¡Hola! Soy Ángel y estoy creando La Escena Local, una web para que todos los proyectos y espacios culturales de cada ciudad sean fáciles de encontrar y contactar. Os he hecho una ficha y os invito a revisarla: cambiad o añadid lo que consideréis (descripción, categorías, redes, foto) desde aquí: https://laescenalocal.es/?editar='+t+'\nLo que guardéis se publica al momento. El enlace vale para un solo guardado y caduca en 7 días. Si no queréis estar ahí, ¡decidme sin problema! Y si podéis recomendársela a gente con proyectos o espacios en '+cityName(f.ciudad_id)+', me ayudáis a que esto vaya creciendo 🙏 ¡Gracias!';
 const notasOf=id=>((DB.priv[id]||{}).notas_internas)||'';
 function dmDate(id){ const m=notasOf(id).match(/Escrito por IG el (\d{1,2}\/\d{1,2})/g); return m?m[m.length-1].replace('Escrito por IG el ',''):''; }
 async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(err){ prompt('Copia el mensaje:',t); return false; } }
 async function dmStep(btn,f){
-  await copyText(dmMsg(f));
+  // Cada pulsación crea un enlace nuevo y anula el anterior sin usar: avisa si ya le escribiste
+  const prev=dmDate(f.id);
+  if(prev&&!confirm('Ya le escribiste a '+f.nombre+' el '+prev+'. Si generas otro mensaje, el enlace que le enviaste (si llevaba uno y no lo ha usado) deja de valer. ¿Seguir?')) return;
+  btn.disabled=true; let tok;
+  try{ tok=await rest('rpc/crear_enlace_edicion',{method:'POST',body:JSON.stringify({p_ficha:f.id})}); }
+  catch(err){ btn.disabled=false; toast(/crear_enlace_edicion|404|PGRST202/.test(String(err&&err.message))?'Falta ejecutar sql/enlaces-edicion.sql en Supabase.':'No se pudo crear el enlace: '+(err&&err.message||'')); return; }
+  btn.disabled=false;
+  await copyText(dmMsg(f,tok));
   window.open('https://ig.me/m/'+encodeURIComponent(f.instagram),'_blank','noopener');
   btn.textContent='✓ Copiado';
   const d=new Date(), hoy=d.getDate()+'/'+(d.getMonth()+1);
-  if(dmDate(f.id)===hoy){ toast('Mensaje copiado. Pégalo en la conversación y envíalo.'); return; }
+  if(prev===hoy){ toast('Mensaje con el enlace copiado. Pégalo en la conversación y envíalo.'); return; }
   const nota=(notasOf(f.id)?notasOf(f.id)+' · ':'')+'Escrito por IG el '+hoy;
   try{ await rest('fichas?id=eq.'+f.id,{method:'PATCH',headers:MIN,body:JSON.stringify({notas_internas:nota.slice(-300)})});
     DB.priv[f.id]={...(DB.priv[f.id]||{}),notas_internas:nota.slice(-300)};
     const st=btn.parentElement.querySelector('.dmst')||btn.parentElement.appendChild(Object.assign(document.createElement('span'),{className:'dmst'})); st.textContent='Escrito el '+hoy;
-    toast('Mensaje copiado. Pégalo en la conversación y envíalo. Anotado: escrito el '+hoy+'.'); }
-  catch(err){ toast('Mensaje copiado (no se pudo anotar la fecha).'); }
+    toast('Mensaje con el enlace copiado. Pégalo en la conversación y envíalo. Anotado: escrito el '+hoy+'.'); }
+  catch(err){ toast('Mensaje con el enlace copiado (no se pudo anotar la fecha).'); }
 }
 $('#list').addEventListener('click',async e=>{
   const it=e.target.closest('.item'); if(!it) return; const id=it.dataset.id;
