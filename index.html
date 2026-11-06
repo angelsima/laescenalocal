@@ -803,7 +803,10 @@ async function boot(){
   }catch(e){ return showOffline(); }
   let want=null; try{ want=new URL(location.href).searchParams.get('f'); }catch(e){}
   if(want){
-    try{ const r=await api('fichas?select=ciudad_id&id=eq.'+encodeURIComponent(want)); const c=r&&r[0]&&S.cities.find(x=>x.id===r[0].ciudad_id); if(c) S.city=c.nombre; }catch(e){}
+    try{ const r=await api('fichas?select=ciudad_id,otras_ciudades&id=eq.'+encodeURIComponent(want)).catch(()=>api('fichas?select=ciudad_id&id=eq.'+encodeURIComponent(want)));
+      const uc=new URL(location.href).searchParams.get('c'), here=r&&r[0]&&uc&&S.cities.find(x=>x.nombre===uc);
+      if(here&&[r[0].ciudad_id,...(r[0].otras_ciudades||[])].includes(here.id)) S.city=here.nombre;
+      else{ const c=r&&r[0]&&S.cities.find(x=>x.id===r[0].ciudad_id); if(c) S.city=c.nombre; } }catch(e){}
   }
   // Enlace de edición que mandamos a cada proyecto: ?editar=<clave>
   let editTok=null, editData=null, editErr=false; try{ editTok=new URL(location.href).searchParams.get('editar'); }catch(e){}
@@ -829,10 +832,12 @@ async function loadCity(name){
   {
     const c=cityObj(name);
     if(c&&c.n>0){
-      const q=`fichas?select=id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,{EXTRA}ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)&ciudad_id=eq.${c.id}&aprobada=eq.true&order=nombre`;
+      const q=`fichas?select=id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,{EXTRA}ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)&{CITY}&aprobada=eq.true&order=nombre`;
       // De más a menos campos, por si alguna actualización de la base de datos aún no se ha aplicado
-      let rows=null; for(const x of ['facebook,web,direccion,horario,mas_info,familias,local,sede_id,','facebook,web,direccion,horario,mas_info,familias,','facebook,web,direccion,horario,mas_info,','']){ try{ rows=await api(q.replace('{EXTRA}',x)); break; }catch(e){ if(!x) throw e; } }
-      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null}));
+      // (la primera incluye las fichas que tienen esta ciudad como «También en»)
+      const solo=`ciudad_id=eq.${c.id}`, varias=`or=(ciudad_id.eq.${c.id},otras_ciudades.cs.{${c.id}})`;
+      let rows=null; for(const [x,w] of [['facebook,web,direccion,horario,mas_info,familias,local,sede_id,ciudad_id,otras_ciudades,',varias],['facebook,web,direccion,horario,mas_info,familias,local,sede_id,',solo],['facebook,web,direccion,horario,mas_info,familias,',solo],['facebook,web,direccion,horario,mas_info,',solo],['',solo]]){ try{ rows=await api(q.replace('{EXTRA}',x).replace('{CITY}',w)); break; }catch(e){ if(!x) throw e; } }
+      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null,cities:[f.ciudad_id||c.id,...(f.otras_ciudades||[])]}));
     }
   }
   const data=finalize(items); S.cache[name]=data; return data;
@@ -1332,6 +1337,8 @@ function fichaHTML(e){
   if(zona) info.push(`<dt>Zona</dt><dd>${esc(zona)}</dd>`);
   if(e.dir&&!isMapsLink(e.dir)) info.push(`<dt>Dirección</dt><dd>${esc(e.dir)}</dd>`);
   if(e.hor) info.push(`<dt>Horario</dt><dd>${esc(e.hor)}</dd>`);
+  const tamb=(e.cities||[]).map(id=>S.cities.find(x=>x.id===id)).filter(x=>x&&x.nombre!==S.city&&x.est!=='sin_abrir');
+  if(tamb.length) info.push(`<dt>También en</dt><dd>${tamb.map(x=>`<a href="?c=${encodeURIComponent(x.nombre)}&f=${encodeURIComponent(e.id)}">${esc(x.nombre)}</a>`).join(', ')}</dd>`);
   return `<div class="fs-head"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" onerror="this.remove()">`:''}</span>
     <div><span class="kind">${esc(kind)}</span><h2 id="fsName">${esc(e.n)}</h2><div class="badges" style="justify-content:flex-start">${e.feat?'<span class="badge">Destacado</span>':''}${e.ver?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div></div>
     ${links.length?`<div class="fs-links">${links.join('')}</div>`:''}
