@@ -924,8 +924,9 @@ function card(e){
     ${e.acts.length?`<ul class="doors">${e.acts.map(a=>`<li>${esc(actName(a))}</li>`).join('')}</ul>`:e.doors.length?`<ul class="doors">${e.doors.map(d=>`<li>${DOORTXT[d]}</li>`).join('')}</ul>`:''}
     ${e.t?`<p class="desc">${hl(e.t,S.q)}</p>`:''}
     ${e.offers.length?`<ul class="offers">${e.offers.map(o=>`<li>${hl(o,S.q)}</li>`).join('')}</ul>`:''}
-    ${fm.length?`${space?'<p class="sub"><span>Acoge:</span></p>':''}<div class="tags">${fm.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}
-    ${ds.length?`${space?`<p class="sub"><span>${fm.length?'En concreto:':'Suele acoger:'}</span></p>`:''}<div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
+    ${space&&(fm.length||ds.length)?'<p class="sub"><span>Acoge:</span></p>':''}
+    ${fm.length?`<div class="tags">${fm.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}
+    ${ds.length?`<div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
     ${relHTML(e)}
     ${genHit(e,tgt)?genNote(e,tgt):''}
     <div class="meta"><span class="place">${esc(e.b||S.city)}</span><span class="links">${igBlock(e)}${nets(e)}</span></div>
@@ -1338,8 +1339,8 @@ function fichaHTML(e){
     ${relHTML(e)}
     ${e.acts.length||e.doors.length?`<div class="fs-sec"><h3>Formato:</h3><ul class="doors">${(e.acts.length?e.acts.map(a=>esc(actName(a))):e.doors.map(d=>DOORTXT[d])).map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
     ${e.offers.length?`<div class="fs-sec"><h3>Ofrece a otros</h3><ul class="offers">${e.offers.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>`:''}
-    ${space&&(e.fam||[]).length?`<div class="fs-sec"><h3>Acoge</h3><div class="tags">${e.fam.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div></div>`:''}
-    ${ds.length||(!space&&(e.fam||[]).length)?`<div class="fs-sec"><h3>${space?((e.fam||[]).length?'En concreto':'Suele acoger'):'Qué hace'}</h3><div class="tags">${space?'':(e.fam||[]).map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}" title="${esc(famOf(t)+' › '+pathOf(t))}">${parOf(t)?`<small>${esc(parOf(t))} ›</small> `:''}${esc(t)}</button>`).join('')}</div></div>`:''}
+    ${space&&((e.fam||[]).length||ds.length)?`<div class="fs-sec"><h3>Acoge</h3>${(e.fam||[]).length?`<div class="tags">${e.fam.map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}</div>`:''}${ds.length?`<div class="tags">${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}" title="${esc(famOf(t)+' › '+pathOf(t))}">${parOf(t)?`<small>${esc(parOf(t))} ›</small> `:''}${esc(t)}</button>`).join('')}</div>`:''}</div>`:''}
+    ${!space&&(ds.length||(e.fam||[]).length)?`<div class="fs-sec"><h3>Qué hace</h3><div class="tags">${(e.fam||[]).map(f=>`<button type="button" class="tag tfam" data-fchip="${esc(f)}">${esc(f)}</button>`).join('')}${ds.map(t=>`<button type="button" class="tag" data-q="${esc(t)}" title="${esc(famOf(t)+' › '+pathOf(t))}">${parOf(t)?`<small>${esc(parOf(t))} ›</small> `:''}${esc(t)}</button>`).join('')}</div></div>`:''}
     ${genHit(e,resolve(S.q))?genNote(e,resolve(S.q)):''}
     ${info.length?`<dl class="fs-info">${info.join('')}</dl>`:''}
     ${e.info?`<div class="fs-sec"><h3>Más información</h3><p class="fs-more">${esc(e.info)}</p></div>`:''}
