@@ -223,6 +223,9 @@ dialog::backdrop{background:rgba(23,16,31,.55)}
       <label>Ciudad<select id="eCity"></select></label>
       <label>Es…<select id="eFormat"><option value="persona">Una persona (proyecto propio)</option><option value="colectivo">Un grupo, colectivo o asociación</option><option value="espacio">Un espacio (sitio con nombre propio)</option><option value="escuela" hidden>Escuela (tipo antiguo: elige otro)</option></select></label>
     </div>
+    <div class="field" id="otrasBox">También en <span class="hint">otras ciudades donde tiene actividad habitual; sale en todas y cuenta en cada una. Un espacio con dos locales son dos fichas.</span>
+      <div class="box" id="eOtras" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px"></div>
+    </div>
     <div class="row2" id="locRow">
       <label class="sw" style="align-self:end;padding-bottom:8px"><input type="checkbox" id="eLocal"> Local propio <span class="hint">sin nombre aparte</span></label>
       <label>Su sede <span class="hint">un espacio con ficha propia</span><select id="eSede"></select></label>
@@ -275,7 +278,7 @@ const CFG={url:'https://edywflfxiwcujhkjgowu.supabase.co',key:'sb_publishable_lV
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const DOORS={clases:'Clases y talleres',comunidad:'Participar',eventos:'Shows',venta:'Creación local',espacio:'Espacios'};
 const FICHA_COLS='id,ciudad_id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,aprobada,creado_en,ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)';
-let HAS_EXTRA=true, HAS_FAM=true, HAS_LOCAL=true, HAS_ESTADO=true, SES=null, DB={cities:[],disc:[],acts:[],fichas:[],priv:{},props:[],avisos:[],cambios:[]}, TAB='pend', ED=null, toastT;
+let HAS_EXTRA=true, HAS_FAM=true, HAS_LOCAL=true, HAS_OTRAS=true, HAS_ESTADO=true, SES=null, DB={cities:[],disc:[],acts:[],fichas:[],priv:{},props:[],avisos:[],cambios:[]}, TAB='pend', ED=null, toastT;
 
 /* ---------- sesión ---------- */
 try{ SES=JSON.parse(localStorage.getItem('esc_admin')||'null'); }catch(e){}
@@ -317,6 +320,8 @@ async function start(){
 // De más a menos campos, por si alguna actualización de la base de datos aún no se ha aplicado
 async function loadFichas(){
   const tail='&order=creado_en.desc&limit=2000', X='creado_en,facebook,web,direccion,horario,mas_info,';
+  try{ const r=await rest('fichas?select='+FICHA_COLS.replace('creado_en,',X+'familias,local,sede_id,otras_ciudades,')+tail); HAS_EXTRA=HAS_FAM=HAS_LOCAL=HAS_OTRAS=true; return r; }catch(e){}
+  HAS_OTRAS=false;
   try{ const r=await rest('fichas?select='+FICHA_COLS.replace('creado_en,',X+'familias,local,sede_id,')+tail); HAS_EXTRA=HAS_FAM=HAS_LOCAL=true; return r; }catch(e){}
   HAS_LOCAL=false;
   try{ const r=await rest('fichas?select='+FICHA_COLS.replace('creado_en,',X+'familias,')+tail); HAS_EXTRA=HAS_FAM=true; return r; }catch(e){}
@@ -342,6 +347,7 @@ async function loadAll(){
   render();
 }
 const cityName=id=>(DB.cities.find(c=>c.id===id)||{}).nombre||'';
+const inCity=(f,cid)=>String(f.ciudad_id)===String(cid)||(f.otras_ciudades||[]).some(x=>String(x)===String(cid));
 const discName=id=>(DB.disc.find(d=>d.id===id)||{}).nombre||'';
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 function discsOf(f){ return (f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>discName(x.disciplina_id)).filter(Boolean); }
@@ -363,7 +369,7 @@ function render(){
   if(TAB==='cob') return renderCob();
   const q=norm($('#fq').value), city=$('#fcity').value;
   let rows=(TAB==='pend'?pend:DB.fichas.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')));
-  if(city) rows=rows.filter(f=>String(f.ciudad_id)===city);
+  if(city) rows=rows.filter(f=>inCity(f,city));
   if(q) rows=rows.filter(f=>norm([f.nombre,f.instagram,f.barrio,...discsOf(f)].join(' ')).includes(q));
   $('#list').innerHTML=rows.length?rows.map(item).join(''):`<div class="empty">${TAB==='pend'?'No hay nada por aprobar.':'No hay fichas con ese filtro.'}</div>`;
 }
@@ -371,7 +377,7 @@ function item(f){
   const ds=discsOf(f);
   return `<article class="item${f.aprobada?'':' pend'}" data-id="${f.id}">
     <span class="av${f.formato==='espacio'?' sp':''}">${esc(initials(f.nombre))}${f.imagen?`<img src="${esc(imgUrl(f.imagen))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
-    <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
+    <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${(f.otras_ciudades||[]).length?' + '+esc(f.otras_ciudades.map(cityName).filter(Boolean).join(', ')):''}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
       ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}
       <div class="dmrow">${f.instagram?`<button class="ghost" type="button" data-dm title="Copia un mensaje con el enlace para que el proyecto revise y edite su ficha, y abre su Instagram">✉ Escribir</button>`:''}${f.aprobada?'<button class="ghost" type="button" data-elink title="Copia un enlace para que el proyecto cambie su ficha (7 días, un solo uso)">🔗 Enlace para editar</button>':''}${f.instagram&&dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div></div>
     <label class="sw"><input type="checkbox" data-aprob ${f.aprobada?'checked':''}> ¿Aprobada?</label>
@@ -457,7 +463,7 @@ const EST_L={sin_abrir:'No visible',construccion:'Abriendo',abierta:'Abierta'};
 function renderCob(){
   const cid=$('#fcity').value, c=DB.cities.find(x=>String(x.id)===cid);
   if(!c){ $('#list').innerHTML='<div class="empty">Elige una ciudad arriba para ver qué disciplinas tiene cubiertas y cuáles cojean.</div>'; return; }
-  const fs=DB.fichas.filter(f=>String(f.ciudad_id)===cid&&f.aprobada);
+  const fs=DB.fichas.filter(f=>inCity(f,cid)&&f.aprobada);
   const ids=f=>new Set((f.ficha_disciplina||[]).map(x=>x.disciplina_id));
   const has=(f,cat)=>{ const s2=ids(f); return s2.has(cat.id)||kids(cat.id).some(k=>s2.has(k.id)); };
   const fams=famsOrder().map(fm=>{ const cs=cats(fm).map(cat=>({cat,n:fs.filter(f=>has(f,cat)).length}));
@@ -469,7 +475,7 @@ function renderCob(){
     fams.sort((a,b)=>a.total-b.total).map(x=>`<section class="cob"><div class="cob-t"><b>${esc(x.fm)}</b><span class="cob-n">${x.total}</span>${x.enteras?`<small>${x.enteras} la marcan entera</small>`:''}</div><div class="cob-bar"><i style="width:${Math.round(x.total/max*100)}%"></i></div><div class="cob-cs">${x.cs.map(y=>`<span class="cob-c${y.n?'':' zero'}">${esc(y.cat.nombre)} <b>${y.n}</b></span>`).join('')}</div></section>`).join('');
 }
 function renderCities(){
-  const q=norm($('#fq').value), n={}; DB.fichas.filter(f=>f.aprobada).forEach(f=>n[f.ciudad_id]=(n[f.ciudad_id]||0)+1);
+  const q=norm($('#fq').value), n={}; DB.fichas.filter(f=>f.aprobada).forEach(f=>[f.ciudad_id,...(f.otras_ciudades||[])].forEach(c=>n[c]=(n[c]||0)+1));
   const eff=c=>!HAS_ESTADO?(n[c.id]?'construccion':'sin_abrir'):(c.estado==='abierta'?'abierta':c.estado==='construccion'?'construccion':'sin_abrir');
   const rank={abierta:0,construccion:1,sin_abrir:2};
   const rows=DB.cities.filter(c=>!q||norm(c.nombre+' '+(c.provincia||'')).includes(q)).sort((a,b)=>rank[eff(a)]-rank[eff(b)]||a.nombre.localeCompare(b.nombre,'es'));
@@ -582,7 +588,7 @@ $('#list').addEventListener('keydown',e=>{ if(TAB==='disc'&&e.key==='Enter'&&e.t
 const FIELDS=['eName','eIg','eCity','eFormat','eAprob','eVer','eDest','eBarrio','eMuni','eKind','eOffers','eDesc','eResp','eNotas'];
 function openEd(f,prefill){
   const isNew=!f; f=f||{};
-  ED={id:f.id||crypto.randomUUID(),isNew,oldImg:f.imagen||null,photo:null,removePhoto:false,discs:[],acts:new Set(),fams:new Set(f.familias||[]),sede:f.sede_id||null,fromProp:prefill&&prefill.pid||null,delArmed:false};
+  ED={id:f.id||crypto.randomUUID(),isNew,otras:(f.otras_ciudades||[]).slice(),oldImg:f.imagen||null,photo:null,removePhoto:false,discs:[],acts:new Set(),fams:new Set(f.familias||[]),sede:f.sede_id||null,fromProp:prefill&&prefill.pid||null,delArmed:false};
   const p=DB.priv[f.id]||{};
   $('#dTitle').textContent=isNew?'Nueva ficha':f.nombre;
   $('#eLocal').checked=!!f.local;
@@ -594,7 +600,7 @@ function openEd(f,prefill){
   ED.discs=(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>x.disciplina_id);
   (f.ficha_actividad||[]).forEach(x=>ED.acts.add(x.actividad_id));
   $('#eDel').hidden=isNew; $('#eDel').textContent='Borrar ficha'; $('#eErr').textContent='';
-  setPhoto(); syncFmt(); count(); renderActs(); renderDiscs();
+  setPhoto(); syncFmt(); count(); renderActs(); renderDiscs(); renderOtras();
   $('#dlg').showModal(); $('#dlg').scrollTop=0;
 }
 function openFromProp(p){
@@ -617,7 +623,15 @@ function syncFmt(){ const sp=$('#eFormat').value==='espacio';
 function renderFams(){ $('#eFams').innerHTML=famsOrder().map(f=>`<label><input type="checkbox" data-fam="${esc(f)}"${ED.fams.has(f)?' checked':''}>${esc(f)}</label>`).join(''); }
 function count(){ $('#cDesc').textContent=$('#eDesc').value.length+'/280'; $('#cInfo').textContent=$('#eInfo').value.length+'/600'; }
 $('#eFormat').addEventListener('change',syncFmt);
-$('#eCity').addEventListener('change',()=>{ if(ED) ED.sede=$('#eSede').value||null; fillSede(); });
+$('#eCity').addEventListener('change',()=>{ if(ED) ED.sede=$('#eSede').value||null; fillSede(); renderOtras(); });
+// «También en»: otras ciudades de la ficha (nunca la principal)
+function renderOtras(){ $('#otrasBox').hidden=!HAS_OTRAS; if(!ED||!HAS_OTRAS) return;
+  const main=+$('#eCity').value; ED.otras=ED.otras.filter(id=>id!==main);
+  const chips=ED.otras.map(id=>`<span class="chip">${esc(cityName(id))}<button type="button" data-rmotra="${id}" title="Quitar" aria-label="Quitar">×</button></span>`).join('');
+  const opts=DB.cities.filter(c=>c.id!==main&&!ED.otras.includes(c.id)).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+  $('#eOtras').innerHTML=chips+`<select id="eOtraAdd" aria-label="Añadir ciudad" style="width:auto"><option value="">+ Añadir ciudad</option>${opts}</select>`; }
+$('#eOtras').addEventListener('change',e=>{ if(e.target.id==='eOtraAdd'&&e.target.value){ ED.otras.push(+e.target.value); renderOtras(); } });
+$('#eOtras').addEventListener('click',e=>{ const b=e.target.closest('[data-rmotra]'); if(b){ ED.otras=ED.otras.filter(id=>id!==+b.dataset.rmotra); renderOtras(); } });
 $('#eSede').addEventListener('change',()=>{ if(ED) ED.sede=$('#eSede').value||null; });
 $('#eFams').addEventListener('change',e=>{ const i=e.target.closest('[data-fam]'); if(i) i.checked?ED.fams.add(i.dataset.fam):ED.fams.delete(i.dataset.fam); }); $('#eDesc').addEventListener('input',count); $('#eInfo').addEventListener('input',count);
 $('#eCancel').addEventListener('click',()=>$('#dlg').close());
@@ -716,6 +730,7 @@ $('#form').addEventListener('submit',async ev=>{
       tipo_espacio:sp?($('#eKind').value.trim()||null):null,ofrece:sp?$('#eOffers').value.split(',').map(s=>s.trim()).filter(Boolean):[],puertas,
       imagen,responsable:$('#eResp').value.trim()||null,notas_internas:$('#eNotas').value.trim()||null};
     if(HAS_FAM) row.familias=espF;
+    if(HAS_OTRAS) row.otras_ciudades=ED.otras.filter(id=>id!==row.ciudad_id);
     if(HAS_LOCAL){ const sp=$('#eFormat').value==='espacio'; row.local=!sp&&$('#eLocal').checked; row.sede_id=sp?null:($('#eSede').value||null); }
     if(HAS_EXTRA) Object.assign(row,{facebook:fb||null,web:web||null,direccion:$('#eDir').value.trim()||null,horario:$('#eHor').value.trim()||null,mas_info:$('#eInfo').value.trim()||null});
     if(ED.isNew) await rest('fichas',{method:'POST',headers:MIN,body:JSON.stringify({id:ED.id,...row})});
