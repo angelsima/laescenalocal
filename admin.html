@@ -81,6 +81,14 @@ header{padding:16px 0 8px;display:flex;justify-content:space-between;align-items
 .sw input:checked::after{transform:translateX(18px)}
 @media (max-width:640px){.item{grid-template-columns:auto 1fr}.item .sw,.item .ghost{grid-column:2}}
 .empty{color:var(--muted);padding:30px 0;text-align:center}
+.cob-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0 14px}
+.cob{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;background:var(--surface)}
+.cob-t{display:flex;align-items:baseline;gap:10px}.cob-t small{color:var(--muted)}
+.cob-n{font-weight:700;font-size:18px}
+.cob-bar{height:8px;border-radius:99px;background:var(--line);margin:8px 0 10px;overflow:hidden}.cob-bar i{display:block;height:100%;background:var(--amarillo)}
+.cob-cs{display:flex;flex-wrap:wrap;gap:6px}
+.cob-c{border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:13px}.cob-c b{margin-left:2px}
+.cob-c.zero{border-color:var(--danger);color:var(--danger);border-style:dashed}
 
 /* editor */
 dialog{border:1px solid var(--line);border-radius:16px;padding:0;background:var(--surface);color:var(--ink);width:min(720px,calc(100vw - 20px));max-height:94vh}
@@ -183,6 +191,7 @@ dialog::backdrop{background:rgba(23,16,31,.55)}
     <button class="tab" data-tab="pend" type="button">Por aprobar<span class="n" id="nPend"></span></button>
     <button class="tab" data-tab="all" type="button">Todas<span class="n" id="nAll"></span></button>
     <button class="tab" data-tab="inbox" type="button">Bandeja<span class="n" id="nInbox"></span></button>
+    <button class="tab" data-tab="cob" type="button">Cobertura</button>
     <button class="tab" data-tab="cities" type="button">Ciudades</button>
     <button class="tab" data-tab="disc" type="button">Disciplinas</button>
   </div>
@@ -346,11 +355,12 @@ function render(){
   const pend=DB.fichas.filter(f=>!f.aprobada);
   $('#nPend').textContent=pend.length||''; $('#nAll').textContent=DB.fichas.length||''; $('#nInbox').textContent=(DB.props.length+DB.avisos.length+(DB.cambios||[]).length)||'';
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===TAB)));
-  $('#tools').hidden=TAB==='inbox'||TAB==='disc'; $('#list').classList.toggle('bandeja',TAB==='inbox');
+  $('#tools').hidden=TAB==='inbox'||TAB==='disc'; $('#fq').hidden=TAB==='cob'; $('#list').classList.toggle('bandeja',TAB==='inbox');
   $('#fcity').hidden=$('#newBtn').hidden=TAB==='cities'; $('#fq').placeholder=TAB==='cities'?'Buscar ciudad o provincia':'Buscar por nombre, @instagram o disciplina';
   if(TAB==='inbox') return renderInbox();
   if(TAB==='cities') return renderCities();
   if(TAB==='disc') return renderDiscAdmin();
+  if(TAB==='cob') return renderCob();
   const q=norm($('#fq').value), city=$('#fcity').value;
   let rows=(TAB==='pend'?pend:DB.fichas.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')));
   if(city) rows=rows.filter(f=>String(f.ciudad_id)===city);
@@ -435,6 +445,21 @@ $('#list').addEventListener('change',async e=>{
 });
 /* ---------- ciudades: sin abrir · abriendo · abierta ---------- */
 const EST_L={sin_abrir:'No visible',construccion:'Abriendo',abierta:'Abierta'};
+// ---------- Cobertura: qué disciplinas cojean en cada ciudad ----------
+function renderCob(){
+  const cid=$('#fcity').value, c=DB.cities.find(x=>String(x.id)===cid);
+  if(!c){ $('#list').innerHTML='<div class="empty">Elige una ciudad arriba para ver qué disciplinas tiene cubiertas y cuáles cojean.</div>'; return; }
+  const fs=DB.fichas.filter(f=>String(f.ciudad_id)===cid&&f.aprobada);
+  const ids=f=>new Set((f.ficha_disciplina||[]).map(x=>x.disciplina_id));
+  const has=(f,cat)=>{ const s2=ids(f); return s2.has(cat.id)||kids(cat.id).some(k=>s2.has(k.id)); };
+  const fams=famsOrder().map(fm=>{ const cs=cats(fm).map(cat=>({cat,n:fs.filter(f=>has(f,cat)).length}));
+    const enteras=fs.filter(f=>(f.familias||[]).includes(fm)).length;
+    const total=fs.filter(f=>(f.familias||[]).includes(fm)||cs.some(x=>has(f,x.cat))).length;
+    return {fm,cs,enteras,total}; });
+  const max=Math.max(1,...fams.map(x=>x.total)), vacias=fams.reduce((a,x)=>a+x.cs.filter(y=>!y.n).length,0);
+  $('#list').innerHTML=`<div class="cob-head"><div><b>${esc(c.nombre)}</b> · ${fs.length} fichas aprobadas · ${vacias} categorías sin nada</div><a class="linkbtn" href="index.html?c=${encodeURIComponent(c.nombre)}&mapa=1" target="_blank" rel="noopener">🗺 Ver mapa de conexiones</a></div>`+
+    fams.sort((a,b)=>a.total-b.total).map(x=>`<section class="cob"><div class="cob-t"><b>${esc(x.fm)}</b><span class="cob-n">${x.total}</span>${x.enteras?`<small>${x.enteras} la marcan entera</small>`:''}</div><div class="cob-bar"><i style="width:${Math.round(x.total/max*100)}%"></i></div><div class="cob-cs">${x.cs.map(y=>`<span class="cob-c${y.n?'':' zero'}">${esc(y.cat.nombre)} <b>${y.n}</b></span>`).join('')}</div></section>`).join('');
+}
 function renderCities(){
   const q=norm($('#fq').value), n={}; DB.fichas.filter(f=>f.aprobada).forEach(f=>n[f.ciudad_id]=(n[f.ciudad_id]||0)+1);
   const eff=c=>!HAS_ESTADO?(n[c.id]?'construccion':'sin_abrir'):(c.estado==='abierta'?'abierta':c.estado==='construccion'?'construccion':'sin_abrir');
