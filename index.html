@@ -120,7 +120,7 @@ header{padding-block:24px 14px}
 .clear:hover{background:var(--soft)}
 
 /* Vista de conexiones aparcada: oculta pase lo que pase (para recuperarla, quitar esta línea y poner VISTA_CONEXIONES=true) */
-#teaserBand,#fabMap{display:none!important}
+html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 /* Mapa */
 .mapbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;position:relative}
 .mapview{position:relative}
@@ -813,6 +813,7 @@ async function boot(){
   await selectCity(S.city);
   if(want&&S.cur&&byId(want)) openFicha(want,false);
   if(editData) openEdit(editTok,editData);
+  else if(VISTA_CONEXIONES&&new URLSearchParams(location.search).get('mapa')) openMap();
   else if(editErr) editGone();
   // Desde «Qué es»: ?unete=ficha o ?unete=embajador abre el formulario
   try{ const u=new URL(location.href), j=u.searchParams.get('unete'); if(j){ u.searchParams.delete('unete'); history.replaceState(history.state,'',u); openAdd(j==='sugerencia'||j==='embajador'?'sugerencia':'ficha'); } }catch(e){}
@@ -1019,7 +1020,9 @@ function buildNote(){ const c=cityObj(S.city); if(!c||c.est!=='construccion') re
   return `<p class="build-note"><span><b>Estamos abriendo ${esc(S.city)}.</b> Aún faltan proyectos.</span> <button type="button" class="linkbtn" data-open="sugerencia">Recomiéndanos uno</button></p>`; }
 function joinEnd(){ return `<div class="join-end"><h3>¿Haces algo en ${esc(S.city)}?</h3><p>Proyectos, grupos y espacios que abren algo al público. Es gratis y revisamos cada ficha a mano.</p><button type="button" class="cta" data-open="ficha">¡Únete a la escena local!</button></div>`; }
 // Vista de conexiones (el «mapa»): aparcada de momento. Para recuperarla, poner true.
-const VISTA_CONEXIONES=false;
+// Aparcada para el público; visible solo si en este navegador hay sesión del admin (para revisar la cobertura).
+let VISTA_CONEXIONES=false; try{ VISTA_CONEXIONES=!!JSON.parse(localStorage.getItem('esc_admin')||'null'); }catch(e){}
+if(VISTA_CONEXIONES) document.documentElement.classList.add('adm');
 // Miniatura del mapa de la ciudad para la tarjeta de la lista
 function makeThumb(){
   const band=$('#teaserBand'), all=S.cur&&S.cur.items||[]; if(!VISTA_CONEXIONES||!all.length){ band.hidden=true; return; }
