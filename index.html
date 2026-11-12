@@ -245,8 +245,14 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .pill.pill-esp{border-color:var(--acento)}
 .pill.pill-sub{font-size:13px;border-style:dashed}
 .pill.pill-sub[aria-pressed="true"]{background:var(--soft);color:var(--ink);border-style:solid;border-color:var(--acento)}
-.famchips .kchip{border:2px solid var(--amarillo);background:var(--surface);margin-right:8px}
-.famchips .kchip[aria-pressed="true"]{background:var(--amarillo);border-color:var(--ink);color:var(--amarillo-ink)}
+.famchips button.kswitch{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px}
+.kswitch .trk{position:relative;width:36px;height:22px;border-radius:999px;background:var(--line);transition:background .15s;flex:none}
+.kswitch .trk::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.famchips button.kswitch[aria-checked="true"]{border-color:var(--acento)}
+.kswitch[aria-checked="true"] .trk{background:var(--acento)}
+.kswitch[aria-checked="true"] .trk::after{transform:translateX(14px)}
+.famchips .ksep{flex:none;width:1px;align-self:stretch;margin:4px 4px;background:var(--line)}
+@media (prefers-reduced-motion:reduce){.kswitch .trk,.kswitch .trk::after{transition:none}}
 .catchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;padding-left:12px;border-left:3px solid var(--amarillo)}
 .catchips button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:13.5px;cursor:pointer}
 .catchips button small{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:5px}
@@ -1090,7 +1096,7 @@ function renderFamChips(all){
   const box=$('#famchips'), base=all.filter(e=>doorOk(e)&&textOk(e)), cur=S.open;
   if(!all.length){ box.innerHTML=''; return; }
   const inCity=f=>all.some(e=>famsOf(e).includes(f));
-  const nk=countIf({kids:true}), kc=(nk||S.kids)?`<button type="button" class="kchip" data-kids="1" aria-pressed="${!!S.kids}"${!nk&&!S.kids?' disabled':''}>Con peques<small>${nk}</small></button>`:'';
+  const nk=countIf({kids:true}), kc=(nk||S.kids)?`<button type="button" class="kswitch" role="switch" data-kids="1" aria-checked="${!!S.kids}"${!nk&&!S.kids?' disabled':''}><span class="trk" aria-hidden="true"></span>Con peques<small>${nk}</small></button><span class="ksep" aria-hidden="true"></span>`:'';
   box.innerHTML=kc+`<button type="button" data-fchip="" aria-pressed="${!cur}">Todas<small>${countIf({open:null,q:''})}</small></button>`+FAMS.filter(inCity).map(f=>{ const k=countIf({open:f,q:''}), on=cur===f; return `<button type="button" data-fchip="${esc(f)}" aria-pressed="${on}"${!k&&!on?' disabled':''}>${esc(f)}<small>${k}</small></button>`; }).join('');
 }
 
