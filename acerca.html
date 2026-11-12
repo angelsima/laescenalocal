@@ -74,6 +74,17 @@ a{color:inherit;text-decoration-color:var(--amarillo);text-decoration-thickness:
 .note{font-size:14px;color:var(--muted)}
 footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;font-size:13px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
 </style>
+<!-- Estadísticas de visitas (GoatCounter: sin cookies de seguimiento, no guarda la IP).
+     Solo se envían los parámetros c, f y unete: nunca el enlace de edición (?editar=). Tus visitas como admin no cuentan. -->
+<script>
+(function(){ var q=new URLSearchParams(location.search), k=new URLSearchParams();
+  ['c','f','unete'].forEach(function(n){ if(q.get(n)) k.set(n,q.get(n)); });
+  var s=k.toString();
+  window.goatcounter={ path: location.pathname+(s?'?'+s:''), referrer: q.get('ref')||q.get('utm_source')||document.referrer||'' };
+  try{ if(localStorage.getItem('esc_admin')) window.goatcounter.no_onload=true; }catch(e){}
+})();
+</script>
+<script data-goatcounter="https://laescenalocal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <main class="wrap">
