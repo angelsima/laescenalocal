@@ -37,6 +37,17 @@ th{font-weight:600}
 mark.pend{background:var(--amarillo);color:#2B1B3D;padding:0 3px;border-radius:3px}
 footer{border-top:1px solid var(--line);margin-top:40px;padding-top:16px;font-size:13px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
 </style>
+<!-- Estadísticas de visitas (GoatCounter: sin cookies de seguimiento, no guarda la IP).
+     Solo se envían los parámetros c, f y unete: nunca el enlace de edición (?editar=). Tus visitas como admin no cuentan. -->
+<script>
+(function(){ var q=new URLSearchParams(location.search), k=new URLSearchParams();
+  ['c','f','unete'].forEach(function(n){ if(q.get(n)) k.set(n,q.get(n)); });
+  var s=k.toString();
+  window.goatcounter={ path: location.pathname+(s?'?'+s:''), referrer: q.get('ref')||q.get('utm_source')||document.referrer||'' };
+  try{ if(localStorage.getItem('esc_admin')) window.goatcounter.no_onload=true; }catch(e){}
+})();
+</script>
+<script data-goatcounter="https://laescenalocal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <main class="wrap">
@@ -50,11 +61,11 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding-top:16px;font-si
 <p>Este texto explica qué datos personales tratamos cuando visitas <a href="https://laescenalocal.es/">La Escena Local</a>, propones una ficha, recomiendas un proyecto o avisas de un error, conforme al Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).</p>
 
 <h2>2. Qué datos recogemos, para qué y con qué base</h2>
-<p>No hay cuentas de usuario, no usamos cookies de seguimiento ni herramientas de analítica o publicidad. Solo tratamos datos en estos casos:</p>
+<p>No hay cuentas de usuario y no usamos cookies de seguimiento ni publicidad. Para saber cuántas personas visitan la web usamos GoatCounter, una herramienta de estadísticas que no guarda tu dirección IP ni te identifica. Solo tratamos datos en estos casos:</p>
 <div class="tbl"><table>
 <thead><tr><th>Situación</th><th>Datos</th><th>Para qué</th><th>Base legal</th></tr></thead>
 <tbody>
-<tr><td>Visitas la web</td><td>Dirección IP y datos técnicos del navegador, que llegan a los servidores que alojan el sitio. La ciudad y la vista que eliges se guardan solo en tu navegador.</td><td>Mostrarte el catálogo, recordar tu elección y mantener el servicio seguro</td><td>Interés legítimo (art. 6.1.f RGPD)</td></tr>
+<tr><td>Visitas la web</td><td>Dirección IP y datos técnicos del navegador, que llegan a los servidores que alojan el sitio. La ciudad y la vista que eliges se guardan solo en tu navegador. Además, GoatCounter recibe la página que visitas, la web desde la que llegas, el navegador, el tamaño de pantalla y el país aproximado, y solo guarda recuentos agregados.</td><td>Mostrarte el catálogo, recordar tu elección, mantener el servicio seguro y saber cuántas personas visitan la web y desde dónde llegan</td><td>Interés legítimo (art. 6.1.f RGPD)</td></tr>
 <tr><td>Propones una ficha</td><td>Nombre del proyecto, descripción, disciplinas, ciudad, Instagram o web, logo o foto, y un contacto de verificación (correo o teléfono)</td><td>Revisar la propuesta, publicar la ficha si procede y escribirte para verificarla</td><td>Tu consentimiento (art. 6.1.a RGPD)</td></tr>
 <tr><td>Recomiendas un proyecto</td><td>Ciudad, nombre del proyecto o espacio, su Instagram si lo pones, qué hace y, si quieres, tu contacto</td><td>Valorar tu recomendación y, si procede, contactar con el proyecto para proponerle una ficha. Tu contacto, si lo dejas, solo sirve para avisarte</td><td>Tu consentimiento (art. 6.1.a RGPD) para tus datos; interés legítimo (art. 6.1.f RGPD) para los del proyecto recomendado, que se limitan a lo que ya es público</td></tr>
 <tr><td>Avisas de un error en una ficha</td><td>El motivo que elijas y lo que escribas. Dejar un contacto es opcional y solo lo usamos para responderte</td><td>Revisar y corregir la ficha</td><td>Interés legítimo (art. 6.1.f RGPD)</td></tr>
@@ -72,6 +83,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding-top:16px;font-si
 <ul>
 <li><b>Supabase</b> (base de datos y almacenamiento de imágenes). Los datos se alojan en la Unión Europea (París). Al ser una empresa estadounidense, puede haber transferencias internacionales, amparadas por las garantías del RGPD, como las cláusulas contractuales tipo.</li>
 <li><b>GitHub Pages</b> (alojamiento de la web, de GitHub, Inc., EE. UU.). Recibe tu dirección IP al servir las páginas, con las garantías del RGPD para transferencias internacionales.</li>
+<li><b>GoatCounter</b> (estadísticas de visitas, de código abierto). Recibe los datos técnicos de la visita y solo guarda recuentos agregados, sin tu dirección IP ni cookies de seguimiento.</li>
 <li><b>Google Fonts</b> (tipografías). Tu navegador las pide a los servidores de Google, que reciben tu dirección IP.</li>
 </ul>
 <p>Solo cederemos datos a autoridades cuando una ley nos obligue.</p>
