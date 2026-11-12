@@ -238,7 +238,11 @@ dialog::backdrop{background:rgba(23,16,31,.55)}
     </div>
     <div class="row2">
       <label>Barrio<input id="eBarrio" maxlength="60"></label>
-      <label>Municipio <span class="hint">si no es la capital</span><input id="eMuni" maxlength="60"></label>
+      <label>Municipio <span class="hint">si no es el principal de la zona</span><input id="eMuni" maxlength="60" list="muniList"><datalist id="muniList"></datalist></label>
+    </div>
+    <div class="row2" id="pubRow">
+      <label class="sw"><input type="checkbox" id="ePubInf"> Con peques: actividades infantiles</label>
+      <label class="sw"><input type="checkbox" id="ePubFam"> Con peques: planes en familia</label>
     </div>
     <div class="row2" id="spaceRow" hidden>
       <label>Tipo de espacio<input id="eKind" maxlength="60" placeholder="Sala multiusos, tienda-taller…"></label>
@@ -278,7 +282,7 @@ const CFG={url:'https://edywflfxiwcujhkjgowu.supabase.co',key:'sb_publishable_lV
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const DOORS={clases:'Clases y talleres',comunidad:'Participar',eventos:'Shows',venta:'Creación local',espacio:'Espacios'};
 const FICHA_COLS='id,ciudad_id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,aprobada,creado_en,ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)';
-let HAS_EXTRA=true, HAS_FAM=true, HAS_LOCAL=true, HAS_OTRAS=true, HAS_ESTADO=true, SES=null, DB={cities:[],disc:[],acts:[],fichas:[],priv:{},props:[],avisos:[],cambios:[]}, TAB='pend', ED=null, toastT;
+let HAS_EXTRA=true, HAS_FAM=true, HAS_LOCAL=true, HAS_OTRAS=true, HAS_ESTADO=true, HAS_MUNIS=true, HAS_PUB=true, SES=null, DB={cities:[],disc:[],acts:[],fichas:[],priv:{},props:[],avisos:[],cambios:[]}, TAB='pend', ED=null, toastT;
 
 /* ---------- sesión ---------- */
 try{ SES=JSON.parse(localStorage.getItem('esc_admin')||'null'); }catch(e){}
@@ -320,6 +324,8 @@ async function start(){
 // De más a menos campos, por si alguna actualización de la base de datos aún no se ha aplicado
 async function loadFichas(){
   const tail='&order=creado_en.desc&limit=2000', X='creado_en,facebook,web,direccion,horario,mas_info,';
+  try{ const r=await rest('fichas?select='+FICHA_COLS.replace('creado_en,',X+'familias,local,sede_id,otras_ciudades,publico,')+tail); HAS_EXTRA=HAS_FAM=HAS_LOCAL=HAS_OTRAS=HAS_PUB=true; return r; }catch(e){}
+  HAS_PUB=false;
   try{ const r=await rest('fichas?select='+FICHA_COLS.replace('creado_en,',X+'familias,local,sede_id,otras_ciudades,')+tail); HAS_EXTRA=HAS_FAM=HAS_LOCAL=HAS_OTRAS=true; return r; }catch(e){}
   HAS_OTRAS=false;
   try{ const r=await rest('fichas?select='+FICHA_COLS.replace('creado_en,',X+'familias,local,sede_id,')+tail); HAS_EXTRA=HAS_FAM=HAS_LOCAL=true; return r; }catch(e){}
@@ -333,7 +339,7 @@ async function loadAll(){
   $('#list').innerHTML='<div class="empty">Cargando…</div>';
   try{
     const [cities,disc,acts,fichas,priv,props,avisos,cambios]=await Promise.all([
-      rest('ciudades?select=id,nombre,provincia,estado&order=nombre').catch(()=>{ HAS_ESTADO=false; return rest('ciudades?select=id,nombre,provincia&order=nombre'); }), getDisc(), rest('actividades?select=id,nombre,puerta,orden&order=orden'),
+      rest('ciudades?select=id,nombre,provincia,estado,municipios&order=nombre').then(r=>{ HAS_MUNIS=true; return r; }).catch(()=>{ HAS_MUNIS=false; return rest('ciudades?select=id,nombre,provincia,estado&order=nombre'); }).catch(()=>{ HAS_ESTADO=false; return rest('ciudades?select=id,nombre,provincia&order=nombre'); }), getDisc(), rest('actividades?select=id,nombre,puerta,orden&order=orden'),
       loadFichas(), rest('rpc/admin_privado',{method:'POST',body:'{}'}),
       rest('propuestas?select=id,tipo,ciudad,nombre,instagram,formato,disciplinas,puertas,actividades,tipo_espacio,ofrece,barrio,descripcion,contacto,imagen,creado_en&aprobada=eq.false&order=creado_en.desc'),
       rest('avisos_ficha?select=id,ficha_id,motivo,creado_en&revisado=eq.false&order=creado_en.desc'),
@@ -377,7 +383,7 @@ function item(f){
   const ds=discsOf(f);
   return `<article class="item${f.aprobada?'':' pend'}" data-id="${f.id}">
     <span class="av${f.formato==='espacio'?' sp':''}">${esc(initials(f.nombre))}${f.imagen?`<img src="${esc(imgUrl(f.imagen))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
-    <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)} · ${esc(cityName(f.ciudad_id))}${(f.otras_ciudades||[]).length?' + '+esc(f.otras_ciudades.map(cityName).filter(Boolean).join(', ')):''}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
+    <div class="main"><b>${esc(f.nombre)}${f.verificado?' <span class="vtick" title="Verificada: ya has hablado con ellos" aria-label="Verificada">✓</span>':''}</b><small>${esc(f.formato)}${(f.publico||[]).length?' · con peques':''} · ${esc(cityName(f.ciudad_id))}${(f.otras_ciudades||[]).length?' + '+esc(f.otras_ciudades.map(cityName).filter(Boolean).join(', ')):''}${f.barrio?' · '+esc(f.barrio):''}${f.instagram?' · @'+esc(f.instagram):f.facebook?' · Facebook':f.web?' · web':''}${f.local?' · local propio':''}${f.sede_id?' · sede: '+esc((DB.fichas.find(x=>x.id===f.sede_id)||{}).nombre||'?'):''}</small>
       ${ds.length||(f.familias||[]).length?`<div class="tg">${(f.formato==='espacio'?(f.familias||[]):[]).map(x=>`<span class="tf">Acoge ${esc(x)}</span>`).join('')}${ds.map(d=>`<span>${esc(d)}</span>`).join('')}</div>`:'<div class="tg"><span style="background:var(--danger);color:#fff">sin disciplinas</span></div>'}
       <div class="dmrow">${f.instagram?`<button class="ghost" type="button" data-dm title="Copia un mensaje con el enlace para que el proyecto revise y edite su ficha, y abre su Instagram">✉ Escribir</button>`:''}${f.aprobada?'<button class="ghost" type="button" data-elink title="Copia un enlace para que el proyecto cambie su ficha (7 días, un solo uso)">🔗 Enlace para editar</button>':''}${f.instagram&&dmDate(f.id)?`<span class="dmst">Escrito el ${esc(dmDate(f.id))}</span>`:''}</div></div>
     <label class="sw"><input type="checkbox" data-aprob ${f.aprobada?'checked':''}> ¿Aprobada?</label>
@@ -392,12 +398,13 @@ async function editLink(btn,f){
   catch(err){ toast(/crear_enlace_edicion|404|PGRST202/.test(String(err&&err.message))?'Falta ejecutar sql/enlaces-edicion.sql en Supabase.':'No se pudo crear el enlace: '+(err&&err.message||'')); }
   finally{ btn.disabled=false; }
 }
-const CAMPO={descripcion:'descripción',instagram:'Instagram',facebook:'Facebook',web:'web',imagen:'quitó la foto',familias:'disciplinas enteras',disciplinas:'categorías',actividades:'formatos','foto nueva':'foto nueva (pendiente)'};
+const CAMPO={descripcion:'descripción',instagram:'Instagram',facebook:'Facebook',web:'web',imagen:'quitó la foto',familias:'disciplinas enteras',disciplinas:'categorías',actividades:'formatos',publico:'con peques','foto nueva':'foto nueva (pendiente)'};
 function cambioDetalle(c){ const a=c.antes||{}, d=c.despues||{}, out=[];
   ['descripcion','instagram','facebook','web'].forEach(k=>{ if((c.campos||[]).includes(k)) out.push(`<small><b>${CAMPO[k]}:</b> ${esc(a[k]||'—')} → ${esc(d[k]||'—')}</small>`); });
   if((c.campos||[]).includes('disciplinas')) out.push(`<small><b>categorías:</b> ${esc((a.disciplinas||[]).map(x=>discName(x.id)).join(', ')||'—')} → ${esc((d.disciplinas||[]).map(x=>discName(x.id)).join(', ')||'—')}</small>`);
   if((c.campos||[]).includes('familias')) out.push(`<small><b>disciplinas enteras:</b> ${esc((a.familias||[]).join(', ')||'—')} → ${esc((d.familias||[]).join(', ')||'—')}</small>`);
   if((c.campos||[]).includes('actividades')){ const an=x=>(DB.acts.find(y=>y.id===x)||{}).nombre||x; out.push(`<small><b>formatos:</b> ${esc((a.actividades||[]).map(an).join(', ')||'—')} → ${esc((d.actividades||[]).map(an).join(', ')||'—')}</small>`); }
+  if((c.campos||[]).includes('publico')){ const pl=x=>({infantil:'infantil',familia:'en familia'})[x]||x; out.push(`<small><b>con peques:</b> ${esc((a.publico||[]).map(pl).join(', ')||'—')} → ${esc((d.publico||[]).map(pl).join(', ')||'—')}</small>`); }
   if((c.campos||[]).includes('imagen')&&!d.imagen) out.push('<small><b>foto:</b> la han quitado</small>');
   return out.join(''); }
 async function cambioStep(b,cid){ const c=(DB.cambios||[]).find(x=>x.id===cid); if(!c) return;
@@ -448,6 +455,11 @@ $('#list').addEventListener('click',async e=>{
   if(e.target.closest('[data-aedit]')){ const f=DB.fichas.find(x=>x.id===id); if(f) return openEd(f); }
 });
 $('#list').addEventListener('change',async e=>{
+  const cm=e.target.closest('[data-cmun]');
+  if(cm){ const c=DB.cities.find(x=>x.id===+cm.closest('.item').dataset.cid), list=[...new Set(cm.value.split(',').map(x=>x.trim()).filter(Boolean))];
+    try{ await rest('ciudades?id=eq.'+c.id,{method:'PATCH',headers:MIN,body:JSON.stringify({municipios:list})}); c.municipios=list; cm.value=list.join(', '); toast(c.nombre+': '+(list.length?list.length+' municipios.':'sin municipios.')); }
+    catch(err){ cm.value=(c.municipios||[]).join(', '); toast('No se pudo guardar: '+err.message); }
+    return; }
   const se=e.target.closest('[data-cest]');
   if(se){ const c=DB.cities.find(x=>x.id===+se.closest('.item').dataset.cid), prev=c.estado||'sin_abrir';
     try{ await rest('ciudades?id=eq.'+c.id,{method:'PATCH',headers:MIN,body:JSON.stringify({estado:se.value})}); c.estado=se.value; toast(c.nombre+': '+EST_L[se.value].toLowerCase()+'.'); renderCities(); }
@@ -478,9 +490,9 @@ function renderCities(){
   const q=norm($('#fq').value), n={}; DB.fichas.filter(f=>f.aprobada).forEach(f=>[f.ciudad_id,...(f.otras_ciudades||[])].forEach(c=>n[c]=(n[c]||0)+1));
   const eff=c=>!HAS_ESTADO?(n[c.id]?'construccion':'sin_abrir'):(c.estado==='abierta'?'abierta':c.estado==='construccion'?'construccion':'sin_abrir');
   const rank={abierta:0,construccion:1,sin_abrir:2};
-  const rows=DB.cities.filter(c=>!q||norm(c.nombre+' '+(c.provincia||'')).includes(q)).sort((a,b)=>rank[eff(a)]-rank[eff(b)]||a.nombre.localeCompare(b.nombre,'es'));
+  const rows=DB.cities.filter(c=>!q||norm(c.nombre+' '+(c.provincia||'')+' '+(c.municipios||[]).join(' ')).includes(q)).sort((a,b)=>rank[eff(a)]-rank[eff(b)]||a.nombre.localeCompare(b.nombre,'es'));
   const head=`<div class="empty" style="text-align:left;padding:4px 2px">${HAS_ESTADO?'<b>No visible</b> = la ciudad no sale en la lista (aunque tenga fichas, que siguen accesibles por enlace). <b>Abriendo</b> = sale con el aviso «Estamos abriendo…» y muestra sus proyectos, sin contador. <b>Abierta</b> = lanzamiento oficial, sin aviso. Los 50 son solo una referencia: decides tú. Una ciudad siempre admite fichas nuevas.':'Falta ejecutar sql/ciudades-estado.sql en Supabase (SQL Editor) para poder cambiar el estado de las ciudades.'}</div>`;
-  $('#list').innerHTML=head+rows.map(c=>{ const e=eff(c), forced=false; return `<article class="item" data-cid="${c.id}" style="grid-template-columns:1fr auto"><div class="main"><b>${esc(c.nombre)}</b><small>${esc(c.provincia||'')} · ${n[c.id]||0} ${(n[c.id]||0)===1?'ficha aprobada':'fichas aprobadas'}${forced?' · sale porque ya tiene fichas':''}</small></div>
+  $('#list').innerHTML=head+rows.map(c=>{ const e=eff(c), forced=false; return `<article class="item" data-cid="${c.id}" style="grid-template-columns:1fr auto"><div class="main"><b>${esc(c.nombre)}</b><small>${esc(c.provincia||'')} · ${n[c.id]||0} ${(n[c.id]||0)===1?'ficha aprobada':'fichas aprobadas'}${forced?' · sale porque ya tiene fichas':''}</small>${HAS_MUNIS?`<input data-cmun value="${esc((c.municipios||[]).join(', '))}" placeholder="Municipios de la zona: el principal primero, separados por comas" aria-label="Municipios de ${esc(c.nombre)}" style="margin-top:6px;width:100%;font-size:13px">`:''}</div>
     <select data-cest aria-label="Estado de ${esc(c.nombre)}"${HAS_ESTADO?'':' disabled'}>${Object.keys(EST_L).map(k=>`<option value="${k}"${(c.estado||'sin_abrir')===k?' selected':''}>${EST_L[k]}</option>`).join('')}</select></article>`; }).join('');
 }
 function msgSugerencia(p){
@@ -592,6 +604,7 @@ function openEd(f,prefill){
   const p=DB.priv[f.id]||{};
   $('#dTitle').textContent=isNew?'Nueva ficha':f.nombre;
   $('#eLocal').checked=!!f.local;
+  $('#pubRow').hidden=!HAS_PUB; $('#ePubInf').checked=(f.publico||[]).includes('infantil'); $('#ePubFam').checked=(f.publico||[]).includes('familia');
   $('#eName').value=f.nombre||''; $('#eIg').value=f.instagram||''; $('#eCity').value=String(f.ciudad_id||($('#fcity').value||(DB.cities[0]||{}).id||''));
   $('#eFormat').querySelector('[value="escuela"]').hidden=f.formato!=='escuela'; $('#eFormat').value=f.formato||'persona'; $('#eAprob').checked=!!f.aprobada; $('#eVer').checked=!!f.verificado; $('#eDest').value=f.destacado_hasta||'';
   $('#eBarrio').value=f.barrio||''; $('#eMuni').value=f.municipio||''; $('#eKind').value=f.tipo_espacio||''; $('#eOffers').value=(f.ofrece||[]).join(', ');
@@ -600,7 +613,7 @@ function openEd(f,prefill){
   ED.discs=(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>x.disciplina_id);
   (f.ficha_actividad||[]).forEach(x=>ED.acts.add(x.actividad_id));
   $('#eDel').hidden=isNew; $('#eDel').textContent='Borrar ficha'; $('#eErr').textContent='';
-  setPhoto(); syncFmt(); count(); renderActs(); renderDiscs(); renderOtras();
+  setPhoto(); syncFmt(); count(); renderActs(); renderDiscs(); renderOtras(); fillMunis();
   $('#dlg').showModal(); $('#dlg').scrollTop=0;
 }
 function openFromProp(p){
@@ -623,7 +636,9 @@ function syncFmt(){ const sp=$('#eFormat').value==='espacio';
 function renderFams(){ $('#eFams').innerHTML=famsOrder().map(f=>`<label><input type="checkbox" data-fam="${esc(f)}"${ED.fams.has(f)?' checked':''}>${esc(f)}</label>`).join(''); }
 function count(){ $('#cDesc').textContent=$('#eDesc').value.length+'/280'; $('#cInfo').textContent=$('#eInfo').value.length+'/600'; }
 $('#eFormat').addEventListener('change',syncFmt);
-$('#eCity').addEventListener('change',()=>{ if(ED) ED.sede=$('#eSede').value||null; fillSede(); renderOtras(); });
+$('#eCity').addEventListener('change',()=>{ if(ED) ED.sede=$('#eSede').value||null; fillSede(); renderOtras(); fillMunis(); });
+// Municipios de la zona elegida, como sugerencias (el primero es el principal: no hace falta ponerlo)
+function fillMunis(){ const c=DB.cities.find(x=>x.id===+$('#eCity').value); $('#muniList').innerHTML=((c&&c.municipios)||[]).slice(1).map(m=>`<option value="${esc(m)}">`).join(''); }
 // «También en»: otras ciudades de la ficha (nunca la principal)
 function renderOtras(){ $('#otrasBox').hidden=!HAS_OTRAS; if(!ED||!HAS_OTRAS) return;
   const main=+$('#eCity').value; ED.otras=ED.otras.filter(id=>id!==main);
@@ -731,6 +746,7 @@ $('#form').addEventListener('submit',async ev=>{
       imagen,responsable:$('#eResp').value.trim()||null,notas_internas:$('#eNotas').value.trim()||null};
     if(HAS_FAM) row.familias=espF;
     if(HAS_OTRAS) row.otras_ciudades=ED.otras.filter(id=>id!==row.ciudad_id);
+    if(HAS_PUB) row.publico=[$('#ePubInf').checked&&'infantil',$('#ePubFam').checked&&'familia'].filter(Boolean);
     if(HAS_LOCAL){ const sp=$('#eFormat').value==='espacio'; row.local=!sp&&$('#eLocal').checked; row.sede_id=sp?null:($('#eSede').value||null); }
     if(HAS_EXTRA) Object.assign(row,{facebook:fb||null,web:web||null,direccion:$('#eDir').value.trim()||null,horario:$('#eHor').value.trim()||null,mas_info:$('#eInfo').value.trim()||null});
     if(ED.isNew) await rest('fichas',{method:'POST',headers:MIN,body:JSON.stringify({id:ED.id,...row})});
