@@ -1096,7 +1096,7 @@ function renderFamChips(all){
   const box=$('#famchips'), base=all.filter(e=>doorOk(e)&&textOk(e)), cur=S.open;
   if(!all.length){ box.innerHTML=''; return; }
   const inCity=f=>all.some(e=>famsOf(e).includes(f));
-  const nk=countIf({kids:true}), kc=(nk||S.kids)?`<button type="button" class="kswitch" role="switch" data-kids="1" aria-checked="${!!S.kids}"${!nk&&!S.kids?' disabled':''}><span class="trk" aria-hidden="true"></span>Con peques<small>${nk}</small></button><span class="ksep" aria-hidden="true"></span>`:'';
+  const nk=countIf({kids:true}), kc=`<button type="button" class="kswitch" role="switch" data-kids="1" aria-checked="${!!S.kids}"${!nk&&!S.kids?' disabled':''}><span class="trk" aria-hidden="true"></span>Con peques<small>${nk}</small></button><span class="ksep" aria-hidden="true"></span>`; // siempre en su sitio; si no hay nada para peques, apagado como las demás a cero
   box.innerHTML=kc+`<button type="button" data-fchip="" aria-pressed="${!cur}">Todas<small>${countIf({open:null,q:''})}</small></button>`+FAMS.filter(inCity).map(f=>{ const k=countIf({open:f,q:''}), on=cur===f; return `<button type="button" data-fchip="${esc(f)}" aria-pressed="${on}"${!k&&!on?' disabled':''}>${esc(f)}<small>${k}</small></button>`; }).join('');
 }
 
