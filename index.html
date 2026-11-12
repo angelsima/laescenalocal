@@ -245,6 +245,8 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .pill.pill-esp{border-color:var(--acento)}
 .pill.pill-sub{font-size:13px;border-style:dashed}
 .pill.pill-sub[aria-pressed="true"]{background:var(--soft);color:var(--ink);border-style:solid;border-color:var(--acento)}
+.famchips .kchip{border:2px solid var(--amarillo);background:var(--surface);margin-right:8px}
+.famchips .kchip[aria-pressed="true"]{background:var(--amarillo);border-color:var(--ink);color:var(--amarillo-ink)}
 .catchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;padding-left:12px;border-left:3px solid var(--amarillo)}
 .catchips button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:13.5px;cursor:pointer}
 .catchips button small{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:5px}
@@ -263,6 +265,7 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .tabs button:disabled{opacity:.4;cursor:default}
 .morebtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;flex:none}
 .morebtn:hover{border-color:var(--ink)}
+.pubchecks{display:grid;gap:6px;margin-top:6px}.pubchecks label{display:flex;gap:8px;align-items:center;font-weight:400}
 .morebtn.on{border-color:var(--ink)}
 .morebtn span{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:6px;border-radius:999px;background:var(--amarillo);color:var(--amarillo-ink);font-size:11.5px}
 .morebtn span:empty{display:none}
@@ -303,6 +306,7 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .doorseg .pill em{display:block;font-style:normal;font-size:12.5px;color:var(--muted);font-weight:400}
 .doorseg .pill[aria-pressed="true"] em{color:var(--bg);opacity:.8}
 .doorseg .pill:disabled{opacity:.4;cursor:default}
+.more-h{margin:10px 2px 0;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .more-foot{display:flex;justify-content:flex-end;gap:8px;padding:4px 16px 0}
 @media (max-width:719px){.moredlg{width:100vw;max-width:none;margin:auto 0 0;border-radius:18px 18px 0 0}}
 .build-note{display:flex;gap:6px 12px;flex-wrap:wrap;align-items:baseline;margin:0 0 12px;padding:10px 14px;border:2px dashed var(--ink);border-radius:12px;background:var(--surface);font-size:14px;line-height:1.4}
@@ -552,6 +556,17 @@ header{position:relative}
 footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease both}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
 </style>
+<!-- Estadísticas de visitas (GoatCounter: sin cookies de seguimiento, no guarda la IP).
+     Solo se envían los parámetros c, f y unete: nunca el enlace de edición (?editar=). Tus visitas como admin no cuentan. -->
+<script>
+(function(){ var q=new URLSearchParams(location.search), k=new URLSearchParams();
+  ['c','m','f','unete'].forEach(function(n){ if(q.get(n)) k.set(n,q.get(n)); });
+  var s=k.toString();
+  window.goatcounter={ path: location.pathname+(s?'?'+s:''), referrer: q.get('ref')||q.get('utm_source')||document.referrer||'' };
+  try{ if(localStorage.getItem('esc_admin')) window.goatcounter.no_onload=true; }catch(e){}
+})();
+</script>
+<script data-goatcounter="https://laescenalocal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -627,7 +642,7 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
   <div class="more-in">
     <div class="mapdlg-head"><h2 id="moreTitle">¿Qué quieres hacer?</h2><button type="button" class="fs-x" id="moreClose" aria-label="Cerrar">×</button></div>
     <div class="seg doorseg" id="doors" role="group" aria-labelledby="moreTitle"></div>
-    <div class="more-foot"><button type="button" class="ghost" data-unset="door">Quitar</button><button type="button" class="cta" id="moreApply">Ver fichas</button></div>
+    <div class="more-foot"><button type="button" class="ghost" data-unset="more">Quitar</button><button type="button" class="cta" id="moreApply">Ver fichas</button></div>
   </div>
 </dialog>
 
@@ -673,6 +688,9 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
     <fieldset class="step" id="s3"><legend id="s3t">¿Qué hacéis?</legend>
       <div class="field" id="lDoors"><span class="hint">Marca al menos una: clases, conciertos, quedadas, venta…</span>
         <div class="acts-box" id="fActs"></div>
+      </div>
+      <div class="field" id="lPub">¿Algo para peques? <span class="hint">opcional</span>
+        <div class="pubchecks"><label><input type="checkbox" id="fPubInf"> Actividades para niños y niñas</label><label><input type="checkbox" id="fPubFam"> Planes para ir en familia (peques con adultos)</label></div>
       </div>
     </fieldset>
 
@@ -753,13 +771,16 @@ const DOORVERB={clases:['Aprender','Clases, talleres y cursos'],comunidad:['Part
 const FORMATS={persona:'Proyecto personal',colectivo:'Grupo o colectivo',escuela:'Escuela',espacio:'Espacio'};
 
 // ---------- Estado ----------
-const S={mode:'live',city:'Murcia',q:'',door:'',cities:[],disc:{},discById:{},acts:{},cache:{},cur:null,open:null,loading:true};
+const S={mode:'live',city:'Murcia',q:'',door:'',mun:'',kids:false,cities:[],disc:{},discById:{},acts:{},cache:{},cur:null,open:null,loading:true};
 const $=s=>document.querySelector(s);
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const igUrl=h=>'https://www.instagram.com/'+encodeURIComponent(h)+'/';
 const today=new Date().toISOString().slice(0,10);
 const cityObj=n=>S.cities.find(c=>c.nombre===n);
+// Zonas: cada ciudad de la lista agrupa varios municipios; el primero es el principal
+const mainMuni=c=>(c&&c.munis&&c.munis[0])||(c&&c.nombre)||'';
+function munOf(e){ if(e.muni) return e.muni; const c=S.cities.find(x=>x.id===(e.cities||[])[0])||cityObj(S.city); return mainMuni(c); }
 // sin_abrir (no sale en la lista) · construccion («abriendo»: sale con el aviso) · abierta (lanzamiento oficial).
 // Manda el estado que pone el admin. Solo si la columna aún no existe (e===undefined) se muestran las ciudades con fichas.
 const estOf=(e,n)=>e===undefined?(n>0?'construccion':'sin_abrir'):(e==='abierta'?'abierta':e==='construccion'?'construccion':'sin_abrir');
@@ -789,13 +810,13 @@ async function boot(){
   S.loading=true; S.cache={}; render();
   try{
     const [cs,ds,as,cnt]=await Promise.all([
-      api('ciudades?select=id,nombre,provincia,estado&order=nombre').catch(()=>api('ciudades?select=id,nombre,provincia&order=nombre')),
+      api('ciudades?select=id,nombre,provincia,estado,municipios&order=nombre').catch(()=>api('ciudades?select=id,nombre,provincia,estado&order=nombre')).catch(()=>api('ciudades?select=id,nombre,provincia&order=nombre')),
       api('disciplinas?select=id,nombre,familia,sinonimos,padre_id&order=orden').catch(()=>api('disciplinas?select=id,nombre,familia,sinonimos&order=orden')),
       api('actividades?select=id,nombre,puerta,sinonimos&order=orden'),
       api('conteo_fichas?select=ciudad_id,fichas')
     ]);
     const counts={}; cnt.forEach(r=>counts[r.ciudad_id]=+r.fichas);
-    S.cities=cs.map(c=>({id:c.id,nombre:c.nombre,provincia:c.provincia,n:counts[c.id]||0,est:estOf(c.estado,counts[c.id]||0)}));
+    S.cities=cs.map(c=>({id:c.id,nombre:c.nombre,provincia:c.provincia,munis:c.municipios||[],n:counts[c.id]||0,est:estOf(c.estado,counts[c.id]||0)}));
     S.disc={}; S.discById={}; ds.forEach(d=>{ S.disc[d.nombre]={id:d.id,familia:d.familia,sin:d.sinonimos||[],pid:d.padre_id||null,padre:null}; S.discById[d.id]=d.nombre; });
     Object.values(S.disc).forEach(d=>{ if(d.pid) d.padre=S.discById[d.pid]||null; }); setFams();
     S.acts={}; as.forEach(a=>{ S.acts[a.id]={n:a.nombre,p:a.puerta,sin:a.sinonimos||[]}; });
@@ -813,7 +834,7 @@ async function boot(){
   if(editTok&&S.mode==='live'){ try{ editData=await api('rpc/ficha_por_enlace',{method:'POST',body:JSON.stringify({t:editTok})}); if(editData&&editData.ciudad&&cityObj(editData.ciudad)) S.city=editData.ciudad; }catch(e){ editErr=true; } }
   if(!cityObj(S.city)) S.city='Murcia';
   fillForm();
-  await selectCity(S.city);
+  await selectCity(S.city,S.mun);
   if(want&&S.cur&&byId(want)) openFicha(want,false);
   if(editData) openEdit(editTok,editData);
   else if(VISTA_CONEXIONES&&new URLSearchParams(location.search).get('mapa')) openMap();
@@ -836,14 +857,14 @@ async function loadCity(name){
       // De más a menos campos, por si alguna actualización de la base de datos aún no se ha aplicado
       // (la primera incluye las fichas que tienen esta ciudad como «También en»)
       const solo=`ciudad_id=eq.${c.id}`, varias=`or=(ciudad_id.eq.${c.id},otras_ciudades.cs.{${c.id}})`;
-      let rows=null; for(const [x,w] of [['facebook,web,direccion,horario,mas_info,familias,local,sede_id,ciudad_id,otras_ciudades,',varias],['facebook,web,direccion,horario,mas_info,familias,local,sede_id,',solo],['facebook,web,direccion,horario,mas_info,familias,',solo],['facebook,web,direccion,horario,mas_info,',solo],['',solo]]){ try{ rows=await api(q.replace('{EXTRA}',x).replace('{CITY}',w)); break; }catch(e){ if(!x) throw e; } }
-      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null,cities:[f.ciudad_id||c.id,...(f.otras_ciudades||[])]}));
+      let rows=null; for(const [x,w] of [['facebook,web,direccion,horario,mas_info,familias,local,sede_id,ciudad_id,otras_ciudades,publico,',varias],['facebook,web,direccion,horario,mas_info,familias,local,sede_id,ciudad_id,otras_ciudades,',varias],['facebook,web,direccion,horario,mas_info,familias,local,sede_id,',solo],['facebook,web,direccion,horario,mas_info,familias,',solo],['facebook,web,direccion,horario,mas_info,',solo],['',solo]]){ try{ rows=await api(q.replace('{EXTRA}',x).replace('{CITY}',w)); break; }catch(e){ if(!x) throw e; } }
+      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null,cities:[f.ciudad_id||c.id,...(f.otras_ciudades||[])],kids:f.publico||[]}));
     }
   }
   const data=finalize(items); S.cache[name]=data; return data;
 }
-async function selectCity(name){
-  S.city=name; save(); S.loading=true; render();
+async function selectCity(name,mun=''){
+  S.city=name; S.mun=mun; save(); S.loading=true; render();
   try{ S.cur=await loadCity(name); S.off=false; }catch(e){ S.cur=null; S.off=true; }
   S.loading=false; render();
 }
@@ -904,10 +925,11 @@ function renderTop(){
 }
 function renderCityList(){
   const q=$('#cityQ').value.trim(), nq=norm(q);
-  const match=c=>!nq||norm(c.nombre).includes(nq)||norm(c.provincia||'').includes(nq);
+  const viaMun=c=>nq&&!norm(c.nombre).includes(nq)?(c.munis||[]).find(m=>norm(m).includes(nq))||'':'';
+  const match=c=>!nq||norm(c.nombre).includes(nq)||norm(c.provincia||'').includes(nq)||!!viaMun(c);
   // Solo ciudades abiertas o abriéndose (y la actual, por si se llegó a ella por un enlace)
   const list=S.cities.filter(c=>(c.est!=='sin_abrir'||c.nombre===S.city)&&match(c));
-  const opt=c=>`<button type="button" role="option" class="city-opt${c.nombre===S.city?' cur':''}" data-city="${esc(c.nombre)}"><span>${esc(c.nombre)}</span><small>${c.est==='abierta'?(c.n+(c.n===1?' ficha':' fichas')):'abriendo'}</small></button>`;
+  const opt=c=>{ const vm=viaMun(c); return `<button type="button" role="option" class="city-opt${c.nombre===S.city?' cur':''}" data-city="${esc(c.nombre)}"${vm?` data-mun="${esc(vm)}"`:''}><span>${esc(c.nombre)}</span><small>${vm?'incluye '+esc(vm):c.est==='abierta'?(c.n+(c.n===1?' ficha':' fichas')):'abriendo'}</small></button>`; };
   const msg=nq&&!list.length?`<div class="grp">${esc(q)} todavía no está en la lista</div>`:'';
   $('#cityList').innerHTML=msg+list.map(opt).join('')
     +`<button type="button" class="city-opt city-new" data-propose-city="${esc(q)}"><span>${nq&&!list.length?'Recomienda un proyecto de '+esc(q):'¿No está tu ciudad? Recomienda un proyecto'}</span><small>→</small></button>`;
@@ -943,7 +965,7 @@ function frow(e){
   const ds=discsOf(e), space=e.fmt==='espacio', fm=e.fam||[], tgt=resolve(S.q);
   const all=S.cur?S.cur.items:[], sede=e.sede&&all.find(x=>x.id===e.sede);
   const acts=(e.acts.length?e.acts.map(actName):e.doors.map(d=>DOORTXT[d])).slice(0,3);
-  const meta=[FORMATS[e.fmt]+(e.kind?' · '+e.kind:''), e.b||e.muni||'', sede?'su casa: '+sede.n:''].filter(Boolean).join(' · ');
+  const meta=[FORMATS[e.fmt]+(e.kind?' · '+e.kind:''), e.b||e.muni||'', sede?'su casa: '+sede.n:'', (e.kids||[]).length?'con peques':''].filter(Boolean).join(' · ');
   const link=e.ig?`<a class="netbtn" href="${igUrl(e.ig)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir @${esc(e.ig)} en Instagram">@${esc(e.ig)}</a>`
     :e.fb?`<a class="netbtn" href="${esc(e.fb)}" target="_blank" rel="noopener noreferrer">Facebook</a>`:e.web?`<a class="netbtn" href="${esc(e.web)}" target="_blank" rel="noopener noreferrer">Web</a>`:'';
   return `<article class="frow${e.feat?' feat':''}" data-ficha="${esc(e.id)}">
@@ -978,9 +1000,9 @@ function render(){
   const target=resolve(S.q), door=DOORS.find(d=>d[0]===S.door);
   const nn=res.length, noun=S.kind==='e'?(nn===1?'espacio ':'espacios '):S.kind==='p'?(nn===1?'proyecto ':'proyectos '):'';
 
-  const act=[]; if(S.kind!=='ambos') act.push(['kind',S.kind==='e'?'Solo espacios':'Solo proyectos']); if(door) act.push(['door',(DOORVERB[door[0]]||[door[1]])[0]]); if(S.cede) act.push(['cede','Se alquilan o ceden']); if(S.open) act.push(['fam',S.open]);
+  const act=[]; if(S.kind!=='ambos') act.push(['kind',S.kind==='e'?'Solo espacios':'Solo proyectos']); if(door) act.push(['door',(DOORVERB[door[0]]||[door[1]])[0]]); if(S.cede) act.push(['cede','Se alquilan o ceden']); if(S.mun) act.push(['mun','En '+S.mun]); if(S.kids) act.push(['kids','Con peques']); if(S.open) act.push(['fam',S.open]);
   if(S.q) act.push(['cat',target?pathOf(target):S.q]); if(S.t) act.push(['t','«'+S.t+'»']);
-  $('#count').innerHTML=act.length?`<strong>${nn}</strong> ${noun}en ${esc(S.city)}`:''; $('.rsum').hidden=!act.length;
+  $('#count').innerHTML=act.length?`<strong>${nn}</strong> ${noun}en ${esc(S.mun||S.city)}`:''; $('.rsum').hidden=!act.length;
   $('#active').innerHTML=act.map(([k,l])=>`<button type="button" data-unset="${k}" aria-label="Quitar el filtro ${esc(l)}">${esc(l)}</button>`).join('')+(act.length>1?'<button type="button" class="all" data-unset="all">Borrar todo</button>':'');
   // En el mapa también se ve qué está filtrando, y se puede quitar desde ahí
   const ma=$('#mapActive'); ma.hidden=!act.length;
@@ -1004,12 +1026,12 @@ const RNK={}; const rnk=id=>{ if(RNK[id]!==undefined) return RNK[id]; let h=2166
 // Resultados con el estado actual (se reutiliza para los contadores)
 function computeRes(all){
   const exact=S.q?all.filter(e=>norm(e.n)===norm(S.q)):[];
-  const famOk=e=>!S.open||famsOf(e).includes(S.open), tg=resolve(S.q);
-  return (exact.length?exact:all.filter(e=>doorOk(e)&&famOk(e)&&matches(e,S.q)&&textOk(e))).sort((a,b)=>(genHit(a,tg)-genHit(b,tg))||(!!b.isNew-!!a.isNew)||(b.feat-a.feat)||(rnk(a.id)-rnk(b.id)));
+  const famOk=e=>!S.open||famsOf(e).includes(S.open), munOk=e=>!S.mun||munOf(e)===S.mun, kidOk=e=>!S.kids||(e.kids||[]).length>0, tg=resolve(S.q);
+  return (exact.length?exact:all.filter(e=>doorOk(e)&&famOk(e)&&munOk(e)&&kidOk(e)&&matches(e,S.q)&&textOk(e))).sort((a,b)=>(genHit(a,tg)-genHit(b,tg))||(!!b.isNew-!!a.isNew)||(b.feat-a.feat)||(rnk(a.id)-rnk(b.id)));
 }
 // Cuántas fichas saldrían cambiando solo una parte del estado
 function countIf(patch){ if(!S.cur) return 0; const bak={}; Object.keys(patch).forEach(k=>bak[k]=S[k]); Object.assign(S,patch); const n=computeRes(S.cur.items).length; Object.assign(S,bak); return n; }
-const UNSET={kind:{kind:'ambos',cede:false},door:{door:''},cede:{cede:false},fam:{open:null,q:''},cat:{q:''},t:{t:''}};
+const UNSET={kind:{kind:'ambos',cede:false},door:{door:''},mun:{mun:''},kids:{kids:false},cede:{cede:false},fam:{open:null,q:''},cat:{q:''},t:{t:''}};
 function renderKinds(all){
   const ks=[['ambos','Todo'],['p','Proyectos'],['e','Espacios']];
   $('#kinds').innerHTML=ks.map(([k,l])=>{ const n=countIf({kind:k,cede:k==='e'?S.cede:false}); const on=S.kind===k; return `<button type="button" data-kind="${k}" aria-pressed="${on}"${!n&&!on?' disabled':''}>${l}<small>${n}</small></button>`; }).join('');
@@ -1018,7 +1040,10 @@ function renderDoors(all,cur){
   const ds=DOORS.filter(d=>DOORVERB[d[0]]);
   $('#doors').innerHTML=ds.map(([k])=>{ const n=countIf({door:k}), on=S.door===k, v=DOORVERB[k]; return `<button type="button" class="pill" data-door="${k}" aria-pressed="${on}"${!n&&!on?' disabled':''}><span>${v[0]}<em>${v[1]}</em></span><small>${n}</small></button>`; }).join('')
     +(S.kind==='e'?(()=>{ const n=countIf({cede:true}); return `<button type="button" class="pill" data-cede="1" aria-pressed="${!!S.cede}"${!n&&!S.cede?' disabled':''}><span>Se alquilan o ceden<em>Salas y locales para otros proyectos</em></span><small>${n}</small></button>`; })():'');
-  const k=(S.door?1:0)+(S.cede?1:0); $('#moreN').textContent=k?String(k):''; $('#moreBtn').classList.toggle('on',!!k);
+  const main=mainMuni(cityObj(S.city)), cnt={}; all.forEach(e=>{ const m=munOf(e); cnt[m]=(cnt[m]||0)+1; });
+  const ms=Object.keys(cnt).sort((a,b)=>(b===main)-(a===main)||cnt[b]-cnt[a]||a.localeCompare(b,'es'));
+  if(ms.length>1||S.mun) $('#doors').innerHTML+=`<h3 class="more-h">Dónde</h3>`+ms.map(m=>{ const n=countIf({mun:m}), on=S.mun===m; return `<button type="button" class="pill" data-mun="${esc(m)}" aria-pressed="${on}"${!n&&!on?' disabled':''}><span>${esc(m)}</span><small>${n}</small></button>`; }).join('');
+  const k=(S.door?1:0)+(S.cede?1:0)+(S.mun?1:0); $('#moreN').textContent=k?String(k):''; $('#moreBtn').classList.toggle('on',!!k);
 }
 function syncMore(n){ $('#moreApply').textContent=n===1?'Ver 1 ficha':'Ver '+n+' fichas'; }
 // Una ciudad nunca se cierra: «abriendo» solo avisa de que aún faltan proyectos (sin contador)
@@ -1043,11 +1068,11 @@ function openMap(){ if(!S.cur||!VISTA_CONEXIONES) return; if(dlgMap.showModal) d
 function closeMap(){ if(dlgMap.open) dlgMap.close(); }
 // Los filtros viajan en la dirección: se pueden compartir, recargar y volver atrás
 const UP={c:'city',d:'open',cat:'q',hacer:'door',q:'t',tipo:'kind'};
-function syncUrl(){ try{ const u=new URL(location.href); const v={c:S.city,d:S.open||'',cat:S.q||'',hacer:S.door||'',q:S.t||'',tipo:S.kind==='ambos'?'':S.kind};
+function syncUrl(){ try{ const u=new URL(location.href); const v={c:S.city,m:S.mun||'',peques:S.kids?'1':'',d:S.open||'',cat:S.q||'',hacer:S.door||'',q:S.t||'',tipo:S.kind==='ambos'?'':S.kind};
   Object.entries(v).forEach(([k,x])=>{ if(x) u.searchParams.set(k,x); else u.searchParams.delete(k); }); if(S.cede) u.searchParams.set('cede','1'); else u.searchParams.delete('cede');
   if(u.href!==location.href) history.replaceState(history.state,'',u); }catch(e){} }
 function readUrl(){ try{ const u=new URL(location.href), g=k=>u.searchParams.get(k)||'';
-  if(g('c')) S.city=g('c'); if(g('d')) S.open=g('d'); if(g('cat')){ S.q=g('cat'); S.src={k:'q',v:S.q}; } if(DOORVERB[g('hacer')]) S.door=g('hacer'); if(g('q')) S.t=g('q'); if(['p','e'].includes(g('tipo'))) S.kind=g('tipo'); S.cede=g('cede')==='1'&&S.kind==='e';
+  if(g('c')) S.city=g('c'); if(g('m')) S.mun=g('m'); if(g('peques')==='1') S.kids=true; if(g('d')) S.open=g('d'); if(g('cat')){ S.q=g('cat'); S.src={k:'q',v:S.q}; } if(DOORVERB[g('hacer')]) S.door=g('hacer'); if(g('q')) S.t=g('q'); if(['p','e'].includes(g('tipo'))) S.kind=g('tipo'); S.cede=g('cede')==='1'&&S.kind==='e';
   }catch(e){} }
 // Con una disciplina elegida, debajo salen sus categorías (las que tienen fichas);
 // con una categoría elegida, sus subcategorías en una fila más
@@ -1065,7 +1090,8 @@ function renderFamChips(all){
   const box=$('#famchips'), base=all.filter(e=>doorOk(e)&&textOk(e)), cur=S.open;
   if(!all.length){ box.innerHTML=''; return; }
   const inCity=f=>all.some(e=>famsOf(e).includes(f));
-  box.innerHTML=`<button type="button" data-fchip="" aria-pressed="${!cur}">Todas<small>${countIf({open:null,q:''})}</small></button>`+FAMS.filter(inCity).map(f=>{ const k=countIf({open:f,q:''}), on=cur===f; return `<button type="button" data-fchip="${esc(f)}" aria-pressed="${on}"${!k&&!on?' disabled':''}>${esc(f)}<small>${k}</small></button>`; }).join('');
+  const nk=countIf({kids:true}), kc=(nk||S.kids)?`<button type="button" class="kchip" data-kids="1" aria-pressed="${!!S.kids}"${!nk&&!S.kids?' disabled':''}>Con peques<small>${nk}</small></button>`:'';
+  box.innerHTML=kc+`<button type="button" data-fchip="" aria-pressed="${!cur}">Todas<small>${countIf({open:null,q:''})}</small></button>`+FAMS.filter(inCity).map(f=>{ const k=countIf({open:f,q:''}), on=cur===f; return `<button type="button" data-fchip="${esc(f)}" aria-pressed="${on}"${!k&&!on?' disabled':''}>${esc(f)}<small>${k}</small></button>`; }).join('');
 }
 
 // Vista del mapa (zoom y desplazamiento): se guarda entre renders
@@ -1337,6 +1363,8 @@ function fichaHTML(e){
   if(zona) info.push(`<dt>Zona</dt><dd>${esc(zona)}</dd>`);
   if(e.dir&&!isMapsLink(e.dir)) info.push(`<dt>Dirección</dt><dd>${esc(e.dir)}</dd>`);
   if(e.hor) info.push(`<dt>Horario</dt><dd>${esc(e.hor)}</dd>`);
+  const KIDTXT={infantil:'Actividades para niños y niñas',familia:'Planes para ir en familia'};
+  if((e.kids||[]).length) info.push(`<dt>Con peques</dt><dd>${e.kids.map(k=>KIDTXT[k]||k).join(' · ')}</dd>`);
   const tamb=(e.cities||[]).map(id=>S.cities.find(x=>x.id===id)).filter(x=>x&&x.nombre!==S.city&&x.est!=='sin_abrir');
   if(tamb.length) info.push(`<dt>También en</dt><dd>${tamb.map(x=>`<a href="?c=${encodeURIComponent(x.nombre)}&f=${encodeURIComponent(e.id)}">${esc(x.nombre)}</a>`).join(', ')}</dd>`);
   return `<div class="fs-head"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" onerror="this.remove()">`:''}</span>
@@ -1402,7 +1430,7 @@ document.addEventListener('click',ev=>{
   const of=ev.target.closest('[data-open-ficha]'); if(of){ openFicha(of.dataset.openFicha); return; }
   const cd=ev.target.closest('.card[data-ficha],.frow[data-ficha]'); if(cd&&!ev.target.closest('a,button,input')){ openFicha(cd.dataset.ficha); return; }
   const un=ev.target.closest('[data-unset]'); if(un&&un.id!=='qpill'){ const k=un.dataset.unset;
-    if(k==='kind'||k==='all'){ S.kind='ambos'; S.cede=false; } if(k==='door'||k==='all') S.door=''; if(k==='cede') S.cede=false;
+    if(k==='kind'||k==='all'){ S.kind='ambos'; S.cede=false; } if(k==='door'||k==='all') S.door=''; if(k==='cede') S.cede=false; if(k==='mun'||k==='all') S.mun=''; if(k==='kids'||k==='all') S.kids=false; if(k==='more'){ S.door=''; S.cede=false; S.mun=''; }
     if(k==='fam'||k==='all'){ if(S.q&&resolve(S.q)&&famOf(resolve(S.q))===S.open) S.q=''; S.open=null; }
     if(k==='cat'||k==='all') S.q=''; if(k==='t'||k==='all'){ S.t=''; $('#q').value=''; }
     render(); return; }
@@ -1413,11 +1441,13 @@ document.addEventListener('click',ev=>{
   const fc=ev.target.closest('[data-fchip]'); if(fc){ const f=fc.dataset.fchip; if(fc.closest('#dlgF')){ closeFicha(); S.open=f; S.q='';  render(); toList(); return; } if(fc.closest('.card')){ S.open=f; S.q='';  render(); return; } S.open=(!f||S.open===f)?null:f; S.q='';  closeDisc(); render(); return; }
   if(!ev.target.closest('.city-wrap')) closeCity();
   if(!ev.target.closest('.disc-wrap')) closeDisc();
-  const b=ev.target.closest('[data-mode],[data-home],[data-zoom],[data-city],[data-door],[data-fam],[data-q],[data-copy],[data-open],[data-report],[data-reset]'); if(!b) return;
+  const b=ev.target.closest('[data-mode],[data-home],[data-zoom],[data-city],[data-door],[data-mun],[data-kids],[data-fam],[data-q],[data-copy],[data-open],[data-report],[data-reset]'); if(!b) return;
   if(b.dataset.mode){ const l=b.dataset.mode==='l'; if(l!==(S.door==='espacio')){ S.door=l?'espacio':''; S.q=''; S.open=null;  render(); } return; }
   if(b.dataset.home){ S.q=''; S.open=null; V.key=''; render(); return; }
   if(b.dataset.zoom){ const v=V.cur; if(v) zoomAt(+b.dataset.zoom,v.x+v.w/2,v.y+v.h/2,true); return; }
-  if(b.dataset.city!==undefined){ closeCity(); S.q='';  selectCity(b.dataset.city); return; }
+  if(b.dataset.city!==undefined){ closeCity(); S.q='';  selectCity(b.dataset.city,b.dataset.mun||''); return; }
+  if(b.dataset.kids!==undefined){ S.kids=!S.kids; render(); return; }
+  if(b.dataset.mun!==undefined&&b.dataset.city===undefined){ const m=b.dataset.mun; S.mun=S.mun===m?'':m; render(); return; }
   if(b.dataset.door!==undefined){ const d=b.dataset.door; S.door=(S.door===d&&d)?'':d; render(); return; }
   if(b.dataset.reset){ S.q=''; S.door=''; S.cede=false; S.kind='ambos'; S.open=null; S.t=''; $('#q').value=''; render(); return; }
   if(b.dataset.q!==undefined){
@@ -1664,9 +1694,11 @@ function editUi(){ const on=!!EDIT;
   $('#igHint').textContent='Al menos uno: es como os encuentra la gente.';
   $('#legalNote').firstChild.textContent='Usamos estos datos para actualizar vuestra ficha. Podéis pedir que los cambiemos o los borremos cuando queráis. Más información en la ';
   $('#consentTxt').textContent='He leído la política de privacidad y acepto que se traten estos datos para actualizar nuestra ficha.'; }
+const pubSel=()=>[$('#fPubInf').checked&&'infantil',$('#fPubFam').checked&&'familia'].filter(Boolean);
 function openEdit(tok,d){
   openAdd('ficha');
   EDIT={t:tok,id:d.id,nombre:d.nombre,ciudad:d.ciudad,quitar:false,img:d.imagen||null};
+  $('#fPubInf').checked=(d.publico||[]).includes('infantil'); $('#fPubFam').checked=(d.publico||[]).includes('familia');
   const fmt=d.formato||'persona'; $('#fFormat').value=fmt; const r=document.querySelector('input[name="fmt"][value="'+fmt+'"]'); if(r) r.checked=true;
   $('#fName').value=d.nombre||''; $('#fCity').value=d.ciudad||S.city;
   $('#fDesc').value=d.descripcion||''; $('#fIg').value=d.instagram?'@'+d.instagram:''; $('#fSite').value=d.web||''; $('#fFb').value=d.facebook||'';
@@ -1697,7 +1729,7 @@ async function saveEdit(){
   if(foto){ try{ img=await uploadFoto(); }catch(e){ sinFoto=true; } }
   try{
     const r=await api('rpc/editar_con_enlace',{method:'POST',body:JSON.stringify({t:EDIT.t,p:{descripcion:$('#fDesc').value.trim()||null,instagram:ig||null,facebook:fb||null,web:site||null,
-      actividades:acts,disciplinas:discs,familias:fams,imagen:img,quitar_imagen:!!EDIT.quitar&&!img}})});
+      actividades:acts,disciplinas:discs,familias:fams,publico:pubSel(),imagen:img,quitar_imagen:!!EDIT.quitar&&!img}})});
     const id=EDIT.id, city=EDIT.ciudad; EDIT=null; dlg.close();
     try{ const u=new URL(location.href); u.searchParams.delete('editar'); history.replaceState(history.state,'',u); }catch(e){}
     if(S.cache) delete S.cache[city]; await selectCity(city); if(byId(id)) openFicha(id,false);
@@ -1738,7 +1770,7 @@ $('#addForm').addEventListener('submit',async ev=>{
   try{
     if(amb) await api('propuestas',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
     else await api('rpc/enviar_ficha',{method:'POST',body:JSON.stringify({p:{ciudad:row.ciudad,nombre:n,instagram:ig,formato:row.formato,disciplinas:discs,actividades:acts,puertas:doors,
-      descripcion:row.descripcion,contacto:row.contacto,imagen:row.imagen||null,web:site||null,familias:fams}})});
+      descripcion:row.descripcion,contacto:row.contacto,imagen:row.imagen||null,web:site||null,familias:fams,publico:pubSel()}})});
     finish(amb?'Gracias por la recomendación. La revisamos y escribimos al proyecto.':'Recibido'+(sinFoto?' (la foto no se pudo subir; nos la puedes mandar por Instagram)':'')+'. Lo revisamos a mano y te escribimos para confirmarlo.'); }
   catch(e){ err(/Demasiad|cola/.test(String(e&&e.message))?'Ahora mismo hay muchos envíos. Prueba en un rato o escríbenos por Instagram.':'No se pudo enviar. Revisa la conexión y prueba otra vez.'); }
   finally{ $('#sendAdd').disabled=false; }
