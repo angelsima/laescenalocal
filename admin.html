@@ -483,7 +483,7 @@ function renderCob(){
     const total=fs.filter(f=>(f.familias||[]).includes(fm)||cs.some(x=>has(f,x.cat))).length;
     return {fm,cs,enteras,total}; });
   const max=Math.max(1,...fams.map(x=>x.total)), vacias=fams.reduce((a,x)=>a+x.cs.filter(y=>!y.n).length,0);
-  $('#list').innerHTML=`<div class="cob-head"><div><b>${esc(c.nombre)}</b> · ${fs.length} fichas aprobadas · ${vacias} categorías sin nada</div><a class="linkbtn" href="index.html?c=${encodeURIComponent(c.nombre)}&mapa=1" target="_blank" rel="noopener">🗺 Ver mapa de conexiones</a></div>`+
+  $('#list').innerHTML=`<div class="cob-head"><div><b>${esc(c.nombre)}</b> · ${fs.length} fichas aprobadas · ${vacias} categorías sin nada</div></div>`+
     fams.sort((a,b)=>a.total-b.total).map(x=>`<section class="cob"><div class="cob-t"><b>${esc(x.fm)}</b><span class="cob-n">${x.total}</span>${x.enteras?`<small>${x.enteras} la marcan entera</small>`:''}</div><div class="cob-bar"><i style="width:${Math.round(x.total/max*100)}%"></i></div><div class="cob-cs">${x.cs.map(y=>`<span class="cob-c${y.n?'':' zero'}">${esc(y.cat.nombre)} <b>${y.n}</b></span>`).join('')}</div></section>`).join('');
 }
 function renderCities(){
