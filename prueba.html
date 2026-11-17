@@ -338,7 +338,8 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .vsw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .famchips{display:flex;gap:6px;flex-wrap:wrap}
 /* Cuadrante de filtros: dos preguntas que se despliegan y, debajo, tipo y «Con peques» */
-.fq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:760px}
+.controls .search{width:100%;max-width:760px;margin-inline:auto}
+.fq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:760px;margin-inline:auto}
 .fq{position:relative;display:flex;min-width:0}
 .fq-btn{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;column-gap:8px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 12px 9px;cursor:pointer;color:var(--ink);font:inherit}
 .fq-btn:hover{border-color:var(--ink)}
@@ -353,13 +354,19 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .fpanel{grid-column:1/-1;border:1px solid var(--ink);border-radius:14px;background:var(--surface);padding:12px;display:grid;gap:10px}
 .fpanel .catchips{border-top:1px solid var(--line);padding-top:10px}
 .fp-foot{display:flex;justify-content:flex-end;border-top:1px solid var(--line);padding-top:10px}
-.hows{display:grid;gap:12px}
-.hgrp{display:grid;gap:6px}
-.hgrp-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;border:0;background:transparent;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.hows{display:grid;gap:0}
+.hgrp{display:grid;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.hgrp:last-child{border-bottom:0}
+.hgrp-h{width:100%}
+.hgrp-h i{display:inline-flex;transition:transform .15s}
+.hgrp-h i svg{width:11px;height:11px}
+.hgrp.open .hgrp-h i{transform:rotate(180deg)}
+.hgrp-h{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;border:0;background:transparent;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.hgrp-h .hh{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;min-width:0}
 .hgrp-h b{font-family:var(--display);font-size:16px}
-.hgrp-h span{font-size:12.5px;color:var(--muted)}
+.hgrp-h .hh span{font-size:12.5px;color:var(--muted)}
 .hgrp-h small{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.hgrp-h[aria-pressed="true"] b{background:var(--amarillo);color:var(--amarillo-ink);border-radius:6px;padding:0 6px}
+.hgrp-h[aria-pressed="true"] b{background:var(--amarillo);color:var(--amarillo-ink);border-radius:6px;padding:0 6px;margin-left:-6px}
 .hgrp-h:disabled{opacity:.4;cursor:default}
 .hchips{display:flex;gap:6px;flex-wrap:wrap}
 .hchips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13.5px;cursor:pointer;color:var(--ink)}
@@ -367,14 +374,14 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .hchips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .hchips button[aria-pressed="true"] small{color:var(--bg)}
 .hchips button:disabled{opacity:.4;cursor:default}
-.fq-row2{grid-column:1/-1;display:flex;gap:8px 10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.fq-row2{grid-column:1/-1;display:flex;gap:8px 12px;align-items:center;justify-content:center;flex-wrap:wrap}
 .munsel{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;color:var(--ink)}
 #kidsBox .kswitch{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px 5px 6px;font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer;color:var(--ink)}
 #kidsBox .kswitch small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);margin-left:2px}
 #kidsBox .kswitch[aria-checked="true"]{border-color:var(--acento)}
 #kidsBox .kswitch:disabled{opacity:.45;cursor:default}
-.munsel{grid-column:1/-1;justify-self:start;min-width:200px}
-@media (max-width:440px){.fq-v{font-size:15.5px}.fq-row2{flex-wrap:wrap}.fq-row2 .tabs{flex:none}.fq-row2{gap:6px;flex-wrap:nowrap}.fq-row2 .tabs button{padding:6px 7px;font-size:13px}.fq-row2 .tabs button small{display:none}#kidsBox .kswitch{padding:4px 10px 4px 4px;font-size:13px;gap:6px}#kidsBox .kswitch small{display:none}}
+.munsel{flex:none;max-width:100%}
+@media (max-width:440px){.fq-v{font-size:15.5px}.fq-row2{flex-wrap:wrap}.fq-row2 .tabs{flex:none}.fq-row2{gap:8px 6px}.fq-row2 .tabs button{padding:6px 7px;font-size:13px}.fq-row2 .tabs button small{display:none}#kidsBox .kswitch{padding:4px 10px 4px 4px;font-size:13px;gap:6px}#kidsBox .kswitch small{display:none}}
 @media (max-width:719px){.famchips{gap:6px 5px}.famchips button{padding:5px 10px;font-size:13.5px}}
 .famchips button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer}
 .famchips button small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);margin-left:5px}
@@ -657,8 +664,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
     <div class="fq-row2">
       <div class="tabs kindsw" id="kinds" role="group" aria-label="Mostrar"></div>
       <span id="kidsBox"></span>
+      <select id="munSel" class="munsel" aria-label="Dónde" hidden></select>
     </div>
-    <select id="munSel" class="munsel" aria-label="Dónde" hidden></select>
   </div>
 </section>
 
@@ -1101,10 +1108,10 @@ function renderFQ(all,n){
   $('#pnWhat').hidden=S.pn!=='what'; $('#pnHow').hidden=S.pn!=='how';
   document.querySelectorAll('[data-fqgo]').forEach(b=>b.textContent=n===1?'Ver 1 ficha':'Ver '+n+' fichas');
   if(S.pn==='how') $('#hows').innerHTML=HOWS.map(([k,l,d])=>{
-    const acts=Object.entries(S.acts).filter(([id,a])=>a.p===k), hn=countIf({door:k,fa:''}), on=S.door===k&&!S.fa;
+    const acts=Object.entries(S.acts).filter(([id,a])=>a.p===k), hn=countIf({door:k,fa:''}), on=S.door===k&&!S.fa, open=S.door===k||(S.fa&&S.acts[S.fa]&&S.acts[S.fa].p===k);
     if(!acts.length) return '';
     const chips=acts.map(([id,a])=>{ const c=countIf({fa:id,door:''}), o=S.fa===id; return (c||o)?`<button type="button" data-fa="${id}" aria-pressed="${o}">${esc(a.n)}<small>${c}</small></button>`:''; }).join('');
-    return `<div class="hgrp"><button type="button" class="hgrp-h" data-door="${k}" aria-pressed="${on}"${!hn&&!on?' disabled':''}><b>${l}</b><span>${d}</span><small>${hn}</small></button>${chips?`<div class="hchips">${chips}</div>`:''}</div>`;
+    return `<div class="hgrp${open?' open':''}"><button type="button" class="hgrp-h" data-door="${k}" aria-pressed="${on}" aria-expanded="${!!open}"${!hn&&!open?' disabled':''}><span class="hh"><b>${l}</b><span>${d}</span></span><small>${hn}</small><i aria-hidden="true">${chev}</i></button>${open&&chips?`<div class="hchips">${chips}</div>`:''}</div>`;
   }).join('');
   // Con peques: interruptor, siempre en su sitio
   const nk=countIf({kids:true}); $('#kidsBox').innerHTML=`<button type="button" class="kswitch" role="switch" data-kids="1" aria-checked="${!!S.kids}"${!nk&&!S.kids?' disabled':''}><span class="trk" aria-hidden="true"></span>Con peques<small>${nk}</small></button>`;
@@ -1112,7 +1119,7 @@ function renderFQ(all,n){
   const main=mainMuni(cityObj(S.city)), cnt={}; all.forEach(e=>{ const m=munOf(e); cnt[m]=(cnt[m]||0)+1; });
   const ms=Object.keys(cnt).sort((a,b)=>(b===main)-(a===main)||cnt[b]-cnt[a]||a.localeCompare(b,'es')), sel=$('#munSel');
   sel.hidden=!(ms.length>1||S.mun);
-  if(!sel.hidden) sel.innerHTML=`<option value="">Toda la zona</option>`+ms.map(m=>`<option value="${esc(m)}"${S.mun===m?' selected':''}>${esc(m)} (${countIf({mun:m})})</option>`).join('');
+  if(!sel.hidden) sel.innerHTML=`<option value="">${S.city.includes(' y ')?'Todo '+esc(S.city):esc(S.city)+' y alrededores'}</option>`+ms.map(m=>`<option value="${esc(m)}"${S.mun===m?' selected':''}>Solo ${esc(m)} (${countIf({mun:m})})</option>`).join('');
 }
 function renderDoors(all,cur){
   const ds=DOORS.filter(d=>DOORVERB[d[0]]);
@@ -1534,7 +1541,7 @@ document.addEventListener('click',ev=>{
   if(b.dataset.fa!==undefined){ const a=b.dataset.fa; S.fa=S.fa===a?'':a; S.door=''; S.pn=''; render(); return; }
   if(b.dataset.kids!==undefined){ S.kids=!S.kids; render(); return; }
   if(b.dataset.mun!==undefined&&b.dataset.city===undefined){ const m=b.dataset.mun; S.mun=S.mun===m?'':m; render(); return; }
-  if(b.dataset.door!==undefined){ const d=b.dataset.door; S.door=(S.door===d&&d&&!S.fa)?'':d; S.fa=''; if(b.closest('#pnHow')) S.pn=''; render(); return; }
+  if(b.dataset.door!==undefined){ const d=b.dataset.door; S.door=(S.door===d&&d&&!S.fa)?'':d; S.fa=''; render(); return; }
   if(b.dataset.reset){ S.q=''; S.door=''; S.cede=false; S.kind='ambos'; S.open=null; S.t=''; $('#q').value=''; render(); return; }
   if(b.dataset.q!==undefined){
     const v=b.dataset.q, inMap=!!b.closest('#map'), same=!!v&&norm(S.q)===norm(v);
