@@ -430,7 +430,6 @@ html:not(.adm) #teaserBand,html:not(.adm) #fabMap{display:none!important}
 .card h3{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.2;margin:0;text-wrap:balance}
 .badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
 .badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;padding:2px 7px;border-radius:4px;background:var(--amarillo);color:var(--amarillo-ink)}
-.badge.ver{background:var(--acento);color:var(--acento-ink)}
 .badge.new{background:var(--ink);color:var(--bg)}
 .badge.loc{background:transparent;color:var(--ink);border:1.5px solid var(--acento)}
 .rel{gap:4px 8px}
@@ -913,12 +912,12 @@ async function loadCity(name){
   {
     const c=cityObj(name);
     if(c&&c.n>0){
-      const q=`fichas?select=id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,verificado,destacado_hasta,imagen,{EXTRA}ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)&{CITY}&aprobada=eq.true&order=nombre`;
+      const q=`fichas?select=id,nombre,formato,puertas,tipo_espacio,ofrece,municipio,barrio,descripcion,instagram,destacado_hasta,imagen,{EXTRA}ficha_disciplina(disciplina_id,orden),ficha_actividad(actividad_id)&{CITY}&aprobada=eq.true&order=nombre`;
       // De más a menos campos, por si alguna actualización de la base de datos aún no se ha aplicado
       // (la primera incluye las fichas que tienen esta ciudad como «También en»)
       const solo=`ciudad_id=eq.${c.id}`, varias=`or=(ciudad_id.eq.${c.id},otras_ciudades.cs.{${c.id}})`;
       let rows=null; for(const [x,w] of [['facebook,web,direccion,horario,mas_info,familias,local,sede_id,ciudad_id,otras_ciudades,publico,',varias],['facebook,web,direccion,horario,mas_info,familias,local,sede_id,ciudad_id,otras_ciudades,',varias],['facebook,web,direccion,horario,mas_info,familias,local,sede_id,',solo],['facebook,web,direccion,horario,mas_info,familias,',solo],['facebook,web,direccion,horario,mas_info,',solo],['',solo]]){ try{ rows=await api(q.replace('{EXTRA}',x).replace('{CITY}',w)); break; }catch(e){ if(!x) throw e; } }
-      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),ver:f.verificado,kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null,cities:[f.ciudad_id||c.id,...(f.otras_ciudades||[])],kids:f.publico||[]}));
+      items=rows.map(f=>({id:f.id,img:f.imagen||'',n:f.nombre,fmt:f.formato,d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)||a.disciplina_id-b.disciplina_id).map(x=>S.discById[x.disciplina_id]).filter(Boolean),acts:(f.ficha_actividad||[]).map(x=>x.actividad_id),doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram,feat:!!(f.destacado_hasta&&f.destacado_hasta>=today),kind:f.tipo_espacio||'',offers:f.ofrece||[],muni:f.municipio||'',fb:f.facebook||'',web:f.web||'',dir:f.direccion||'',hor:f.horario||'',info:f.mas_info||'',fam:f.familias||[],local:!!f.local,sede:f.sede_id||null,cities:[f.ciudad_id||c.id,...(f.otras_ciudades||[])],kids:f.publico||[]}));
     }
   }
   const data=finalize(items); S.cache[name]=data; return data;
@@ -1007,7 +1006,7 @@ function card(e){
   const kind=FORMATS[e.fmt]+(e.kind?' · '+e.kind:'');
   return `<article class="card${e.feat?' feat':''}" data-ficha="${esc(e.id)}">
     <span class="kind">${esc(kind)}</span>
-    <div class="card-head"><div class="who"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span><h3><button type="button" class="cname" data-open-ficha="${esc(e.id)}">${hl(e.n,S.q)}</button></h3></div><div class="badges">${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.ver&&!e.feat?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div>
+    <div class="card-head"><div class="who"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span><h3><button type="button" class="cname" data-open-ficha="${esc(e.id)}">${hl(e.n,S.q)}</button></h3></div><div class="badges">${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div>
     ${e.acts.length?`<ul class="doors">${e.acts.map(a=>`<li>${esc(actName(a))}</li>`).join('')}</ul>`:e.doors.length?`<ul class="doors">${e.doors.map(d=>`<li>${DOORTXT[d]}</li>`).join('')}</ul>`:''}
     ${e.t?`<p class="desc">${hl(e.t,S.q)}</p>`:''}
     ${e.offers.length?`<ul class="offers">${e.offers.map(o=>`<li>${hl(o,S.q)}</li>`).join('')}</ul>`:''}
@@ -1031,7 +1030,7 @@ function frow(e){
   return `<article class="frow${e.feat?' feat':''}" data-ficha="${esc(e.id)}">
     <span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
     <div class="fr-main">
-      <div class="fr-top"><h3><button type="button" class="cname" data-open-ficha="${esc(e.id)}">${hl(e.n,S.q||S.t)}</button></h3>${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.ver?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div>
+      <div class="fr-top"><h3><button type="button" class="cname" data-open-ficha="${esc(e.id)}">${hl(e.n,S.q||S.t)}</button></h3>${e.isNew?'<span class="badge new">Enviada</span>':''}${e.feat?'<span class="badge">Destacado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div>
       <small class="fr-meta">${esc(meta)}${acts.length?`<span class="fr-acts">${acts.map(a=>`<span>${esc(a)}</span>`).join('')}</span>`:''}</small>
       ${fm.length||ds.length?(()=>{ const tg=fm.map(f=>`<span class="f">${space?'Acoge ':''}${esc(f)}</span>`).concat(ds.map((d,i)=>`<span class="${i===0&&!space?'p':''}">${esc(d)}</span>`)), more=tg.length-3; return `<div class="fr-tags">${tg.slice(0,3).join('')}${more>0?`<span class="more" title="Ver todas en la ficha">+${more}</span>`:''}</div>`; })():''}
       ${e.t?`<p class="fr-desc">${hl(e.t,S.t)}</p>`:''}
@@ -1452,7 +1451,7 @@ function fichaHTML(e){
   const tamb=(e.cities||[]).map(id=>S.cities.find(x=>x.id===id)).filter(x=>x&&x.nombre!==S.city&&x.est!=='sin_abrir');
   if(tamb.length) info.push(`<dt>También en</dt><dd>${tamb.map(x=>`<a href="?c=${encodeURIComponent(x.nombre)}&f=${encodeURIComponent(e.id)}">${esc(x.nombre)}</a>`).join(', ')}</dd>`);
   return `<div class="fs-head"><span class="avatar${space?' sp':''}" aria-hidden="true">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" onerror="this.remove()">`:''}</span>
-    <div><span class="kind">${esc(kind)}</span><h2 id="fsName">${esc(e.n)}</h2><div class="badges" style="justify-content:flex-start">${e.feat?'<span class="badge">Destacado</span>':''}${e.ver?'<span class="badge ver">Verificado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div></div>
+    <div><span class="kind">${esc(kind)}</span><h2 id="fsName">${esc(e.n)}</h2><div class="badges" style="justify-content:flex-start">${e.feat?'<span class="badge">Destacado</span>':''}${e.local&&!space?'<span class="badge loc">Local propio</span>':''}</div></div></div>
     ${links.length?`<div class="fs-links">${links.join('')}</div>`:''}
     ${e.t?`<p class="fs-text">${esc(e.t)}</p>`:''}
     ${relHTML(e)}
