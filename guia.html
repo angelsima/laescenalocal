@@ -77,6 +77,10 @@ a{color:inherit}
 .a4.big .ent .ds{font-size:10pt}
 .gh{grid-column:1/-1;font-family:var(--display);font-weight:800;font-size:13pt;letter-spacing:-.01em;border-bottom:.8pt solid var(--ink);padding:2.5mm 0 1mm;margin-top:1mm;display:flex;justify-content:space-between;align-items:baseline}
 .gh span{font-family:var(--mono);font-weight:400;font-size:8pt;color:var(--muted)}
+.sh{grid-column:1/-1;display:flex;align-items:baseline;gap:3mm;background:var(--ink);color:#FAF5F0;border-radius:1.6mm;padding:2.2mm 3.5mm;margin-top:1mm}
+.sh b{font-family:var(--display);font-weight:800;font-size:16pt;letter-spacing:-.01em;line-height:1}
+.sh span{font-size:8.5pt;opacity:.85}
+.sh small{margin-left:auto;font-family:var(--mono);font-size:8pt;opacity:.8}
 .ent{break-inside:avoid;display:grid;grid-template-columns:auto 1fr;gap:2.5mm;align-items:start}
 .ent .av{width:9mm;height:9mm;border-radius:50%;border:.6pt solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:7.5pt;overflow:hidden;position:relative;background:var(--soft)}
 .ent .av.sp{border-radius:2.2mm}
@@ -108,6 +112,9 @@ a{color:inherit}
 .flyer .li b{font-family:var(--display);font-size:11.5pt}
 .flyer .li span{font-size:8pt;opacity:.75;display:block}
 .flyer .li i{font-style:normal;font-family:var(--mono);font-size:7.5pt;color:var(--amarillo)}
+.flyer .sh{background:var(--amarillo);color:var(--amarillo-ink);padding:1.4mm 3mm;margin-top:1.5mm}
+.flyer .sh b{font-size:12.5pt}
+.flyer .sh span{font-size:7.5pt}
 .flyer .more{font-family:var(--display);font-weight:600;font-size:11pt;color:var(--amarillo)}
 .flyer .ft{border-top:0;margin:0;padding:4mm 9mm 8mm;grid-template-columns:auto 1fr}
 .flyer .qr{width:24mm;height:24mm;padding:1.5mm;border-radius:2mm}
@@ -124,6 +131,10 @@ a{color:inherit}
 .ig .pg-body{row-gap:28px}
 .ig .gh{font-size:34px;border-bottom-width:2px;padding:10px 0 6px}
 .ig .gh span{font-size:20px}
+.ig .sh{padding:18px 28px;border-radius:16px;gap:20px}
+.ig .sh b{font-size:56px}
+.ig .sh span{font-size:26px}
+.ig .sh small{font-size:22px}
 .ig .ent{grid-template-columns:130px 1fr;gap:30px;align-items:center}
 .ig .ent .av{width:130px;height:130px;font-size:42px;border-width:3px}
 .ig .ent .av.sp{border-radius:30px}
@@ -146,10 +157,13 @@ a{color:inherit}
 .zine .ih{font-family:var(--display);font-weight:800;font-size:18pt;letter-spacing:-.02em;margin:0 0 4mm}
 .zine .idx{display:grid;gap:1.6mm;font-size:10pt}
 .zine .idx div{display:grid;grid-template-columns:1fr auto;border-bottom:.5pt dotted var(--faint);padding-bottom:1mm}
+.zine .idx .is{border-bottom:1pt solid var(--ink);font-family:var(--display);font-weight:800;font-size:12pt;margin-top:2mm}
+.zine .idx .is .n small{font-family:var(--body);font-weight:400;font-size:8.5pt;color:var(--muted);margin-left:1.5mm}
 .zine .idx .p{font-family:var(--mono);font-size:8.5pt}
 .zine .idx em{font-style:normal;color:var(--muted);font-size:8.5pt}
 .zine .howto{margin-top:6mm;font-size:9pt;color:var(--muted)}
 .zine .pg-body{row-gap:2.8mm}
+.zine .lines{flex:1;background:repeating-linear-gradient(to bottom,transparent 0,transparent 8.5mm,var(--line) 8.5mm,var(--line) 8.8mm)}
 .zine.back{background:var(--amarillo);color:var(--amarillo-ink);justify-content:center;gap:6mm;text-align:center;align-items:center}
 .zine.back h2{font-family:var(--display);font-weight:800;font-size:24pt;line-height:.95;margin:0}
 .zine.back p{margin:0;font-size:10pt}
@@ -162,6 +176,11 @@ a{color:inherit}
 .web .whd p{margin:0;font-size:16px}
 .web .wg{margin:26px 0 10px;font-family:var(--display);font-weight:800;font-size:22px;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:6px}
 .web .wg span{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--muted)}
+.web .wsh+.wcards{margin-top:12px}
+.web .wsh{margin:40px 0 0;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px}
+.web .wsh b{font-family:var(--display);font-weight:800;font-size:30px;line-height:1}
+.web .wsh span{font-size:14px;opacity:.85}
+.web .wsh small{margin-left:auto;font-family:var(--mono);font-size:12px;opacity:.8}
 .wcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .wc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start}
 .wc .av{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;overflow:hidden;position:relative;background:var(--soft)}
@@ -262,15 +281,36 @@ function fillD(){ const all=G.items, cnt=d=>all.filter(e=>inSel(e,d)).length, op
       Object.keys(G.disc).filter(x=>parOf(x)===c).forEach(s=>{ const k=cnt(s); if(k>=2&&k<m) opts.push([s,'      '+s,k]); }); }); });
   if(G.d&&!opts.some(o=>o[0]===G.d)) G.d='';
   $('#gD').innerHTML=opts.map(([v,l,n])=>`<option value="${esc(v)}"${v===G.d?' selected':''}>${esc(l)} (${n})</option>`).join(''); }
-// Agrupar: toda la escena → por disciplina; una disciplina → por categoría; una categoría → por subcategoría
-function groups(list){ const d=G.d, key=e=>{
-    if(!d) return famsOf(e).sort((a,b)=>G.fams.indexOf(a)-G.fams.indexOf(b))[0]||'Otras';
-    if(isFam(d)){ const x=e.d.find(z=>famOf(z)===d); return x?catOf(x):'En general'; }
-    const x=e.d.find(z=>parOf(z)===d); return x||'En general'; };
-  const m=new Map(); list.forEach(e=>{ const k=key(e); if(!m.has(k)) m.set(k,[]); m.get(k).push(e); });
-  const order=k=>k==='En general'?1e6:k==='Otras'?1e6+1:(!d?G.fams.indexOf(k):(G.disc[k]?G.disc[k].id*0+Object.keys(G.disc).indexOf(k):9e5));
-  const out=[...m.entries()].sort((a,b)=>order(a[0])-order(b[0])).map(([k,l])=>[k==='En general'?d+' en general':k,l]);
-  return (d&&!isFam(d)&&out.length===1&&out[0][0]===d+' en general')?[['',out[0][1]]]:out; }
+// ¿Quién? y ¿Dónde?: proyectos (incluye escuelas y colectivos) y espacios, por separado
+const isSp=e=>e.fmt==='espacio';
+const SECS=[['quien','¿Quién?','Proyectos, grupos y escuelas',e=>!isSp(e)],['donde','¿Dónde?','Espacios y locales',isSp]];
+const sections=list=>SECS.map(([k,t,s,f])=>({k,t,s,l:list.filter(f)})).filter(x=>x.l.length);
+const secHead=(s,brk)=>`<div class="sh${brk?' brk':''}" data-k="${s.k}"><b>${s.t}</b><span>${s.s}</span><small>${s.l.length}</small></div>`;
+// Agrupar por afinidad, no por la primera etiqueta: cada ficha va al grupo con el que comparte más etiquetas.
+// Nivel: toda la escena → por familia; una familia → por categoría; una categoría → por subcategoría.
+function candKeys(e){ const d=G.d;
+  if(!d) return famsOf(e).sort((a,b)=>G.fams.indexOf(a)-G.fams.indexOf(b));
+  if(isFam(d)) return [...new Set(e.d.filter(z=>famOf(z)===d).map(catOf))];
+  return [...new Set(e.d.filter(z=>parOf(z)===d))]; }
+const tagSet=e=>new Set([...e.d,...e.d.map(parOf).filter(Boolean),...e.fam]);
+function simT(a,b){ let i=0; a.forEach(x=>{ if(b.has(x)) i++; }); const u=a.size+b.size-i; return u?i/u:0; }
+const byName=(a,b)=>a.n.localeCompare(b.n,'es');
+function groups(list){ const d=G.d, GEN='\u0000';
+  if(list.length<=6) return [['',list.slice().sort(byName)]];
+  const T=new Map(list.map(e=>[e.id,tagSet(e)])), C=new Map(list.map(e=>[e.id,candKeys(e)])), S=(a,b)=>simT(T.get(a.id),T.get(b.id));
+  const pick=(e,inK)=>{ const c=C.get(e.id); let best=c[0], bs=-1; c.forEach((k,i)=>{ const s=list.reduce((t,o)=>o!==e&&inK(o,k)?t+S(e,o):t,0)-i*1e-6; if(s>bs){ bs=s; best=k; } }); return best; };
+  // 1) Primera vuelta: con quién comparte más etiquetas, mirando a todos los que tienen cada una
+  const A=new Map(); list.forEach(e=>A.set(e.id,C.get(e.id).length?pick(e,(o,k)=>C.get(o.id).includes(k)):GEN));
+  // 2) Ajuste: cada ficha se queda en el grupo cuyos miembros se le parecen más (hasta que nadie cambia)
+  for(let it=0;it<5;it++){ let ch=0; list.forEach(e=>{ if(C.get(e.id).length<2) return; const k=pick(e,(o,k)=>A.get(o.id)===k); if(k!==A.get(e.id)){ A.set(e.id,k); ch++; } }); if(!ch) break; }
+  const m=new Map(); list.forEach(e=>{ const k=A.get(e.id); if(!m.has(k)) m.set(k,[]); m.get(k).push(e); });
+  // Grupos de una sola ficha: van a «Más …» con las que no tienen etiqueta más concreta
+  const gen=[...(m.get(GEN)||[])]; m.delete(GEN); [...m].forEach(([k,l])=>{ if(l.length<2){ gen.push(...l); m.delete(k); } });
+  const coh=(e,l)=>l.reduce((t,o)=>o!==e?t+S(e,o):t,0);
+  const ord=d?((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'es')):((a,b)=>G.fams.indexOf(a[0])-G.fams.indexOf(b[0]));
+  const out=[...m.entries()].sort(ord).map(([k,l])=>[k,l.slice().sort((a,b)=>coh(b,l)-coh(a,l)||byName(a,b))]);
+  if(gen.length) out.push([out.length?(d?'Más '+d.toLowerCase():'Y más'):'',gen.sort(byName)]);
+  return out.length===1?[['',out[0][1]]]:out; }
 const titleOf=()=>G.d||'Toda la escena';
 const webUrl=()=>{ const u=new URL(WEB); u.searchParams.set('c',G.city); if(G.d) u.searchParams.set(isFam(G.d)?'d':'cat',G.d); u.searchParams.set('ref','guia-'+G.fmt); return u.href; };
 const shortUrl='laescenalocal.es';
@@ -306,45 +346,57 @@ function draw(){ fillD(); const list=selItems(), n=list.length, rec=recFor(n); i
 // Hojas: se rellenan ficha a ficha y, si no cabe, pasa a la siguiente (lo mismo en pantalla que al imprimir)
 function sheet(cls,inner){ const w=document.createElement('div'); w.className='scaler'; w.innerHTML=`<div class="sheet ${cls}">${inner}</div>`; return w; }
 function paginate(wrap,make,blocks,onFull){ let pg=make(); wrap.appendChild(pg); let body=pg.querySelector('.pg-body');
-  for(let i=0;i<blocks.length;i++){ const t=document.createElement('div'); t.innerHTML=blocks[i]; const node=t.firstElementChild; body.appendChild(node);
+  for(let i=0;i<blocks.length;i++){ const t=document.createElement('div'); t.innerHTML=blocks[i]; const node=t.firstElementChild;
+    if(node.classList.contains('brk')&&body.children.length){ pg=make(true); wrap.appendChild(pg); body=pg.querySelector('.pg-body'); }
+    body.appendChild(node);
     if(body.scrollHeight>body.clientHeight+1&&body.children.length>1){ body.removeChild(node);
       if(onFull){ onFull(body,blocks.length-i); return; }
-      const carry=[]; while(body.lastElementChild&&body.lastElementChild.classList.contains('gh')) carry.unshift(body.removeChild(body.lastElementChild));
+      const carry=[]; while(body.lastElementChild&&/\b(gh|sh)\b/.test(body.lastElementChild.className)) carry.unshift(body.removeChild(body.lastElementChild));
       pg=make(true); wrap.appendChild(pg); body=pg.querySelector('.pg-body'); carry.forEach(c=>body.appendChild(c)); body.appendChild(node); } } }
-function blocksFor(list,entry,withHeads){ const b=[]; groups(list).forEach(([g,l])=>{ if(withHeads&&g) b.push(`<div class="gh">${esc(g)}<span>${l.length}</span></div>`); l.forEach(e=>b.push(entry(e))); }); return b; }
+function blocksFor(list,entry,withHeads,brk){ const b=[], secs=sections(list), two=secs.length>1;
+  secs.forEach((s,i)=>{ if(two) b.push(secHead(s,brk&&i>0));
+    groups(s.l).forEach(([g,l])=>{ if(withHeads&&g) b.push(`<div class="gh" data-k="${s.k}|${esc(g)}">${esc(g)}<span>${l.length}</span></div>`); l.forEach(e=>b.push(entry(e))); }); }); return b; }
 const entPrint=(e,desc)=>{ const t=tagsOf(e); return `<div class="ent">${avatar(e)}<div><b>${esc(e.n)}</b><div class="k">${esc(kindLine(e))}</div>${desc&&e.t?`<div class="ds">${esc(e.t.length>150?e.t.slice(0,147).trim()+'…':e.t)}</div>`:''}${t.length||verbs(e)?`<div class="tg">${esc([t.join(', '),verbs(e)].filter(Boolean).join(' — '))}</div>`:''}${e.ig?`<div class="hdl">@${esc(e.ig)}</div>`:''}</div></div>`; };
 const qrBox=()=>`<div class="qr" data-qr="1"></div>`;
 const footA=()=>`<div class="ft">${qrBox()}<p><b>Toda la escena en ${shortUrl}</b><br>Proyectos, grupos y espacios de ${esc(G.city)}. ¿Falta alguien? Escríbenos a @laescenalocal.es</p><p class="date">Actualizada el<br>${hoyTxt()}</p></div>`;
 function drawA4(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap);
   const head=`<div class="hd"><div><div class="kick">Guía de la escena · ${esc(G.city)}</div><h1>${esc(titleOf())}</h1><div class="sub"><b>${list.length}</b> proyectos, grupos y espacios de ${esc(G.city)} y alrededores</div></div><div class="lg">${LOGO}</div></div>`;
-  const big=list.length<=8?' big one':list.length<=16?' big':'';
-  let page=0; const make=cont=>{ page++; return sheet('a4'+big+(cont?' cont':''),`${cont?'':head}<div class="pg-body"></div>${footA()}`); };
-  const ev=evsOf(list), b=blocksFor(list,e=>entPrint(e,list.length<=8),true); if(ev.length) b.unshift(`<div class="evs"><div class="t">Próximos eventos</div>${ev.slice(0,5).map(evLine).join('')}<div class="x">De la agenda de prueba de este navegador. Toda la agenda en ${shortUrl}</div></div>`);
-  paginate(wrap,make,b); }
+  // Si son pocas, letra grande; pero si así no cabe en una hoja, se prueba más compacto antes de pasar a dos
+  const tries=list.length<=8?[' big one',' big','']:list.length<=16?[' big','']:[''], ev=evsOf(list);
+  for(let t=0;t<tries.length;t++){ const big=tries[t]; wrap.innerHTML='';
+    const make=cont=>sheet('a4'+big+(cont?' cont':''),`${cont?'':head}<div class="pg-body"></div>${footA()}`);
+    const b=blocksFor(list,e=>entPrint(e,big===' big one'),true,list.length>16); if(ev.length) b.unshift(`<div class="evs"><div class="t">Próximos eventos</div>${ev.slice(0,5).map(evLine).join('')}<div class="x">De la agenda de prueba de este navegador. Toda la agenda en ${shortUrl}</div></div>`);
+    paginate(wrap,make,b); if(wrap.children.length===1) break; }
+  if(wrap.children.length>1&&list.length<=16){ wrap.innerHTML=''; const big=tries[0];
+    paginate(wrap,cont=>sheet('a4'+big+(cont?' cont':''),`${cont?'':head}<div class="pg-body"></div>${footA()}`),blocksFor(list,e=>entPrint(e,big===' big one'),true,true)); } }
 function drawFlyer(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap);
   const inner=`<div class="top"><div class="lg">${LOGO}</div><div class="kick">La escena de ${esc(G.city)}</div><h1>${esc(titleOf())}</h1><div class="sub">${list.length} ${list.length===1?'proyecto':'proyectos y espacios'} que puedes conocer</div></div><div class="pg-body"></div><div class="ft">${qrBox()}<p><b>${shortUrl}</b><br>Encuéntralos a todos, con sus clases, jams y eventos.</p></div>`;
   const li=e=>`<div class="li"><div><b>${esc(e.n)}</b><span>${esc([kindLine(e),tagsOf(e).slice(0,2).join(', ')].filter(Boolean).join(' · '))}</span></div>${e.ig?`<i>@${esc(e.ig)}</i>`:''}</div>`;
-  paginate(wrap,()=>sheet('a5 flyer',inner),list.map(li),(body,left)=>{ const more=()=>`<div class="more">y ${left} más en ${shortUrl}</div>`; const t=document.createElement('div'); t.innerHTML=more(); body.appendChild(t.firstElementChild);
+  const secs=sections(list), fb=[]; secs.forEach(s=>{ if(secs.length>1) fb.push(secHead(s)); groups(s.l).forEach(([g,l])=>l.forEach(e=>fb.push(li(e)))); });
+  paginate(wrap,()=>sheet('a5 flyer',inner),fb,(body,left)=>{ const more=()=>`<div class="more">y ${left} más en ${shortUrl}</div>`; const t=document.createElement('div'); t.innerHTML=more(); body.appendChild(t.firstElementChild);
     while(body.scrollHeight>body.clientHeight+1&&body.children.length>2){ body.removeChild(body.lastElementChild); body.removeChild(body.lastElementChild); left++; const u=document.createElement('div'); u.innerHTML=more(); body.appendChild(u.firstElementChild); } }); }
 function drawIg(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap);
   wrap.appendChild(sheet('ig cover',`<div class="lg">${LOGO}</div><div><div class="kick">La escena de ${esc(G.city)}</div><h1>${esc(titleOf())}</h1><div class="sub">${list.length} ${list.length===1?'proyecto':'proyectos y espacios'} que quizá no conocías</div></div><div class="swipe"><span>${shortUrl}</span><span>Desliza →</span></div>`));
   const make=()=>sheet('ig',`<div class="hdi"><b>${esc(titleOf())}</b><span class="kick">${esc(G.city)}</span></div><div class="pg-body"></div><div class="pgnum"><span>@laescenalocal.es</span><span class="pn"></span></div>`);
-  paginate(wrap,make,blocksFor(list,entPrint,!!G.d&&groups(list).length>1));
+  paginate(wrap,make,blocksFor(list,entPrint,!!G.d,true));
   wrap.appendChild(sheet('ig end',`<h2>Encuéntralos a todos en la web</h2><p>Con sus clases, jams y eventos. Sin algoritmos: exploras tú.</p><div class="url">${shortUrl}</div><p>¿Falta alguien? Escríbenos y lo añadimos.</p>`));
   const pages=[...wrap.querySelectorAll('.sheet')]; pages.forEach((p,i)=>{ const pn=p.querySelector('.pn'); if(pn) pn.textContent=(i+1)+' / '+pages.length; }); }
-function drawZine(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap); const gs=groups(list);
+function drawZine(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap); const secs=sections(list), two=secs.length>1;
+  const rows=[]; secs.forEach(s=>{ const gs=groups(s.l); if(two) rows.push(`<div class="is" data-g="${s.k}"><span class="n">${s.t}<small>${esc(s.s.toLowerCase())} · ${s.l.length}</small></span><span class="p">p. –</span></div>`);
+    gs.forEach(([g,l])=>{ if(g||!two) rows.push(`<div data-g="${s.k}|${esc(g)}"><span class="n">${esc(g||titleOf())} <em>· ${l.length}</em></span><span class="p">p. –</span></div>`); }); });
   wrap.appendChild(sheet('a5 zine cover',`<div class="lg">${LOGO}</div><div class="band"><div class="kick" style="color:inherit">Guía de la escena</div><h1>${esc(G.d?G.d+' en '+G.city:'La escena de '+G.city)}</h1></div><div><p style="margin:0 0 3mm;font-size:11pt">${list.length} proyectos, grupos y espacios: quién hace qué, dónde y cómo encontrarlos.</p><div class="meta"><span>${hoyTxt()}</span><span>${shortUrl}</span></div></div>`));
-  const idx=sheet('a5 zine',`<h2 class="ih">En este fanzine</h2><div class="idx">${gs.map(([g,l])=>`<div data-g="${esc(g)}"><span class="n">${esc(g||titleOf())} <em>· ${l.length}</em></span><span class="p">p. –</span></div>`).join('')}</div><p class="howto">Cada ficha lleva su Instagram: escríbeles directamente. Todo esto, actualizado y con sus clases y eventos, en ${shortUrl}</p><div class="pgnum"><span>La Escena Local</span><span class="pn"></span></div>`); wrap.appendChild(idx);
+  const idx=sheet('a5 zine',`<h2 class="ih">En este fanzine</h2><div class="idx">${rows.join('')}</div><p class="howto">Cada ficha lleva su Instagram: escríbeles directamente. Todo esto, actualizado y con sus clases y eventos, en ${shortUrl}</p><div class="pgnum"><span>La Escena Local</span><span class="pn"></span></div>`); wrap.appendChild(idx);
   const make=()=>sheet('a5 zine',`<div class="pg-body"></div><div class="pgnum"><span>${esc(G.d?G.d+' · ':'')}${esc(G.city)}</span><span class="pn"></span></div>`);
-  paginate(wrap,make,blocksFor(list,entPrint,true));
+  paginate(wrap,make,blocksFor(list,entPrint,true,true));
+  const fill=(4-(wrap.children.length+1)%4)%4; for(let k=0;k<fill;k++) wrap.appendChild(sheet('a5 zine notes',`<h2 class="ih">${k?'Más notas':'Tus notas'}</h2><p class="howto" style="margin:0 0 4mm">${k?'':'Apunta aquí los que te recomienden, los que descubras y los planes que no quieras perderte.'}</p><div class="lines"></div><div class="pgnum"><span>La Escena Local</span><span class="pn"></span></div>`));
   wrap.appendChild(sheet('a5 zine back',`<h2>¿Falta alguien?</h2><p>La escena la hacéis vosotros. Si conoces un proyecto, grupo o espacio que no está, cuéntanoslo.</p>${qrBox()}<p><b>${shortUrl}</b><br>@laescenalocal.es</p>`));
   const pages=[...wrap.querySelectorAll('.sheet')]; pages.forEach((p,i)=>{ const pn=p.querySelector('.pn'); if(pn) pn.textContent=i+1; });
-  idx.querySelectorAll('[data-g]').forEach(r=>{ const g=r.dataset.g, i=pages.findIndex(p=>[...p.querySelectorAll('.gh')].some(h=>h.firstChild&&h.firstChild.textContent===g)); if(i>=0) r.querySelector('.p').textContent='p. '+(i+1); });
-  if(pages.length%4) $('#gHint').textContent+=` Tiene ${pages.length} páginas; para doblarlo como folleto conviene un múltiplo de 4.`; }
+  idx.querySelectorAll('[data-g]').forEach(r=>{ const g=r.dataset.g; let i=pages.findIndex(p=>[...p.querySelectorAll('[data-k]')].some(x=>x.dataset.k===g)); if(i<0) i=pages.findIndex(p=>p.querySelector('.ent')); if(i>=0) r.querySelector('.p').textContent='p. '+(i+1); });
+  $('#gHint').textContent+=` ${pages.length} páginas${fill?` (${fill===1?'la de notas completa':'las '+fill+' de notas completan'} el folleto)`:''}.`; }
 function drawWeb(list,out){ const ev=evsOf(list);
   out.innerHTML=`<article class="web"><header class="whd"><div class="lg">${LOGO}</div><div class="kick">Guía de la escena · ${esc(G.city)} · actualizada el ${hoyTxt()}</div><h1>${esc(titleOf())}</h1><p><b>${list.length}</b> proyectos, grupos y espacios de ${esc(G.city)}. Escríbeles directamente: cada ficha lleva su Instagram.</p></header>
   ${ev.length?`<div class="wevs"><div class="t">Próximos eventos</div>${ev.slice(0,6).map(evLine).join('')}<div class="x">De la agenda de prueba de este navegador.</div></div>`:''}
-  ${groups(list).map(([g,l])=>`${g?`<h2 class="wg">${esc(g)}<span>${l.length}</span></h2>`:''}<div class="wcards">${l.map(e=>{ const t=tagsOf(e); return `<div class="wc">${avatar(e)}<div><h3>${esc(e.n)}</h3><div class="k">${esc([kindLine(e),verbs(e)].filter(Boolean).join(' · '))}</div>${e.t?`<p class="d">${esc(e.t.length>140?e.t.slice(0,137).trim()+'…':e.t)}</p>`:''}${t.length?`<div class="tg">${t.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}${e.ig?`<a class="igb" href="https://www.instagram.com/${encodeURIComponent(e.ig)}/" target="_blank" rel="noopener">@${esc(e.ig)}</a>`:''}</div></div>`; }).join('')}</div>`).join('')}
+  ${sections(list).map((s,_,all)=>`${all.length>1?`<div class="wsh"><b>${s.t}</b><span>${s.s}</span><small>${s.l.length}</small></div>`:''}${groups(s.l).map(([g,l])=>`${g?`<h2 class="wg">${esc(g)}<span>${l.length}</span></h2>`:''}<div class="wcards">${l.map(e=>{ const t=tagsOf(e); return `<div class="wc">${avatar(e)}<div><h3>${esc(e.n)}</h3><div class="k">${esc([kindLine(e),verbs(e)].filter(Boolean).join(' · '))}</div>${e.t?`<p class="d">${esc(e.t.length>140?e.t.slice(0,137).trim()+'…':e.t)}</p>`:''}${t.length?`<div class="tg">${t.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}${e.ig?`<a class="igb" href="https://www.instagram.com/${encodeURIComponent(e.ig)}/" target="_blank" rel="noopener">@${esc(e.ig)}</a>`:''}</div></div>`; }).join('')}</div>`).join('')}`).join('')}
   <div class="wend"><h2>Toda la escena de ${esc(G.city)}</h2><p>Con filtros por lo que te apetece, por formato y para ir con peques.</p><a href="${esc(webUrl())}">Abrir La Escena Local</a></div></article>`; }
 // Escalar las hojas para que quepan en la pantalla
 function fit(){ const W=Math.min(document.documentElement.clientWidth-32,1100);
