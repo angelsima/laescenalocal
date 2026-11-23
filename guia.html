@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guías de la escena · Prueba · La Escena Local</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style id="pagesz">@page{size:A4;margin:0}</style>
+<style>
+:root{
+  --amarillo:#FFD36B; --amarillo-ink:#2B1B3D; --acento:#117266; --acento-ink:#FFFFFF;
+  --bg:#FAF5F0; --surface:#FFFFFF; --ink:#2B1B3D; --muted:#5F5568; --faint:#A89FAE; --line:#E8DFDE; --soft:#F3ECE9;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#E9E2DE;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+body.fmt-web{background:var(--bg)}
+button,select{font:inherit;color:inherit}
+a{color:inherit}
+.testbar{background:var(--amarillo);color:var(--amarillo-ink);font-size:13px;text-align:center;padding:6px 12px;font-weight:500}
+/* ---- Panel de control (no se imprime) ---- */
+.ctrl{max-width:1100px;margin:0 auto;padding:16px 16px 6px;display:grid;gap:12px}
+.ctrl h1{margin:0;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.ctrl h1 small{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--muted);letter-spacing:0;margin-left:6px}
+.ctrl .row{display:flex;flex-wrap:wrap;gap:10px}
+.ctrl label{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.ctrl select{min-width:200px;max-width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;color:var(--ink);font-weight:500}
+.fmts{display:flex;flex-wrap:wrap;gap:6px}
+.fmts button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-family:var(--display);font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.fmts button small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted)}
+.fmts button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fmts button[aria-pressed="true"] small{color:var(--amarillo)}
+.fmts .rec{font-family:var(--body);font-size:10.5px;font-weight:600;background:var(--amarillo);color:var(--amarillo-ink);border-radius:999px;padding:1px 7px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--ink);background:transparent;border-radius:999px;padding:7px 16px;font-weight:600;font-size:14px;cursor:pointer}
+.btn.cta{background:var(--amarillo);border-color:var(--amarillo-ink)}
+.btn[hidden]{display:none}
+#out{padding:12px 0 40px}
+.loading{text-align:center;color:var(--muted);padding:60px 16px}
+/* ---- Hojas (A4, A5, Instagram) vistas en pantalla, escaladas para que quepan ---- */
+.sheets{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;padding:0 16px}
+.scaler{position:relative;flex:none}
+.scaler>.sheet{position:absolute;top:0;left:0;transform-origin:0 0}
+.sheet{background:#FFFDFB;color:var(--ink);box-shadow:0 10px 30px rgba(43,27,61,.18);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.sheet.a4{width:210mm;height:297mm;padding:13mm 13mm 11mm}
+.sheet.a5{width:148mm;height:210mm;padding:10mm 10mm 8mm}
+.sheet.ig{width:1080px;height:1350px;padding:84px 80px 70px;font-size:30px}
+.pg-body{flex:1;min-height:0;overflow:hidden;display:grid;align-content:start}
+.pgnum{font-family:var(--mono);font-size:8pt;color:var(--muted);display:flex;justify-content:space-between;padding-top:3mm;border-top:.5pt solid var(--line);margin-top:3mm}
+/* Cabecera común */
+.kick{font-family:var(--mono);font-size:8pt;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lg svg{display:block;height:100%;width:auto}
+/* A4 */
+.a4 .hd{display:grid;grid-template-columns:1fr auto;gap:6mm;align-items:end;padding-bottom:5mm;border-bottom:1.5pt solid var(--ink);margin-bottom:5mm}
+.a4 .hd .lg{height:20mm}
+.a4 h1{font-family:var(--display);font-weight:800;font-size:38pt;line-height:.95;letter-spacing:-.03em;margin:2mm 0 0}
+.a4 .sub{font-size:10.5pt;margin-top:2mm}
+.a4 .sub b{font-family:var(--display)}
+.a4 .pg-body{grid-template-columns:1fr 1fr;column-gap:7mm;row-gap:3.2mm}
+.a4.cont .pg-body{padding-top:2mm}
+.a4.big .pg-body{row-gap:5mm;column-gap:9mm}
+.a4.big.one .pg-body{grid-template-columns:1fr}
+.a4.big .ent{grid-template-columns:auto 1fr;gap:4mm}
+.a4.big .ent .av{width:15mm;height:15mm;font-size:11pt;border-width:.9pt}
+.a4.big .ent .av.sp{border-radius:3.5mm}
+.a4.big .ent b{font-size:15pt}
+.a4.big .ent .k,.a4.big .ent .tg{font-size:9.5pt}
+.a4.big .ent .hdl{font-size:9pt}
+.ent .ds{font-size:8.5pt;line-height:1.35;margin:1mm 0 .5mm;max-width:150mm}
+.a4.big .ent .ds{font-size:10pt}
+.gh{grid-column:1/-1;font-family:var(--display);font-weight:800;font-size:13pt;letter-spacing:-.01em;border-bottom:.8pt solid var(--ink);padding:2.5mm 0 1mm;margin-top:1mm;display:flex;justify-content:space-between;align-items:baseline}
+.gh span{font-family:var(--mono);font-weight:400;font-size:8pt;color:var(--muted)}
+.ent{break-inside:avoid;display:grid;grid-template-columns:auto 1fr;gap:2.5mm;align-items:start}
+.ent .av{width:9mm;height:9mm;border-radius:50%;border:.6pt solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:7.5pt;overflow:hidden;position:relative;background:var(--soft)}
+.ent .av.sp{border-radius:2.2mm}
+.ent .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ent b{font-family:var(--display);font-size:10.5pt;line-height:1.1;display:block}
+.ent .k{font-size:7.8pt;color:var(--muted);line-height:1.3}
+.ent .tg{font-size:7.8pt;line-height:1.3}
+.ent .hdl{font-family:var(--mono);font-size:7.5pt;color:var(--acento)}
+.ft{display:grid;grid-template-columns:auto 1fr auto;gap:5mm;align-items:center;border-top:1.5pt solid var(--ink);padding-top:4mm;margin-top:4mm}
+.qr{width:22mm;height:22mm;display:grid;place-items:center;background:#fff}
+.qr svg{width:100%;height:100%;display:block}
+.qr .noqr{font-family:var(--mono);font-size:6pt;text-align:center;color:var(--muted);border:.6pt dashed var(--faint);width:100%;height:100%;display:grid;place-items:center;padding:1mm}
+.ft p{margin:0;font-size:9pt;line-height:1.35}
+.ft p b{font-family:var(--display);font-size:12pt}
+.ft .date{font-family:var(--mono);font-size:7.5pt;color:var(--muted);text-align:right}
+.evs{grid-column:1/-1;background:var(--soft);border-radius:2mm;padding:2.5mm 3.5mm;display:grid;gap:1mm;font-size:8.5pt}
+.evs .t{font-family:var(--display);font-weight:800;font-size:10.5pt}
+.evs .e b{font-family:var(--mono);font-weight:500;font-size:7.8pt;margin-right:1.5mm}
+.evs .x{font-size:7pt;color:var(--muted)}
+/* Flyer A5 */
+.sheet.flyer{background:var(--ink);color:#FAF5F0;padding:0}
+.flyer .top{background:var(--amarillo);color:var(--amarillo-ink);padding:9mm 9mm 7mm;clip-path:polygon(0 0,100% 0,100% 86%,0 100%)}
+.flyer .top .lg{height:12mm;margin-bottom:5mm}
+.flyer .top .kick{color:var(--amarillo-ink)}
+.flyer h1{font-family:var(--display);font-weight:800;font-size:34pt;line-height:.92;letter-spacing:-.03em;margin:1.5mm 0 2mm}
+.flyer .sub{font-size:10pt;font-weight:600;padding-bottom:5mm}
+.flyer .pg-body{padding:3mm 9mm 0;row-gap:2.6mm}
+.flyer .li{display:grid;grid-template-columns:1fr auto;gap:3mm;align-items:baseline;border-bottom:.5pt dashed rgba(250,245,240,.3);padding-bottom:1.8mm}
+.flyer .li b{font-family:var(--display);font-size:11.5pt}
+.flyer .li span{font-size:8pt;opacity:.75;display:block}
+.flyer .li i{font-style:normal;font-family:var(--mono);font-size:7.5pt;color:var(--amarillo)}
+.flyer .more{font-family:var(--display);font-weight:600;font-size:11pt;color:var(--amarillo)}
+.flyer .ft{border-top:0;margin:0;padding:4mm 9mm 8mm;grid-template-columns:auto 1fr}
+.flyer .qr{width:24mm;height:24mm;padding:1.5mm;border-radius:2mm}
+.flyer .ft p b{color:var(--amarillo)}
+/* Instagram 1080×1350 */
+.ig .kick{font-size:22px}
+.ig.cover{background:var(--amarillo);color:var(--amarillo-ink);justify-content:space-between}
+.ig.cover .lg{height:170px}
+.ig.cover h1{font-family:var(--display);font-weight:800;font-size:150px;line-height:.9;letter-spacing:-.04em;margin:18px 0 26px}
+.ig.cover .sub{font-size:40px;font-weight:600}
+.ig.cover .swipe{font-family:var(--display);font-weight:800;font-size:38px;display:flex;justify-content:space-between;align-items:center}
+.ig .hdi{display:flex;justify-content:space-between;align-items:baseline;border-bottom:4px solid var(--ink);padding-bottom:18px;margin-bottom:34px}
+.ig .hdi b{font-family:var(--display);font-weight:800;font-size:46px;letter-spacing:-.02em}
+.ig .pg-body{row-gap:28px}
+.ig .gh{font-size:34px;border-bottom-width:2px;padding:10px 0 6px}
+.ig .gh span{font-size:20px}
+.ig .ent{grid-template-columns:130px 1fr;gap:30px;align-items:center}
+.ig .ent .av{width:130px;height:130px;font-size:42px;border-width:3px}
+.ig .ent .av.sp{border-radius:30px}
+.ig .ent b{font-size:46px}
+.ig .ent .k{font-size:26px}
+.ig .ent .tg{font-size:26px}
+.ig .ent .hdl{font-size:26px}
+.ig .pgnum{font-size:20px;padding-top:18px;margin-top:18px;border-top-width:2px}
+.ig.end{background:var(--ink);color:#FAF5F0;justify-content:center;gap:40px}
+.ig.end h2{font-family:var(--display);font-weight:800;font-size:96px;line-height:.95;letter-spacing:-.03em;margin:0}
+.ig.end p{font-size:38px;margin:0;opacity:.9}
+.ig.end .url{font-family:var(--display);font-weight:800;font-size:60px;color:var(--amarillo)}
+/* Fanzine A5 */
+.zine.cover{background:var(--ink);color:#FAF5F0;justify-content:space-between}
+.zine.cover .band{background:var(--amarillo);color:var(--amarillo-ink);margin:0 -10mm;padding:7mm 10mm 9mm;clip-path:polygon(0 8%,100% 0,100% 92%,0 100%)}
+.zine.cover h1{font-family:var(--display);font-weight:800;font-size:36pt;line-height:.92;letter-spacing:-.03em;margin:0}
+.zine.cover .lg{height:16mm}
+.zine.cover .lg svg path{fill:#FAF5F0!important;stroke:#FAF5F0!important}
+.zine.cover .meta{font-family:var(--mono);font-size:8pt;opacity:.8;display:flex;justify-content:space-between}
+.zine .ih{font-family:var(--display);font-weight:800;font-size:18pt;letter-spacing:-.02em;margin:0 0 4mm}
+.zine .idx{display:grid;gap:1.6mm;font-size:10pt}
+.zine .idx div{display:grid;grid-template-columns:1fr auto;border-bottom:.5pt dotted var(--faint);padding-bottom:1mm}
+.zine .idx .p{font-family:var(--mono);font-size:8.5pt}
+.zine .idx em{font-style:normal;color:var(--muted);font-size:8.5pt}
+.zine .howto{margin-top:6mm;font-size:9pt;color:var(--muted)}
+.zine .pg-body{row-gap:2.8mm}
+.zine.back{background:var(--amarillo);color:var(--amarillo-ink);justify-content:center;gap:6mm;text-align:center;align-items:center}
+.zine.back h2{font-family:var(--display);font-weight:800;font-size:24pt;line-height:.95;margin:0}
+.zine.back p{margin:0;font-size:10pt}
+.zine.back .qr{width:34mm;height:34mm;padding:2mm;border-radius:2mm}
+/* Web */
+.web{max-width:820px;margin:0 auto;padding:8px 16px 40px}
+.web .whd{display:grid;gap:8px;padding:18px 0 22px;border-bottom:2px solid var(--ink);margin-bottom:18px}
+.web .whd .lg{height:64px}
+.web h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,9vw,72px);line-height:.92;letter-spacing:-.035em;margin:4px 0 0}
+.web .whd p{margin:0;font-size:16px}
+.web .wg{margin:26px 0 10px;font-family:var(--display);font-weight:800;font-size:22px;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:6px}
+.web .wg span{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--muted)}
+.wcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.wc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start}
+.wc .av{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px;overflow:hidden;position:relative;background:var(--soft)}
+.wc .av.sp{border-radius:12px}
+.wc .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wc h3{margin:0;font-family:var(--display);font-size:17px;line-height:1.15}
+.wc .k{font-size:12.5px;color:var(--muted)}
+.wc .d{font-size:13.5px;margin:4px 0 0}
+.wc .tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.wc .tg span{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:0 8px;background:var(--bg)}
+.wc a.igb{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:12.5px;color:var(--acento);text-decoration:none}
+.wevs{background:var(--soft);border-radius:14px;padding:12px 16px;margin:18px 0;display:grid;gap:4px;font-size:14px}
+.wevs .t{font-family:var(--display);font-weight:800;font-size:18px}
+.wevs b{font-family:var(--mono);font-weight:500;font-size:12.5px;margin-right:6px}
+.wevs .x{font-size:12px;color:var(--muted)}
+.wend{margin-top:30px;background:var(--ink);color:var(--bg);border-radius:18px;padding:20px;display:grid;gap:10px}
+.wend h2{margin:0;font-family:var(--display);font-weight:800;font-size:26px}
+.wend p{margin:0}
+.wend a{display:inline-block;background:var(--amarillo);color:var(--amarillo-ink);border-radius:999px;padding:9px 18px;font-weight:700;text-decoration:none;justify-self:start}
+@media print{
+  html,body{background:#fff!important}
+  .noprint,.testbar{display:none!important}
+  #out{padding:0}
+  .sheets{display:block;padding:0}
+  .scaler{width:auto!important;height:auto!important;break-after:page;page-break-after:always}
+  .scaler>.sheet{position:static;transform:none!important;box-shadow:none}
+  .scaler:last-child{break-after:auto;page-break-after:auto}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="testbar noprint">Versión de prueba · Guías generadas con los datos de la web</div>
+<div class="ctrl noprint">
+  <h1>Guías de la escena <small>prueba</small></h1>
+  <div class="row">
+    <label for="gCity">Ciudad<select id="gCity"></select></label>
+    <label for="gD">¿De qué?<select id="gD"></select></label>
+  </div>
+  <div class="fmts" id="gFmts" role="group" aria-label="Formato"></div>
+  <p class="hint" id="gHint"></p>
+  <div class="acts">
+    <button type="button" class="btn cta" id="gPrint">Imprimir o guardar en PDF</button>
+    <button type="button" class="btn cta" id="gPng" hidden>Descargar las imágenes</button>
+    <button type="button" class="btn" id="gCopy">Copiar el enlace de esta guía</button>
+  </div>
+</div>
+<main id="out"><p class="loading">Cargando la escena…</p></main>
+<script>
+const CFG={url:'https://edywflfxiwcujhkjgowu.supabase.co',key:'sb_publishable_lV05cEROK_oS3JIPv0xDIw_3hku5Xar'};
+const WEB='https://laescenalocal.es/';
+const LOGO=`<svg class="logo" viewBox="-2.0 -2.0 484.2 209.1" role="img" aria-label="La Escena Local" focusable="false"><polygon points="0.0,202.9 31.2,52.9 482.2,2.5 451.0,152.5" fill="#FFD36B"/><path style="fill:var(--acento);stroke:var(--acento)" transform="translate(36.0,34.6)" d="M3.504 0.0V-31.68H10.416V0.0ZM4.944 0.0V-5.808H23.808V0.0Z M32.976 0.672Q30.864 0.672 29.232 -0.16799999999999998Q27.6 -1.008 26.688000000000002 -2.592Q25.776 -4.176 25.776 -6.5280000000000005Q25.776 -8.592 26.567999999999998 -9.984Q27.36 -11.376 28.896 -12.24Q30.432000000000002 -13.104000000000001 32.688 -13.68Q34.944 -14.256 37.824 -14.688Q39.36 -14.928 40.344 -15.144Q41.328 -15.36 41.808 -15.864Q42.288 -16.368000000000002 42.288 -17.328Q42.288 -18.672 41.327999999999996 -19.631999999999998Q40.367999999999995 -20.592 38.304 -20.592Q36.912 -20.592 35.736000000000004 -20.112000000000002Q34.56 -19.632 33.72 -18.672Q32.88 -17.712 32.496 -16.224L26.4 -18.096Q26.976 -20.064 28.055999999999997 -21.503999999999998Q29.136 -22.944 30.671999999999997 -23.927999999999997Q32.208 -24.912 34.176 -25.392Q36.144 -25.872 38.448 -25.872Q42.144000000000005 -25.872 44.472 -24.695999999999998Q46.8 -23.52 47.952 -21.048000000000002Q49.104 -18.576 49.104 -14.688V-10.368Q49.104 -8.688 49.176 -6.960000000000001Q49.248000000000005 -5.232 49.368 -3.48Q49.488 -1.728 49.632000000000005 0.0H43.536Q43.344 -1.2 43.176 -2.7600000000000002Q43.007999999999996 -4.32 42.912 -5.904H42.048Q41.376000000000005 -4.08 40.128 -2.592Q38.88 -1.104 37.08 -0.21600000000000003Q35.28 0.672 32.976 0.672ZM35.903999999999996 -4.32Q36.816 -4.32 37.752 -4.656000000000001Q38.688 -4.992 39.576 -5.5920000000000005Q40.464 -6.192 41.208 -7.104Q41.952 -8.016 42.432 -9.168000000000001L42.336 -13.200000000000001L43.44 -12.96Q42.576 -12.336 41.42400000000001 -11.975999999999999Q40.272000000000006 -11.616 39.048 -11.424Q37.824 -11.232000000000001 36.623999999999995 -10.992Q35.424 -10.752 34.488 -10.368Q33.552 -9.984 33.0 -9.336Q32.448 -8.688 32.448 -7.5360000000000005Q32.448 -6.048 33.408 -5.184Q34.368 -4.32 35.903999999999996 -4.32Z" stroke-width="1.6" stroke-linejoin="round"/><path style="fill:var(--amarillo-ink);stroke:var(--amarillo-ink)" transform="translate(38.4,146.5)" d="M8.76 0.0V-79.2H26.16V0.0ZM20.759999999999998 0.0V-14.04H69.84V0.0ZM20.759999999999998 -33.6V-46.44H63.839999999999996V-33.6ZM20.759999999999998 -65.28V-79.2H69.6V-65.28Z M104.03999999999999 1.68Q97.68 1.68 92.52000000000001 0.48Q87.36 -0.72 83.64 -2.9999999999999996Q79.92 -5.279999999999999 77.64 -8.459999999999999Q75.36 -11.639999999999999 74.64 -15.6L87.84 -21.0Q88.32 -18.36 90.47999999999999 -16.08Q92.64 -13.799999999999999 96.30000000000001 -12.419999999999998Q99.96000000000001 -11.04 105.12 -11.04Q110.64 -11.04 113.64 -12.66Q116.64 -14.28 116.64 -17.28Q116.64 -19.56 114.96000000000001 -20.88Q113.28 -22.2 110.03999999999999 -23.159999999999997Q106.8 -24.119999999999997 102.24000000000001 -24.96Q97.8 -26.04 93.18 -27.24Q88.56 -28.439999999999998 84.66 -30.599999999999998Q80.76 -32.76 78.30000000000001 -36.3Q75.84 -39.839999999999996 75.84 -45.36Q75.84 -51.12 78.96000000000001 -55.44Q82.08 -59.76 88.08 -62.22Q94.08 -64.67999999999999 102.72 -64.67999999999999Q110.52000000000001 -64.67999999999999 116.4 -62.58Q122.28 -60.48 126.06 -56.58Q129.84 -52.68 131.16 -47.28L117.12 -42.6Q116.64 -45.48 114.78 -47.64Q112.92 -49.8 109.86 -50.879999999999995Q106.8 -51.96 102.72 -51.96Q97.56 -51.96 94.74000000000001 -50.28Q91.92 -48.6 91.92 -45.839999999999996Q91.92 -43.559999999999995 93.78 -42.12Q95.64 -40.68 99.0 -39.78Q102.36 -38.879999999999995 106.92 -37.92Q111.72 -36.96 116.28 -35.7Q120.84 -34.44 124.5 -32.4Q128.16 -30.36 130.32 -27.0Q132.48 -23.64 132.48 -18.36Q132.48 -12.12 129.12 -7.619999999999999Q125.75999999999999 -3.12 119.39999999999999 -0.7200000000000001Q113.03999999999999 1.68 104.03999999999999 1.68Z M169.68 1.68Q161.51999999999998 1.68 155.39999999999998 -0.7200000000000001Q149.28 -3.12 145.2 -7.4399999999999995Q141.12 -11.76 139.07999999999998 -17.7Q137.04 -23.64 137.04 -30.72Q137.04 -38.16 139.14 -44.339999999999996Q141.24 -50.519999999999996 145.32 -55.08Q149.4 -59.64 155.39999999999998 -62.16Q161.39999999999998 -64.67999999999999 169.07999999999998 -64.67999999999999Q176.76 -64.67999999999999 182.45999999999998 -62.16Q188.16 -59.64 191.7 -55.14Q195.24 -50.64 196.56 -44.519999999999996L180.6 -39.36Q180.24 -43.08 178.62 -45.78Q177.0 -48.48 174.3 -49.86Q171.6 -51.239999999999995 168.24 -51.239999999999995Q164.76 -51.239999999999995 162.24 -49.86Q159.72 -48.48 157.98000000000002 -45.9Q156.24 -43.32 155.34 -39.66Q154.44 -36.0 154.44 -31.439999999999998Q154.44 -24.96 156.18 -20.46Q157.92 -15.959999999999999 161.33999999999997 -13.62Q164.76 -11.28 169.79999999999998 -11.28Q174.6 -11.28 177.48 -13.14Q180.35999999999999 -15.0 181.74 -17.939999999999998Q183.12 -20.88 183.48 -24.0L198.6 -20.64Q198.0 -15.959999999999999 196.01999999999998 -11.879999999999999Q194.04 -7.8 190.44 -4.8Q186.83999999999997 -1.7999999999999998 181.73999999999998 -0.05999999999999994Q176.64 1.68 169.68 1.68Z M234.11999999999998 1.68Q226.32 1.68 220.26 -0.47999999999999987Q214.2 -2.6399999999999997 210.0 -6.719999999999999Q205.79999999999998 -10.799999999999999 203.57999999999998 -16.8Q201.35999999999999 -22.8 201.35999999999999 -30.36Q201.35999999999999 -37.8 203.45999999999998 -44.099999999999994Q205.56 -50.4 209.64 -55.019999999999996Q213.72 -59.64 219.6 -62.16Q225.48 -64.67999999999999 232.92 -64.67999999999999Q240.11999999999998 -64.67999999999999 245.76 -62.339999999999996Q251.39999999999998 -60.0 255.17999999999998 -55.32Q258.96 -50.64 260.7 -43.86Q262.44 -37.08 261.96 -28.32L212.51999999999998 -27.84V-37.32L252.0 -37.68L245.88 -32.879999999999995Q246.71999999999997 -39.24 245.03999999999996 -43.32Q243.35999999999999 -47.4 240.18 -49.31999999999999Q237.0 -51.239999999999995 233.16 -51.239999999999995Q228.6 -51.239999999999995 225.12 -48.839999999999996Q221.64 -46.44 219.71999999999997 -41.81999999999999Q217.79999999999998 -37.199999999999996 217.79999999999998 -30.72Q217.79999999999998 -20.52 222.29999999999998 -15.719999999999999Q226.79999999999998 -10.92 234.11999999999998 -10.92Q237.48 -10.92 239.82 -11.82Q242.15999999999997 -12.719999999999999 243.65999999999997 -14.16Q245.15999999999997 -15.6 246.05999999999997 -17.4Q246.95999999999998 -19.2 247.56 -21.0L262.56 -17.759999999999998Q261.48 -13.32 259.38 -9.780000000000001Q257.28 -6.24 253.79999999999998 -3.66Q250.32 -1.08 245.45999999999998 0.29999999999999993Q240.6 1.68 234.11999999999998 1.68Z M270.96 0.0V-38.16V-63.0H285.11999999999995L284.99999999999994 -44.16H287.4Q288.96 -51.0 291.84 -55.56Q294.71999999999997 -60.12 299.09999999999997 -62.39999999999999Q303.47999999999996 -64.67999999999999 309.47999999999996 -64.67999999999999Q320.4 -64.67999999999999 326.09999999999997 -57.0Q331.79999999999995 -49.32 331.79999999999995 -32.879999999999995V0.0H314.4V-30.959999999999997Q314.4 -41.04 311.46 -45.66Q308.52 -50.28 302.87999999999994 -50.28Q298.08 -50.28 294.84 -47.28Q291.59999999999997 -44.28 289.97999999999996 -39.42Q288.35999999999996 -34.56 288.23999999999995 -28.56V0.0Z M357.84 1.68Q352.55999999999995 1.68 348.47999999999996 -0.42000000000000004Q344.4 -2.52 342.12 -6.4799999999999995Q339.84 -10.44 339.84 -16.32Q339.84 -21.48 341.81999999999994 -24.96Q343.79999999999995 -28.439999999999998 347.64 -30.599999999999998Q351.47999999999996 -32.76 357.12 -34.2Q362.76 -35.64 369.96 -36.72Q373.79999999999995 -37.32 376.26 -37.86Q378.71999999999997 -38.4 379.91999999999996 -39.66Q381.11999999999995 -40.92 381.11999999999995 -43.32Q381.11999999999995 -46.68 378.7199999999999 -49.08Q376.31999999999994 -51.48 371.15999999999997 -51.48Q367.67999999999995 -51.48 364.73999999999995 -50.28Q361.79999999999995 -49.08 359.69999999999993 -46.68Q357.59999999999997 -44.28 356.64 -40.559999999999995L341.4 -45.239999999999995Q342.84 -50.16 345.53999999999996 -53.76Q348.23999999999995 -57.36 352.0799999999999 -59.82Q355.91999999999996 -62.28 360.84 -63.48Q365.76 -64.67999999999999 371.52 -64.67999999999999Q380.76 -64.67999999999999 386.58 -61.739999999999995Q392.4 -58.8 395.28 -52.62Q398.15999999999997 -46.44 398.15999999999997 -36.72V-25.919999999999998Q398.15999999999997 -21.72 398.34 -17.4Q398.52 -13.08 398.81999999999994 -8.7Q399.11999999999995 -4.32 399.47999999999996 0.0H384.23999999999995Q383.76 -3.0 383.34 -6.8999999999999995Q382.91999999999996 -10.799999999999999 382.67999999999995 -14.76H380.52Q378.84 -10.2 375.71999999999997 -6.4799999999999995Q372.59999999999997 -2.76 368.09999999999997 -0.5399999999999999Q363.59999999999997 1.68 357.84 1.68ZM365.15999999999997 -10.799999999999999Q367.43999999999994 -10.799999999999999 369.78 -11.64Q372.11999999999995 -12.48 374.3399999999999 -13.98Q376.55999999999995 -15.479999999999999 378.41999999999996 -17.759999999999998Q380.28 -20.04 381.47999999999996 -22.919999999999998L381.23999999999995 -33.0L383.99999999999994 -32.4Q381.84 -30.84 378.96 -29.939999999999998Q376.08 -29.04 373.02 -28.56Q369.96 -28.08 366.96 -27.479999999999997Q363.96 -26.88 361.62 -25.92Q359.28 -24.96 357.9 -23.34Q356.52 -21.72 356.52 -18.84Q356.52 -15.12 358.91999999999996 -12.959999999999999Q361.32 -10.799999999999999 365.15999999999997 -10.799999999999999Z" stroke-width="3.2" stroke-linejoin="round"/><path style="fill:var(--acento);stroke:var(--acento)" transform="translate(317.9,202.7)" d="M2.3652 0.0V-21.384000000000004H7.030800000000001V0.0ZM3.3372000000000006 0.0V-3.9204000000000008H16.070400000000003V0.0Z M35.2188 0.45360000000000006Q32.886 0.45360000000000006 31.0392 -0.2754000000000001Q29.192400000000003 -1.0044000000000002 27.880200000000002 -2.4138000000000006Q26.568000000000005 -3.823200000000001 25.871400000000005 -5.880600000000001Q25.174800000000005 -7.9380000000000015 25.174800000000005 -10.594800000000001Q25.174800000000005 -14.385600000000002 26.503200000000003 -16.864200000000004Q27.8316 -19.342800000000004 30.148200000000003 -20.590200000000003Q32.464800000000004 -21.837600000000002 35.38080000000001 -21.837600000000002Q37.64880000000001 -21.837600000000002 39.49560000000001 -21.108600000000003Q41.342400000000005 -20.379600000000003 42.6546 -18.970200000000006Q43.966800000000006 -17.560800000000004 44.67960000000001 -15.471000000000004Q45.39240000000001 -13.381200000000002 45.39240000000001 -10.692000000000002Q45.39240000000001 -7.9380000000000015 44.67960000000001 -5.864400000000001Q43.966800000000006 -3.7908000000000004 42.62220000000001 -2.3814Q41.27760000000001 -0.9720000000000002 39.39840000000001 -0.2592000000000001Q37.519200000000005 0.45360000000000006 35.2188 0.45360000000000006ZM35.348400000000005 -3.2724000000000006Q37.0656 -3.2724000000000006 38.232000000000006 -4.114800000000001Q39.39840000000001 -4.957200000000001 40.01400000000001 -6.5448Q40.62960000000001 -8.1324 40.62960000000001 -10.432800000000002Q40.62960000000001 -12.830400000000003 39.99780000000001 -14.515200000000004Q39.36600000000001 -16.200000000000003 38.16720000000001 -17.091Q36.9684 -17.982000000000003 35.251200000000004 -17.982000000000003Q33.5664 -17.982000000000003 32.3838 -17.123400000000004Q31.201200000000004 -16.2648 30.5694 -14.644800000000002Q29.937600000000003 -13.024800000000003 29.937600000000003 -10.627200000000002Q29.937600000000003 -8.877600000000001 30.310200000000002 -7.5006Q30.682800000000004 -6.123600000000001 31.363200000000006 -5.184000000000001Q32.043600000000005 -4.244400000000001 33.048 -3.758400000000001Q34.052400000000006 -3.2724000000000006 35.348400000000005 -3.2724000000000006Z M66.2904 0.45360000000000006Q63.795600000000015 0.45360000000000006 61.835400000000014 -0.24300000000000002Q59.875200000000014 -0.9396000000000001 58.49820000000001 -2.3166Q57.12120000000001 -3.6936000000000004 56.408400000000015 -5.734800000000001Q55.69560000000001 -7.776000000000002 55.69560000000001 -10.465200000000001Q55.69560000000001 -13.186800000000002 56.42460000000001 -15.292800000000002Q57.15360000000001 -17.3988 58.53060000000001 -18.873000000000005Q59.90760000000001 -20.347200000000004 61.786800000000014 -21.092400000000005Q63.66600000000001 -21.837600000000002 65.96640000000001 -21.837600000000002Q67.74840000000002 -21.837600000000002 69.27120000000002 -21.367800000000003Q70.79400000000001 -20.898000000000003 71.89560000000002 -20.023200000000003Q72.99720000000002 -19.148400000000002 73.62900000000002 -17.884800000000002Q74.26080000000002 -16.6212 74.29320000000001 -15.033600000000002L69.98400000000001 -13.899600000000003Q69.98400000000001 -15.260400000000002 69.3846 -16.167600000000004Q68.78520000000002 -17.074800000000003 67.82940000000002 -17.544600000000003Q66.87360000000001 -18.014400000000002 65.80440000000002 -18.014400000000002Q64.86480000000002 -18.014400000000002 63.941400000000016 -17.641800000000003Q63.018000000000015 -17.2692 62.25660000000001 -16.410600000000002Q61.49520000000001 -15.552000000000003 61.02540000000001 -14.158800000000003Q60.55560000000001 -12.765600000000003 60.55560000000001 -10.756800000000002Q60.55560000000001 -8.1324 61.317000000000014 -6.512400000000001Q62.078400000000016 -4.892400000000001 63.40680000000002 -4.131000000000001Q64.73520000000002 -3.3696000000000006 66.38760000000002 -3.3696000000000006Q68.16960000000002 -3.3696000000000006 69.15780000000001 -4.0986Q70.14600000000002 -4.8276 70.58340000000001 -5.9778Q71.02080000000001 -7.128000000000001 71.05320000000002 -8.424000000000001L75.13560000000001 -7.743600000000002Q75.10320000000002 -6.026400000000001 74.61720000000001 -4.5198Q74.1312 -3.0132000000000003 73.09440000000001 -1.8954000000000002Q72.05760000000001 -0.7776000000000001 70.37280000000001 -0.162Q68.68800000000002 0.45360000000000006 66.2904 0.45360000000000006Z M83.85120000000002 0.0 91.17360000000002 -21.384000000000004H97.97760000000002L105.30000000000001 0.0H100.24560000000002L94.83480000000002 -17.690400000000004H94.34880000000001L88.90560000000002 0.0ZM87.96600000000001 -4.212000000000001V-7.387200000000001H101.86560000000001V-4.212000000000001Z M115.37640000000002 0.0V-21.384000000000004H120.04200000000002V0.0ZM116.34840000000001 0.0V-3.9204000000000008H129.0816V0.0Z" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+async function api(path){ const ctrl=new AbortController(), t=setTimeout(()=>ctrl.abort(),9000);
+  try{ const r=await fetch(CFG.url+'/rest/v1/'+path,{signal:ctrl.signal,headers:{apikey:CFG.key}}); const x=await r.text(); if(!r.ok) throw new Error(x||r.status); return x?JSON.parse(x):null; } finally{ clearTimeout(t); } }
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const STOPI=['la','el','los','las','de','del','y','en','the','a'];
+function initials(n){ const w=String(n).split(/\s+/).filter(x=>x&&!STOPI.includes(x.toLowerCase())); const a=w.length?w:[String(n)]; return ((a[0][0]||'')+((a[1]||'')[0]||'')).toUpperCase(); }
+const imgUrl=v=>!v?'':/^(https?:|blob:|data:)/.test(v)?v:CFG.url+'/storage/v1/object/public/logos/'+encodeURI(v);
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'], DIA3=['dom','lun','mar','mié','jue','vie','sáb'];
+const pad=n=>String(n).padStart(2,'0'), isoD=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()), HOY=isoD(new Date());
+const addD=(s,n)=>{ const d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return isoD(d); }, dow=s=>new Date(s+'T12:00:00').getDay();
+const hoyTxt=()=>{ const d=new Date(); return d.getDate()+' de '+MESES[d.getMonth()]+' de '+d.getFullYear(); };
+const KIND={persona:'Proyecto',colectivo:'Colectivo',escuela:'Escuela',espacio:'Espacio'};
+const VERB={clases:'Clases',comunidad:'Quedadas y jams',eventos:'Shows',venta:'Venta',espacio:'Sala'};
+const G={cities:[],disc:{},discById:{},fams:[],items:[],city:'Murcia',d:'',fmt:''};
+
+// ---------- Datos ----------
+async function boot(){
+  try{
+    const [cs,ds,cnt]=await Promise.all([api('ciudades?select=id,nombre,estado&order=nombre').catch(()=>api('ciudades?select=id,nombre&order=nombre')),api('disciplinas?select=id,nombre,familia,padre_id&order=orden'),api('conteo_fichas?select=ciudad_id,fichas')]);
+    const n={}; cnt.forEach(r=>n[r.ciudad_id]=+r.fichas);
+    G.cities=cs.map(c=>({id:c.id,nombre:c.nombre,n:n[c.id]||0})).filter(c=>c.n>0);
+    ds.forEach(d=>{ G.disc[d.nombre]={id:d.id,fam:d.familia,pid:d.padre_id}; G.discById[d.id]=d.nombre; if(d.familia&&!G.fams.includes(d.familia)) G.fams.push(d.familia); });
+    Object.values(G.disc).forEach(d=>d.padre=d.pid?G.discById[d.pid]:null);
+  }catch(e){ $('#out').innerHTML='<p class="loading">No se ha podido conectar con la base de datos. Prueba a recargar.</p>'; return; }
+  const u=new URL(location.href); G.city=u.searchParams.get('c')||'Murcia'; G.d=u.searchParams.get('d')||''; G.fmt=u.searchParams.get('f')||'';
+  if(!G.cities.some(c=>c.nombre===G.city)) G.city=(G.cities[0]||{}).nombre||'Murcia';
+  $('#gCity').innerHTML=G.cities.map(c=>`<option${c.nombre===G.city?' selected':''}>${esc(c.nombre)}</option>`).join('');
+  await loadCity(); await (document.fonts?document.fonts.ready:Promise.resolve()); draw();
+}
+async function loadCity(){ const c=G.cities.find(x=>x.nombre===G.city); G.items=[]; if(!c) return;
+  const q='fichas?select=id,nombre,formato,puertas,municipio,barrio,descripcion,instagram,imagen,{X}ficha_disciplina(disciplina_id,orden)&{W}&aprobada=eq.true&order=nombre';
+  let rows=null; for(const [x,w] of [['familias,publico,',`or=(ciudad_id.eq.${c.id},otras_ciudades.cs.{${c.id}})`],['familias,',`ciudad_id=eq.${c.id}`],['',`ciudad_id=eq.${c.id}`]]){ try{ rows=await api(q.replace('{X}',x).replace('{W}',w)); break; }catch(e){ if(!x) throw e; } }
+  G.items=rows.map(f=>({id:f.id,n:f.nombre,fmt:f.formato,doors:f.puertas||[],b:f.barrio||f.municipio||'',t:f.descripcion||'',ig:f.instagram||'',img:f.imagen||'',fam:f.familias||[],
+    d:(f.ficha_disciplina||[]).slice().sort((a,b)=>(a.orden||0)-(b.orden||0)).map(x=>G.discById[x.disciplina_id]).filter(Boolean)}));
+}
+const famOf=d=>(G.disc[d]||{}).fam||'', parOf=d=>(G.disc[d]||{}).padre||null, catOf=d=>parOf(d)||d;
+const famsOf=e=>[...new Set([...e.d.map(famOf),...e.fam].filter(Boolean))];
+const isFam=d=>G.fams.includes(d);
+function inSel(e,d){ if(!d) return true; if(isFam(d)) return famsOf(e).includes(d); return e.d.some(x=>x===d||parOf(x)===d); }
+function selItems(){ return G.items.filter(e=>inSel(e,G.d)); }
+// Opciones de «¿De qué?»: disciplinas, sus categorías y subcategorías con al menos 2 fichas
+function fillD(){ const all=G.items, cnt=d=>all.filter(e=>inSel(e,d)).length, opts=[[ '', 'Toda la escena', all.length ]];
+  G.fams.forEach(f=>{ const n=cnt(f); if(!n) return; opts.push([f,f,n]);
+    Object.keys(G.disc).filter(x=>famOf(x)===f&&!parOf(x)).forEach(c=>{ const m=cnt(c); if(m<2) return; opts.push([c,'   '+c,m]);
+      Object.keys(G.disc).filter(x=>parOf(x)===c).forEach(s=>{ const k=cnt(s); if(k>=2&&k<m) opts.push([s,'      '+s,k]); }); }); });
+  if(G.d&&!opts.some(o=>o[0]===G.d)) G.d='';
+  $('#gD').innerHTML=opts.map(([v,l,n])=>`<option value="${esc(v)}"${v===G.d?' selected':''}>${esc(l)} (${n})</option>`).join(''); }
+// Agrupar: toda la escena → por disciplina; una disciplina → por categoría; una categoría → por subcategoría
+function groups(list){ const d=G.d, key=e=>{
+    if(!d) return famsOf(e).sort((a,b)=>G.fams.indexOf(a)-G.fams.indexOf(b))[0]||'Otras';
+    if(isFam(d)){ const x=e.d.find(z=>famOf(z)===d); return x?catOf(x):'En general'; }
+    const x=e.d.find(z=>parOf(z)===d); return x||'En general'; };
+  const m=new Map(); list.forEach(e=>{ const k=key(e); if(!m.has(k)) m.set(k,[]); m.get(k).push(e); });
+  const order=k=>k==='En general'?1e6:k==='Otras'?1e6+1:(!d?G.fams.indexOf(k):(G.disc[k]?G.disc[k].id*0+Object.keys(G.disc).indexOf(k):9e5));
+  const out=[...m.entries()].sort((a,b)=>order(a[0])-order(b[0])).map(([k,l])=>[k==='En general'?d+' en general':k,l]);
+  return (d&&!isFam(d)&&out.length===1&&out[0][0]===d+' en general')?[['',out[0][1]]]:out; }
+const titleOf=()=>G.d||'Toda la escena';
+const webUrl=()=>{ const u=new URL(WEB); u.searchParams.set('c',G.city); if(G.d) u.searchParams.set(isFam(G.d)?'d':'cat',G.d); u.searchParams.set('ref','guia-'+G.fmt); return u.href; };
+const shortUrl='laescenalocal.es';
+// Etiquetas de cada ficha dentro de la guía: lo más concreto que tenga dentro de lo elegido
+function tagsOf(e){ const d=G.d; let t=e.d.filter(x=>inSel({d:[x],fam:[]},d||x)); if(!d) t=t.filter(x=>!parOf(x)||!t.includes(parOf(x)));
+  if(d&&!isFam(d)) t=t.filter(x=>x!==d); t=t.filter(x=>!t.some(y=>parOf(y)===x)); return [...new Set(t)].slice(0,3); }
+const verbs=e=>e.doors.map(x=>VERB[x]).filter(Boolean).join(' · ');
+const avatar=(e,cls)=>`<span class="av${e.fmt==='espacio'?' sp':''}${cls?' '+cls:''}">${esc(initials(e.n))}${e.img?`<img src="${esc(imgUrl(e.img))}" alt="" crossorigin="anonymous" onerror="this.remove()">`:''}</span>`;
+const kindLine=e=>[KIND[e.fmt]||'',e.b].filter(Boolean).join(' · ');
+// Próximos eventos: los de la agenda de prueba guardados en este navegador (pruebav3), si los hay
+function evsOf(list){ let EVS=[]; try{ EVS=JSON.parse(localStorage.getItem('les-eventos-prueba')||'[]'); }catch(e){} if(!EVS.length) return [];
+  const ids=new Set(list.map(e=>e.id)), nth=s=>Math.ceil(+s.slice(8)/7), wk=s=>Math.floor((Date.UTC(+s.slice(0,4),+s.slice(5,7)-1,+s.slice(8))/864e5+3)/7);
+  const occ=(v,d)=>{ const r=v.rep; if(!r) return v.fecha===d; if(d<r.desde||d>r.hasta) return false; const w=dow(d);
+    if(r.tipo==='semanal') return r.dias.includes(w); if(r.tipo==='quincenal') return r.dias.includes(w)&&(wk(d)-wk(r.desde))%2===0; return r.modo==='nth'?(w===dow(r.desde)&&nth(d)===nth(r.desde)):+d.slice(8)===+r.desde.slice(8); };
+  const out=[]; for(let i=0;i<14&&out.length<60;i++){ const d=addD(HOY,i); EVS.forEach(v=>{ const who=[v.fid,v.pid,...(v.part||[]).map(p=>p.fid)].filter(Boolean); if(who.some(x=>ids.has(x))&&occ(v,d)&&!(v.canc||[]).includes(d)) out.push({v,d}); }); }
+  return out.sort((a,b)=>(a.d+a.v.hora).localeCompare(b.d+b.v.hora)); }
+const byIdG=id=>G.items.find(x=>x.id===id);
+const evLine=x=>`<div class="e"><b>${esc(x.d===HOY?'Hoy':DIA3[dow(x.d)]+' '+(+x.d.slice(8)))} · ${esc(x.v.hora)}</b>${esc(x.v.titulo)} <span class="x">— ${esc((byIdG(x.v.fid)||{}).n||'')}</span></div>`;
+
+// ---------- Formatos ----------
+const FMTS=[['web','Web','para el móvil'],['flyer','Flyer','A5, hasta 10'],['a4','A4','1 o 2 hojas'],['ig','Instagram','carrusel'],['fanzine','Fanzine','folleto A5']];
+const recFor=n=>n<=10?'flyer':n<=30?'a4':'fanzine';
+function draw(){ fillD(); const list=selItems(), n=list.length, rec=recFor(n); if(!G.fmt) G.fmt=rec;
+  $('#gFmts').innerHTML=FMTS.map(([k,l,s])=>`<button type="button" data-fmt="${k}" aria-pressed="${G.fmt===k}">${l} <small>${s}</small>${k===rec?'<span class="rec">Recomendado</span>':''}</button>`).join('');
+  $('#gHint').textContent=`${n} ${n===1?'ficha':'fichas'}. `+({flyer:n>10?'El flyer enseña 10 y remite a la web para el resto.':'Cabe entero en un flyer.',a4:'Para imprimir y colgar en un espacio: con QR a la web.',fanzine:'Folleto en A5 por secciones, con índice. Al imprimir, elige «Folleto» si tu impresora lo permite.',ig:'Portada, páginas de unas 5 fichas y cierre. Se descargan como imágenes de 1080×1350.',web:'La página para ver y compartir en el móvil.'})[G.fmt];
+  $('#gPrint').hidden=G.fmt==='ig'||G.fmt==='web'; $('#gPng').hidden=G.fmt!=='ig';
+  $('#pagesz').textContent='@page{size:'+(G.fmt==='a4'?'A4':'A5')+';margin:0}';
+  document.body.className='fmt-'+G.fmt;
+  const u=new URL(location.href); u.searchParams.set('c',G.city); if(G.d) u.searchParams.set('d',G.d); else u.searchParams.delete('d'); u.searchParams.set('f',G.fmt); history.replaceState(null,'',u);
+  const out=$('#out'); out.innerHTML='';
+  ({web:drawWeb,flyer:drawFlyer,a4:drawA4,ig:drawIg,fanzine:drawZine})[G.fmt](list,out);
+  fillQR(); fit(); }
+// Hojas: se rellenan ficha a ficha y, si no cabe, pasa a la siguiente (lo mismo en pantalla que al imprimir)
+function sheet(cls,inner){ const w=document.createElement('div'); w.className='scaler'; w.innerHTML=`<div class="sheet ${cls}">${inner}</div>`; return w; }
+function paginate(wrap,make,blocks,onFull){ let pg=make(); wrap.appendChild(pg); let body=pg.querySelector('.pg-body');
+  for(let i=0;i<blocks.length;i++){ const t=document.createElement('div'); t.innerHTML=blocks[i]; const node=t.firstElementChild; body.appendChild(node);
+    if(body.scrollHeight>body.clientHeight+1&&body.children.length>1){ body.removeChild(node);
+      if(onFull){ onFull(body,blocks.length-i); return; }
+      const carry=[]; while(body.lastElementChild&&body.lastElementChild.classList.contains('gh')) carry.unshift(body.removeChild(body.lastElementChild));
+      pg=make(true); wrap.appendChild(pg); body=pg.querySelector('.pg-body'); carry.forEach(c=>body.appendChild(c)); body.appendChild(node); } } }
+function blocksFor(list,entry,withHeads){ const b=[]; groups(list).forEach(([g,l])=>{ if(withHeads&&g) b.push(`<div class="gh">${esc(g)}<span>${l.length}</span></div>`); l.forEach(e=>b.push(entry(e))); }); return b; }
+const entPrint=(e,desc)=>{ const t=tagsOf(e); return `<div class="ent">${avatar(e)}<div><b>${esc(e.n)}</b><div class="k">${esc(kindLine(e))}</div>${desc&&e.t?`<div class="ds">${esc(e.t.length>150?e.t.slice(0,147).trim()+'…':e.t)}</div>`:''}${t.length||verbs(e)?`<div class="tg">${esc([t.join(', '),verbs(e)].filter(Boolean).join(' — '))}</div>`:''}${e.ig?`<div class="hdl">@${esc(e.ig)}</div>`:''}</div></div>`; };
+const qrBox=()=>`<div class="qr" data-qr="1"></div>`;
+const footA=()=>`<div class="ft">${qrBox()}<p><b>Toda la escena en ${shortUrl}</b><br>Proyectos, grupos y espacios de ${esc(G.city)}. ¿Falta alguien? Escríbenos a @laescenalocal.es</p><p class="date">Actualizada el<br>${hoyTxt()}</p></div>`;
+function drawA4(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap);
+  const head=`<div class="hd"><div><div class="kick">Guía de la escena · ${esc(G.city)}</div><h1>${esc(titleOf())}</h1><div class="sub"><b>${list.length}</b> proyectos, grupos y espacios de ${esc(G.city)} y alrededores</div></div><div class="lg">${LOGO}</div></div>`;
+  const big=list.length<=8?' big one':list.length<=16?' big':'';
+  let page=0; const make=cont=>{ page++; return sheet('a4'+big+(cont?' cont':''),`${cont?'':head}<div class="pg-body"></div>${footA()}`); };
+  const ev=evsOf(list), b=blocksFor(list,e=>entPrint(e,list.length<=8),true); if(ev.length) b.unshift(`<div class="evs"><div class="t">Próximos eventos</div>${ev.slice(0,5).map(evLine).join('')}<div class="x">De la agenda de prueba de este navegador. Toda la agenda en ${shortUrl}</div></div>`);
+  paginate(wrap,make,b); }
+function drawFlyer(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap);
+  const inner=`<div class="top"><div class="lg">${LOGO}</div><div class="kick">La escena de ${esc(G.city)}</div><h1>${esc(titleOf())}</h1><div class="sub">${list.length} ${list.length===1?'proyecto':'proyectos y espacios'} que puedes conocer</div></div><div class="pg-body"></div><div class="ft">${qrBox()}<p><b>${shortUrl}</b><br>Encuéntralos a todos, con sus clases, jams y eventos.</p></div>`;
+  const li=e=>`<div class="li"><div><b>${esc(e.n)}</b><span>${esc([kindLine(e),tagsOf(e).slice(0,2).join(', ')].filter(Boolean).join(' · '))}</span></div>${e.ig?`<i>@${esc(e.ig)}</i>`:''}</div>`;
+  paginate(wrap,()=>sheet('a5 flyer',inner),list.map(li),(body,left)=>{ const more=()=>`<div class="more">y ${left} más en ${shortUrl}</div>`; const t=document.createElement('div'); t.innerHTML=more(); body.appendChild(t.firstElementChild);
+    while(body.scrollHeight>body.clientHeight+1&&body.children.length>2){ body.removeChild(body.lastElementChild); body.removeChild(body.lastElementChild); left++; const u=document.createElement('div'); u.innerHTML=more(); body.appendChild(u.firstElementChild); } }); }
+function drawIg(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap);
+  wrap.appendChild(sheet('ig cover',`<div class="lg">${LOGO}</div><div><div class="kick">La escena de ${esc(G.city)}</div><h1>${esc(titleOf())}</h1><div class="sub">${list.length} ${list.length===1?'proyecto':'proyectos y espacios'} que quizá no conocías</div></div><div class="swipe"><span>${shortUrl}</span><span>Desliza →</span></div>`));
+  const make=()=>sheet('ig',`<div class="hdi"><b>${esc(titleOf())}</b><span class="kick">${esc(G.city)}</span></div><div class="pg-body"></div><div class="pgnum"><span>@laescenalocal.es</span><span class="pn"></span></div>`);
+  paginate(wrap,make,blocksFor(list,entPrint,!!G.d&&groups(list).length>1));
+  wrap.appendChild(sheet('ig end',`<h2>Encuéntralos a todos en la web</h2><p>Con sus clases, jams y eventos. Sin algoritmos: exploras tú.</p><div class="url">${shortUrl}</div><p>¿Falta alguien? Escríbenos y lo añadimos.</p>`));
+  const pages=[...wrap.querySelectorAll('.sheet')]; pages.forEach((p,i)=>{ const pn=p.querySelector('.pn'); if(pn) pn.textContent=(i+1)+' / '+pages.length; }); }
+function drawZine(list,out){ const wrap=document.createElement('div'); wrap.className='sheets'; out.appendChild(wrap); const gs=groups(list);
+  wrap.appendChild(sheet('a5 zine cover',`<div class="lg">${LOGO}</div><div class="band"><div class="kick" style="color:inherit">Guía de la escena</div><h1>${esc(G.d?G.d+' en '+G.city:'La escena de '+G.city)}</h1></div><div><p style="margin:0 0 3mm;font-size:11pt">${list.length} proyectos, grupos y espacios: quién hace qué, dónde y cómo encontrarlos.</p><div class="meta"><span>${hoyTxt()}</span><span>${shortUrl}</span></div></div>`));
+  const idx=sheet('a5 zine',`<h2 class="ih">En este fanzine</h2><div class="idx">${gs.map(([g,l])=>`<div data-g="${esc(g)}"><span class="n">${esc(g||titleOf())} <em>· ${l.length}</em></span><span class="p">p. –</span></div>`).join('')}</div><p class="howto">Cada ficha lleva su Instagram: escríbeles directamente. Todo esto, actualizado y con sus clases y eventos, en ${shortUrl}</p><div class="pgnum"><span>La Escena Local</span><span class="pn"></span></div>`); wrap.appendChild(idx);
+  const make=()=>sheet('a5 zine',`<div class="pg-body"></div><div class="pgnum"><span>${esc(G.d?G.d+' · ':'')}${esc(G.city)}</span><span class="pn"></span></div>`);
+  paginate(wrap,make,blocksFor(list,entPrint,true));
+  wrap.appendChild(sheet('a5 zine back',`<h2>¿Falta alguien?</h2><p>La escena la hacéis vosotros. Si conoces un proyecto, grupo o espacio que no está, cuéntanoslo.</p>${qrBox()}<p><b>${shortUrl}</b><br>@laescenalocal.es</p>`));
+  const pages=[...wrap.querySelectorAll('.sheet')]; pages.forEach((p,i)=>{ const pn=p.querySelector('.pn'); if(pn) pn.textContent=i+1; });
+  idx.querySelectorAll('[data-g]').forEach(r=>{ const g=r.dataset.g, i=pages.findIndex(p=>[...p.querySelectorAll('.gh')].some(h=>h.firstChild&&h.firstChild.textContent===g)); if(i>=0) r.querySelector('.p').textContent='p. '+(i+1); });
+  if(pages.length%4) $('#gHint').textContent+=` Tiene ${pages.length} páginas; para doblarlo como folleto conviene un múltiplo de 4.`; }
+function drawWeb(list,out){ const ev=evsOf(list);
+  out.innerHTML=`<article class="web"><header class="whd"><div class="lg">${LOGO}</div><div class="kick">Guía de la escena · ${esc(G.city)} · actualizada el ${hoyTxt()}</div><h1>${esc(titleOf())}</h1><p><b>${list.length}</b> proyectos, grupos y espacios de ${esc(G.city)}. Escríbeles directamente: cada ficha lleva su Instagram.</p></header>
+  ${ev.length?`<div class="wevs"><div class="t">Próximos eventos</div>${ev.slice(0,6).map(evLine).join('')}<div class="x">De la agenda de prueba de este navegador.</div></div>`:''}
+  ${groups(list).map(([g,l])=>`${g?`<h2 class="wg">${esc(g)}<span>${l.length}</span></h2>`:''}<div class="wcards">${l.map(e=>{ const t=tagsOf(e); return `<div class="wc">${avatar(e)}<div><h3>${esc(e.n)}</h3><div class="k">${esc([kindLine(e),verbs(e)].filter(Boolean).join(' · '))}</div>${e.t?`<p class="d">${esc(e.t.length>140?e.t.slice(0,137).trim()+'…':e.t)}</p>`:''}${t.length?`<div class="tg">${t.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}${e.ig?`<a class="igb" href="https://www.instagram.com/${encodeURIComponent(e.ig)}/" target="_blank" rel="noopener">@${esc(e.ig)}</a>`:''}</div></div>`; }).join('')}</div>`).join('')}
+  <div class="wend"><h2>Toda la escena de ${esc(G.city)}</h2><p>Con filtros por lo que te apetece, por formato y para ir con peques.</p><a href="${esc(webUrl())}">Abrir La Escena Local</a></div></article>`; }
+// Escalar las hojas para que quepan en la pantalla
+function fit(){ const W=Math.min(document.documentElement.clientWidth-32,1100);
+  document.querySelectorAll('.scaler').forEach(s=>{ const sh=s.firstElementChild, w=sh.offsetWidth, h=sh.offsetHeight, ig=sh.classList.contains('ig');
+    const k=Math.min(1,(ig?Math.min(W,420):Math.min(W,sh.classList.contains('a4')?794:560))/w); sh.style.transform=`scale(${k})`; s.style.width=w*k+'px'; s.style.height=h*k+'px'; }); }
+addEventListener('resize',fit);
+// QR (librería pequeña desde cdnjs; si no carga, se ve la dirección)
+let qrLib=null;
+function loadScript(src){ return new Promise((ok,ko)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=ko; document.head.appendChild(s); }); }
+async function fillQR(){ const boxes=document.querySelectorAll('[data-qr]'); if(!boxes.length) return;
+  try{ if(!qrLib){ await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'); qrLib=window.qrcode; }
+    const q=qrLib(0,'M'); q.addData(webUrl()); q.make(); const svg=q.createSvgTag({cellSize:4,margin:0,scalable:true}); boxes.forEach(b=>b.innerHTML=svg); }
+  catch(e){ boxes.forEach(b=>b.innerHTML=`<div class="noqr">QR<br>${shortUrl}</div>`); } }
+// Descargar las imágenes de Instagram (html2canvas desde cdnjs)
+$('#gPng').addEventListener('click',async()=>{ const b=$('#gPng'); b.disabled=true; b.textContent='Preparando…';
+  try{ if(!window.html2canvas) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    const pages=[...document.querySelectorAll('.sheet.ig')], tmp=document.createElement('div'); tmp.style.cssText='position:fixed;left:-20000px;top:0'; document.body.appendChild(tmp);
+    for(let i=0;i<pages.length;i++){ const c=pages[i].cloneNode(true); c.style.transform='none'; c.style.position='static'; tmp.innerHTML=''; tmp.appendChild(c);
+      const cv=await html2canvas(c,{scale:1,useCORS:true,backgroundColor:null,width:1080,height:1350}); const a=document.createElement('a'); a.href=cv.toDataURL('image/png'); a.download=`escena-${norm(G.city)}-${norm(G.d||'toda')}-${i+1}.png`.replace(/\s+/g,'-'); a.click(); await new Promise(r=>setTimeout(r,350)); }
+    tmp.remove(); }
+  catch(e){ alert('No se han podido generar las imágenes. Haz capturas de cada página mientras tanto.'); }
+  b.disabled=false; b.textContent='Descargar las imágenes'; });
+$('#gPrint').addEventListener('click',()=>window.print());
+$('#gCopy').addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(location.href); $('#gCopy').textContent='Enlace copiado'; setTimeout(()=>$('#gCopy').textContent='Copiar el enlace de esta guía',1800); }catch(e){} });
+$('#gFmts').addEventListener('click',e=>{ const b=e.target.closest('[data-fmt]'); if(b){ G.fmt=b.dataset.fmt; draw(); } });
+$('#gD').addEventListener('change',()=>{ G.d=$('#gD').value; G.fmt=''; draw(); });
+$('#gCity').addEventListener('change',async()=>{ G.city=$('#gCity').value; G.d=''; G.fmt=''; $('#out').innerHTML='<p class="loading">Cargando…</p>'; await loadCity(); draw(); });
+boot();
+</script>
+</body>
+</html>
