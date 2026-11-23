@@ -676,7 +676,47 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
 .ev-when b{font-family:var(--display)}
 .ev2{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 #eErr{color:var(--danger);font-size:13px}
-@media (max-width:520px){.evrow{grid-template-columns:50px 1fr;gap:10px;padding:9px 12px 9px 6px}.evrow .avatar{display:none}.ev2{grid-template-columns:1fr 1fr}.ag-days{grid-auto-columns:54px}}
+.edias{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dchk{flex-direction:row;cursor:pointer}
+.dchk input{position:absolute;opacity:0;width:1px;height:1px}
+.dchk span{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:var(--bg);font-family:var(--display);font-weight:700;font-size:15px}
+.dchk input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dchk input:focus-visible+span{outline:2px solid var(--acento);outline-offset:2px}
+.ev-tags .rep{border-style:dashed}
+.ev-tags .cx{background:var(--danger);border-color:var(--danger);color:var(--bg);font-weight:600}
+.evrow.canc h4{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.evrow.canc .ev-h b{text-decoration:line-through;color:var(--muted)}
+.ag-aviso{margin:0;font-size:13px;color:var(--muted);text-align:center;max-width:62ch;justify-self:center}
+.ev-aviso{margin:0;font-size:13px;color:var(--muted);border-left:3px solid var(--amarillo);padding:4px 0 4px 10px}
+.ev-canc{margin:0;background:var(--danger);color:var(--bg);border-radius:10px;padding:8px 12px;font-weight:600;font-size:14px}
+.ev-rep{margin:-6px 0 0;font-size:14px;color:var(--muted)}
+.ag-test .evlook{padding:2px}
+.ag-test .evlook button{padding:4px 12px;font-size:13px}
+.evrow.fav{box-shadow:inset 4px 0 0 var(--amarillo)}
+.evtl{display:grid;border-bottom:1px solid var(--line)}
+.tg{display:grid;grid-template-columns:62px 1fr;border-top:1px solid var(--line)}
+.tg-h{font-family:var(--mono);font-size:16px;font-weight:500;padding:13px 0 0 2px}
+.tg-l{display:grid}
+.evli{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:center;padding:10px 10px 10px 10px;cursor:pointer;border-top:1px dashed var(--line)}
+.evli:first-child{border-top:0}
+.evli:hover{background:var(--surface)}
+.evli.fav{box-shadow:inset 4px 0 0 var(--amarillo);background:linear-gradient(90deg,color-mix(in srgb,var(--amarillo) 14%,transparent),transparent 40%)}
+.evli .avatar{width:36px;height:36px;font-size:12px;border-width:1px}
+.evli-m{min-width:0}
+.evli h4{margin:0;font-family:var(--display);font-weight:700;font-size:16px;line-height:1.25}
+.evli-s{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+.evli-s i{font-style:normal;color:var(--faint)}
+.evli-s .org{font-size:13px;font-weight:600;color:var(--ink);text-decoration:none}
+.evli-s .org:hover{text-decoration:underline}
+.evli-s .free{color:var(--acento);font-weight:600}
+.mk{display:inline-block;font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.01em;border-radius:999px;padding:1px 7px;margin-left:7px;vertical-align:2px;white-space:nowrap}
+.mk.pk{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.mk.cx{background:var(--danger);color:var(--bg)}
+.mk.mine{background:var(--amarillo);color:var(--amarillo-ink)}
+.evli.canc h4{color:var(--muted)}
+.evli.canc .tt{text-decoration:line-through;text-decoration-thickness:2px}
+@media (max-width:520px){.tg{grid-template-columns:48px 1fr}.tg-h{font-size:14px;padding-top:12px}.evli{grid-template-columns:30px 1fr;gap:10px;padding:9px 4px 9px 8px}.evli .avatar{width:30px;height:30px;font-size:11px}.evli h4{font-size:15px}}
+@media (max-width:520px){.evrow{grid-template-columns:50px auto 1fr;gap:10px;padding:9px 12px 9px 6px}.evrow .avatar{width:34px;height:34px;font-size:12px}.ev2{grid-template-columns:1fr 1fr}.ag-days{grid-auto-columns:54px}}
 </style>
 <!-- Versión de prueba: sin estadísticas de visitas -->
 </head>
@@ -783,7 +823,14 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
     <p class="lead">Simulación de lo que verá cada proyecto. En la versión real entra con su propio enlace y publica solo en su ficha; aquí eliges quién organiza y se guarda solo en este navegador.</p>
     <label for="eFid">Quién organiza<select id="eFid" required></select></label>
     <label for="eTit">Título del evento<input id="eTit" required maxlength="90" placeholder="Jam de impro, Concierto de…"></label>
-    <div class="ev2"><label for="eDia">Día<input id="eDia" type="date" required></label><label for="eIni">Empieza<input id="eIni" type="time" required value="20:00"></label><label for="eFin">Termina <span class="hint">opcional</span><input id="eFin" type="time"></label></div>
+    <label for="eRep">¿Se repite?<select id="eRep"><option value="">No, es solo un día</option><option value="semanal">Cada semana</option><option value="quincenal">Cada dos semanas</option><option value="mensual">Una vez al mes</option></select></label>
+    <div class="ev2"><label for="eDia"><span id="eDiaL">Día</span><input id="eDia" type="date" required></label><label for="eIni">Empieza a las<input id="eIni" type="time" required value="20:00"></label><label for="eFin">Termina <span class="hint">opcional</span><input id="eFin" type="time"></label></div>
+    <div class="field" id="eDiasF" hidden>Qué días de la semana <span class="hint">marca uno o varios</span>
+      <div class="edias"><label class="dchk"><input type="checkbox" value="1"><span>L</span></label><label class="dchk"><input type="checkbox" value="2"><span>M</span></label><label class="dchk"><input type="checkbox" value="3"><span>X</span></label><label class="dchk"><input type="checkbox" value="4"><span>J</span></label><label class="dchk"><input type="checkbox" value="5"><span>V</span></label><label class="dchk"><input type="checkbox" value="6"><span>S</span></label><label class="dchk"><input type="checkbox" value="0"><span>D</span></label></div></div>
+    <div class="field" id="eMesF" hidden>Qué día de cada mes
+      <label class="chk"><input type="radio" name="eMes" value="dia" checked> <span id="eMesDia"></span></label>
+      <label class="chk"><input type="radio" name="eMes" value="nth"> <span id="eMesNth"></span></label></div>
+    <label for="eHasta" id="eHastaL" hidden>Hasta <span class="hint">opcional, como mucho un año · sin fecha de fin se mantiene 3 meses y te avisamos para renovarlo</span><input id="eHasta" type="date"></label>
     <label for="eDonde">Dónde<select id="eDonde"></select></label>
     <label for="eOtro" id="eOtroL" hidden>Dirección o nombre del sitio<input id="eOtro" maxlength="120" placeholder="Jardín de Floridablanca"></label>
     <label for="eAct">Formato<select id="eAct" required></select></label>
@@ -1048,7 +1095,7 @@ const famsOf=e=>[...new Set([...(e.fam||[]),...discsOf(e).map(famOf)])].filter(B
 function genOf(e,t){ if(!t||!S.disc[t]||upOf(e).includes(t)) return ''; const p=parOf(t); if(p&&discsOf(e).includes(p)) return p; return (e.fam||[]).includes(famOf(t))?famOf(t):''; }
 const genHit=(e,t)=>!!genOf(e,t);
 const genNote=(e,t)=>{ const g=genOf(e,t), sp=e.fmt==='espacio'; return `<p class="gen-note">${sp?'Este espacio acoge':'Hace'} ${esc(g)}, pero no ha informado sobre ${esc(t)} en concreto. ¡${sp?'Contacta con el espacio':'Escríbele'} para salir de dudas!</p>`; };
-function hay(e){ return norm([e.n,FORMATS[e.fmt],e.kind,upOf(e).join(' '),upOf(e).map(d=>(S.disc[d].sin||[]).join(' ')).join(' '),famsOf(e).join(' '),e.doors.map(d=>DOORTXT[d]).join(' '),e.acts.map(a=>actName(a)+' '+((S.acts[a]||{}).sin||[]).join(' ')).join(' '),e.offers.join(' '),e.b,e.t].join(' ')); }
+function hay(e){ if(e.ev) return norm([e.ev.titulo,e.n,actName(e.ev.act),((S.acts[e.ev.act]||{}).sin||[]).join(' '),upOf(e).join(' '),upOf(e).map(d=>(S.disc[d].sin||[]).join(' ')).join(' '),famsOf(e).join(' '),e.b,e.ev.desc||'',e.ev.lugar||'',e.pid&&byId(e.pid)?byId(e.pid).n:''].join(' ')); return norm([e.n,FORMATS[e.fmt],e.kind,upOf(e).join(' '),upOf(e).map(d=>(S.disc[d].sin||[]).join(' ')).join(' '),famsOf(e).join(' '),e.doors.map(d=>DOORTXT[d]).join(' '),e.acts.map(a=>actName(a)+' '+((S.acts[a]||{}).sin||[]).join(' ')).join(' '),e.offers.join(' '),e.b,e.t].join(' ')); }
 function matches(e,q){
   const nq=norm(q); if(!nq) return true;
   const target=resolve(q);
@@ -1607,9 +1654,26 @@ function findeDays(){ const w=dow(HOY); if(w===6) return [HOY,addD(HOY,1)]; if(w
 function agDays(){ if(S.rango==='semana') return [0,1,2,3,4,5,6].map(i=>addD(HOY,i)); if(S.rango==='finde') return findeDays(); return [S.day||HOY]; }
 // Cada evento hereda de su ficha lo que hace (disciplinas) para que «¿Qué te apetece?» funcione igual;
 // su formato, si es con peques y dónde es, son los del propio evento
-function evPool(days){ if(!S.cur) return []; const set=new Set(days), m=new Map(S.cur.items.map(x=>[x.id,x]));
-  return EVS.filter(v=>set.has(v.fecha)).map(v=>{ const F=m.get(v.fid); if(!F) return null; const P=v.pid?m.get(v.pid):null;
-    return Object.assign({},F,{id:v.id,fid:F.id,pid:v.pid||null,ev:v,acts:[v.act],doors:doorsOf([v.act]),kids:v.peques?['familia']:[],muni:(P&&P.muni)||F.muni,b:(P&&P.b)||F.b,t:v.titulo+' '+(v.desc||'')+' '+(P?P.n:(v.lugar||'')),offers:[],feat:false,isNew:false}); }).filter(Boolean); }
+// Eventos que se repiten: cada semana o cada dos semanas (uno o varios días) o una vez al mes, entre dos fechas.
+// Cada fecha se puede cancelar sola (v.canc) sin tocar las demás.
+const dnum=s=>+s.slice(8), nthOf=s=>Math.ceil(dnum(s)/7), ORD=['','1.er','2.º','3.er','4.º','5.º'];
+const wkIdx=s=>Math.floor((Date.UTC(+s.slice(0,4),+s.slice(5,7)-1,dnum(s))/864e5+3)/7); // semanas de lunes a domingo
+function occurs(v,d){ const r=v.rep; if(!r) return v.fecha===d; if(d<r.desde||d>r.hasta) return false; const w=dow(d);
+  if(r.tipo==='semanal') return r.dias.includes(w);
+  if(r.tipo==='quincenal') return r.dias.includes(w)&&(wkIdx(d)-wkIdx(r.desde))%2===0;
+  if(r.tipo==='mensual') return r.modo==='nth'?(w===dow(r.desde)&&nthOf(d)===nthOf(r.desde)):dnum(d)===dnum(r.desde);
+  return false; }
+const listaY=a=>a.length>1?a.slice(0,-1).join(', ')+' y '+a[a.length-1]:(a[0]||'');
+const fechaCorta=s=>dnum(s)+' de '+MESES[+s.slice(5,7)-1];
+function repTxt(r,largo){ if(!r) return ''; const ds=(r.dias||[]).slice().sort((a,b)=>((a+6)%7)-((b+6)%7)).map(x=>DIAS[x]);
+  const t=r.tipo==='semanal'?'Cada '+listaY(ds):r.tipo==='quincenal'?cap(listaY(ds))+', cada dos semanas':r.modo==='nth'?'El '+ORD[nthOf(r.desde)]+' '+DIAS[dow(r.desde)]+' de cada mes':'El día '+dnum(r.desde)+' de cada mes';
+  return largo?t+', del '+fechaCorta(r.desde)+' al '+fechaCorta(r.hasta)+(r.auto?' (renovable)':''):t; }
+function firstOcc(v){ for(let i=0;i<400;i++){ const d=addD(v.fecha,i); if(occurs(v,d)) return d; if(v.rep&&d>v.rep.hasta) break; } return v.fecha; }
+function evPool(days){ if(!S.cur) return []; const m=new Map(S.cur.items.map(x=>[x.id,x])), out=[];
+  EVS.forEach(v=>{ const F=m.get(v.fid); if(!F) return; const P=v.pid?m.get(v.pid):null;
+    days.forEach(d=>{ if(!occurs(v,d)) return; const oc=Object.assign({},v,{fecha:d,oid:v.id+'@'+d,cancelado:(v.canc||[]).includes(d)});
+      out.push(Object.assign({},F,{id:oc.oid,fid:F.id,pid:v.pid||null,ev:oc,acts:[v.act],doors:doorsOf([v.act]),kids:v.peques?['familia']:[],muni:(P&&P.muni)||F.muni,b:(P&&P.b)||F.b,t:v.titulo+' '+(v.desc||'')+' '+(P?P.n:(v.lugar||'')),offers:[],feat:false,isNew:false})); }); });
+  return out; }
 function setVista(v){ S.vista=v==='agenda'?'agenda':'dir'; if(S.vista==='agenda'){ S.kind='ambos'; S.cede=false; } S.pn=''; render(); }
 const byT=(a,b)=>(a.ev.fecha+a.ev.hora).localeCompare(b.ev.fecha+b.ev.hora);
 function agendaHTML(res){
@@ -1617,54 +1681,75 @@ function agendaHTML(res){
   const strip=days.map(d=>{ const n=cnt(d), dd=new Date(d+'T12:00:00'), on=S.rango==='dia'&&(S.day||HOY)===d;
     return `<button type="button" class="agd${[0,6].includes(dd.getDay())?' we':''}" data-day="${d}" aria-pressed="${on}"${n?'':' data-empty="1"'} aria-label="${esc(diaTxt(d))}: ${n} eventos"><small>${rel(d)||DIA3[dd.getDay()]}</small><b>${dd.getDate()}</b><i>${n||'–'}</i></button>`; }).join('');
   const quick=[['finde','Este finde'],['semana','Próximos 7 días']].map(([k,l])=>`<button type="button" data-rango="${k}" aria-pressed="${S.rango===k}">${l}</button>`).join('');
-  const tools=`<div class="ag-test"><span>Prueba</span><button type="button" class="ghost" data-evadd="1">+ Añadir un evento</button><button type="button" class="ghost" data-evdemo="1">${EVS.some(v=>v.demo)?'Volver a generar':'Rellenar con'} eventos de ejemplo</button>${EVS.length?`<button type="button" class="linkbtn" data-evclear="1">Borrar los ${EVS.length} eventos de prueba</button>`:''}</div>`;
+  const tools=`<div class="ag-test"><span>Prueba</span><span class="vsw evlook" role="group" aria-label="Cómo se ve la lista"><button type="button" data-evlook="lista" aria-pressed="${EVLOOK==='lista'}">Lista</button><button type="button" data-evlook="tarjetas" aria-pressed="${EVLOOK==='tarjetas'}">Tarjetas</button></span><button type="button" class="ghost" data-evadd="1">+ Añadir un evento</button><button type="button" class="ghost" data-evdemo="1">${EVS.some(v=>v.demo)?'Volver a generar':'Rellenar con'} eventos de ejemplo</button>${EVS.length?`<button type="button" class="linkbtn" data-evclear="1">Borrar los ${EVS.length} eventos de prueba</button>`:''}</div>`;
   const nav=`<div class="ag-nav"><div class="ag-quick">${quick}</div><div class="ag-days" role="group" aria-label="Días">${strip}</div></div>`;
   const l=res.slice().sort(byT), n=l.length, nn=`${n} ${n===1?'evento':'eventos'}`;
   let body;
   if(!EVS.length) body=`<div class="invite"><h3>La agenda aún está vacía</h3><p>Aquí saldrán los eventos que publiquen los propios proyectos y espacios. Para ver cómo queda, añade uno o rellénala con eventos de ejemplo.</p><div class="acts"><button type="button" class="cta" data-evdemo="1">Rellenar con eventos de ejemplo</button><button type="button" class="ghost" data-evadd="1">+ Añadir un evento</button></div></div>`;
   else if(S.rango==='dia'){ const d=S.day||HOY; body=`<h2 class="ag-title">${esc(diaTxt(d))}<span>${nn}</span></h2>`+(n?franjas(d,l):noEv()); }
   else body=`<h2 class="ag-title">${S.rango==='finde'?'Este finde':'Próximos 7 días'}<span>${nn}</span></h2>`+(n?agDays().map(d=>{ const x=l.filter(e=>e.ev.fecha===d); if(!x.length) return '';
-      return `<section class="ag-dsec"><h3><button type="button" class="linkbtn" data-day="${d}">${esc(diaTxt(d))}</button><span>${x.length} ${x.length===1?'evento':'eventos'}</span></h3><div class="evlist">${x.slice(0,5).map(evRow).join('')}</div>${x.length>5?`<button type="button" class="ag-more" data-day="${d}">Ver el día completo · ${x.length}</button>`:''}</section>`; }).join(''):noEv());
-  return `<div class="ag">${tools}${nav}${body}</div>`;
+      return `<section class="ag-dsec"><h3><button type="button" class="linkbtn" data-day="${d}">${esc(diaTxt(d))}</button><span>${x.length} ${x.length===1?'evento':'eventos'}</span></h3>${evList(x.slice(0,5))}${x.length>5?`<button type="button" class="ag-more" data-day="${d}">Ver el día completo · ${x.length}</button>`:''}</section>`; }).join(''):noEv());
+  const aviso=EVS.length?'<p class="ag-aviso">Cada evento lo publica quien lo organiza. Antes de ir, confirma en su Instagram que sigue en pie: puede haber cambios o cancelaciones de última hora.</p>':'';
+  return `<div class="ag">${tools}${nav}${aviso}${body}</div>`;
 }
 const noEv=()=>S.favs&&!S.cur.items.some(e=>FAV.has(e.id))?`<div class="invite"><h3>Aún no tienes nada en Tu escena</h3><p>Guarda con el corazón los proyectos y espacios que te gusten y aquí verás solo sus eventos.</p><div class="acts"><button type="button" class="cta" data-unset="favs">Ver todos los eventos</button></div></div>`:`<div class="invite"><h3>Nada con estos filtros</h3><p>Prueba otro día o quita algún filtro.</p>${S.rango==='dia'?'<div class="acts"><button type="button" class="ghost" data-rango="semana">Ver los próximos 7 días</button></div>':''}</div>`;
 // Un día con muchos eventos, por franjas: las 12 primeras de cada una y «Ver N más»
 const FRANJAS=[['m','Mañana','hasta las 14:00','00:00','14:00'],['t','Tarde','de 14:00 a 20:00','14:00','20:00'],['n','Noche','desde las 20:00','20:00','99']];
 function franjas(d,l){ return FRANJAS.map(([k,nm,r,a,b])=>{ const x=l.filter(e=>e.ev.hora>=a&&e.ev.hora<b); if(!x.length) return '';
   const key=d+k, lim=AGX.has(key)?x.length:12;
-  return `<section class="ag-fr"><h3>${nm}<span>${r} · ${x.length}</span></h3><div class="evlist">${x.slice(0,lim).map(evRow).join('')}</div>${x.length>lim?`<button type="button" class="ag-more" data-agx="${key}">Ver ${x.length-lim} más por la ${nm.toLowerCase()}</button>`:''}</section>`; }).join(''); }
+  return `<section class="ag-fr"><h3>${nm}<span>${r} · ${x.length}</span></h3>${evList(x.slice(0,lim))}${x.length>lim?`<button type="button" class="ag-more" data-agx="${key}">Ver ${x.length-lim} más por la ${nm.toLowerCase()}</button>`:''}</section>`; }).join(''); }
 function evRow(e){ const v=e.ev, F=byId(v.fid), P=v.pid?byId(v.pid):null, sp=F.fmt==='espacio';
   const lugar=P?(P.id===F.id?'':P.n):(v.lugar||''), fav=FAV.has(F.id)||(P&&FAV.has(P.id));
-  return `<article class="evrow" data-ev="${esc(v.id)}">
+  return `<article class="evrow${v.cancelado?' canc':''}${fav?' fav':''}" data-ev="${esc(v.oid)}">
     <div class="ev-h"><b>${esc(v.hora)}</b>${v.fin?`<small>${esc(v.fin)}</small>`:''}</div>
     <span class="avatar${sp?' sp':''}" aria-hidden="true">${esc(initials(F.n))}${F.img?`<img src="${esc(imgUrl(F.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
     <div class="ev-m"><h4>${hl(v.titulo,S.t)}</h4>
       <p class="ev-who">${fav?`<span class="ev-fav" title="En Tu escena">${HEART}</span>`:''}<button type="button" class="linkbtn" data-open-ficha="${esc(F.id)}">${esc(F.n)}</button>${lugar?`<span>en ${esc(lugar)}</span>`:''}</p>
-      <p class="ev-tags"><span>${esc(actName(v.act))}</span><span${v.precio?'':' class="free"'}>${v.precio?esc(v.precio):'Gratis'}</span>${v.peques?'<span class="pk">Con peques</span>':''}${v.demo?'':'<span class="mine">Añadido por ti</span>'}</p>
+      <p class="ev-tags">${v.cancelado?'<span class="cx">Cancelado</span>':''}<span>${esc(actName(v.act))}</span>${v.rep?`<span class="rep">${esc(repTxt(v.rep))}</span>`:''}<span${v.precio?'':' class="free"'}>${v.precio?esc(v.precio):'Gratis'}</span>${v.peques?'<span class="pk">Con peques</span>':''}${v.demo?'':'<span class="mine">Añadido por ti</span>'}</p>
     </div></article>`; }
+// Vista «Lista»: agrupada por hora, sin cajas; una línea gris con lo demás; marcas solo para lo que cambia la decisión
+let EVLOOK='lista'; try{ EVLOOK=localStorage.getItem('les-evlook')||'lista'; }catch(e){}
+function evList(l){ if(EVLOOK==='tarjetas') return `<div class="evlist">${l.map(evRow).join('')}</div>`;
+  const g=[]; l.forEach(e=>{ const h=e.ev.hora, last=g[g.length-1]; if(last&&last.h===h) last.l.push(e); else g.push({h,l:[e]}); });
+  return `<div class="evtl">${g.map(x=>`<div class="tg"><div class="tg-h">${esc(x.h)}</div><div class="tg-l">${x.l.map(evLi).join('')}</div></div>`).join('')}</div>`; }
+function evLi(e){ const v=e.ev, F=byId(v.fid), P=v.pid?byId(v.pid):null, sp=F.fmt==='espacio';
+  const lugar=P?(P.id===F.id?'':P.n):(v.lugar||''), fav=FAV.has(F.id)||!!(P&&FAV.has(P.id));
+  const bits=[`<button type="button" class="linkbtn org" data-open-ficha="${esc(F.id)}">${esc(F.n)}</button>`, lugar?'en '+esc(lugar):'', esc(actName(v.act)), v.precio?esc(v.precio):'<b class="free">Gratis</b>', v.rep?esc(repTxt(v.rep)):'', v.fin?'hasta las '+esc(v.fin):''].filter(Boolean);
+  return `<article class="evli${v.cancelado?' canc':''}${fav?' fav':''}" data-ev="${esc(v.oid)}"${fav?' title="De Tu escena"':''}>
+    <span class="avatar${sp?' sp':''}" aria-hidden="true">${esc(initials(F.n))}${F.img?`<img src="${esc(imgUrl(F.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span>
+    <div class="evli-m"><h4><span class="tt">${hl(v.titulo,S.t)}</span>${v.cancelado?'<span class="mk cx">Cancelado</span>':''}${v.peques?'<span class="mk pk">Con peques</span>':''}${v.demo?'':'<span class="mk mine">Tuyo</span>'}</h4>
+      <p class="evli-s">${bits.join('<i aria-hidden="true"> · </i>')}</p></div></article>`; }
 // Ficha del evento
 const dlgEv=$('#dlgEv');
-function openEv(id){ const v=EVS.find(x=>x.id===id); if(!v) return; const F=byId(v.fid), P=v.pid?byId(v.pid):null; if(!F) return;
+function openEv(oid){ const [id,fecha]=String(oid).split('@'), b=EVS.find(x=>x.id===id); if(!b) return; const F=byId(b.fid), P=b.pid?byId(b.pid):null; if(!F) return;
+  const v=Object.assign({},b,{fecha:fecha||b.fecha,oid}), canc=(b.canc||[]).includes(v.fecha);
   const dir=P?(P.dir||P.n):(v.lugar||'');
   const donde=P?(P.id===F.id?esc(P.n):`<button type="button" class="linkbtn" data-evficha="${esc(P.id)}">${esc(P.n)}</button>`)+(P.b?' · '+esc(P.b):''):esc(v.lugar||'');
-  const main=v.url?`<a class="cta" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">Entradas y más información</a>`:F.ig?`<a class="cta" href="${igUrl(F.ig)}" target="_blank" rel="noopener noreferrer">Instagram · @${esc(F.ig)}</a>`:'';
+  const ig=F.ig?`<a class="${v.url?'ghost':'cta'}" href="${igUrl(F.ig)}" target="_blank" rel="noopener noreferrer">Instagram · @${esc(F.ig)}</a>`:'';
+  const main=(v.url?`<a class="cta" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">Entradas y más información</a>`:'')+ig;
   $('#evBody').innerHTML=`<div class="ev-sheet"><span class="kind">${esc(actName(v.act))}${v.peques?' · con peques':''}</span>
     <h2 id="evName">${esc(v.titulo)}</h2>
+    ${canc?'<p class="ev-canc">Cancelado: quien lo organiza ha avisado de que esta fecha no se hace.</p>':''}
     <p class="ev-when"><b>${esc(diaTxt(v.fecha))}</b> · ${esc(v.hora)}${v.fin?'–'+esc(v.fin):''}</p>
+    ${v.rep?`<p class="ev-rep">${esc(repTxt(v.rep,true))}</p>`:''}
     <div class="fs-links">${main}${dir?`<a class="ghost" href="${esc(mapsUrl(dir,S.city))}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`:''}</div>
+    <p class="ev-aviso">Cada evento lo publica quien lo organiza. Antes de ir, confirma en su Instagram que sigue en pie: puede haber cambios o cancelaciones de última hora.</p>
     <dl class="fs-info"><dt>Organiza</dt><dd><button type="button" class="linkbtn" data-evficha="${esc(F.id)}">${esc(F.n)}</button></dd>${donde?`<dt>Dónde</dt><dd>${donde}</dd>`:''}<dt>Precio</dt><dd>${v.precio?esc(v.precio):'Gratis'}</dd></dl>
     ${v.desc?`<p class="fs-text">${esc(v.desc)}</p>`:''}
-    <div class="fs-foot"><button type="button" class="ghost" data-evics="${esc(v.id)}">Añadir a mi calendario</button>${v.demo?'<span class="hint">Evento de ejemplo</span>':`<button type="button" class="report" data-evdel="${esc(v.id)}">Borrar este evento</button>`}</div></div>`;
+    <div class="fs-foot"><button type="button" class="ghost" data-evics="${esc(oid)}">Añadir a mi calendario</button>${v.demo?'<span class="hint">Evento de ejemplo</span>':''}</div>
+    <div class="ag-test"><span>Prueba · lo que hará quien organiza</span><button type="button" class="ghost" data-evcanc="${esc(oid)}">${canc?'Recuperar esta fecha':v.rep?'Cancelar solo esta fecha':'Marcar como cancelado'}</button>${v.demo?'':`<button type="button" class="linkbtn" data-evdel="${esc(id)}">Borrar ${v.rep?'toda la serie':'este evento'}</button>`}</div></div>`;
   if(!dlgEv.open){ if(dlgEv.showModal) dlgEv.showModal(); else dlgEv.setAttribute('open',''); } dlgEv.scrollTop=0; }
 $('#evClose').addEventListener('click',()=>dlgEv.close());
 dlgEv.addEventListener('click',e=>{ if(e.target===dlgEv){ dlgEv.close(); return; }
   const f=e.target.closest('[data-evficha]'); if(f){ dlgEv.close(); openFicha(f.dataset.evficha); return; }
-  const c=e.target.closest('[data-evics]'); if(c){ icsDown(EVS.find(x=>x.id===c.dataset.evics)); return; }
+  const c=e.target.closest('[data-evics]'); if(c){ const [i,d]=c.dataset.evics.split('@'), b=EVS.find(x=>x.id===i); if(b) icsDown(Object.assign({},b,{fecha:d||b.fecha})); return; }
+  const k=e.target.closest('[data-evcanc]'); if(k){ const [i,d]=k.dataset.evcanc.split('@'), b=EVS.find(x=>x.id===i); if(!b) return; const cs=new Set(b.canc||[]), was=cs.has(d);
+    if(was) cs.delete(d); else cs.add(d); b.canc=[...cs]; saveEvs(); render(); openEv(k.dataset.evcanc); toast(was?'Fecha recuperada.':'Marcado como cancelado. Sigue saliendo en la agenda, tachado, para que se entere quien lo tenía apuntado.'); return; }
   const d=e.target.closest('[data-evdel]'); if(d){ EVS=EVS.filter(x=>x.id!==d.dataset.evdel); saveEvs(); dlgEv.close(); render(); toast('Evento borrado.'); } });
 const icsEsc=s=>String(s||'').replace(/[\\;,]/g,m=>'\\'+m).replace(/\n/g,'\\n');
 function icsDown(v){ if(!v) return; const F=byId(v.fid), P=v.pid?byId(v.pid):null, dt=(d,t)=>d.replace(/-/g,'')+'T'+t.replace(':','')+'00';
   const end=v.fin&&v.fin>v.hora?v.fin:(()=>{ const [H,M]=v.hora.split(':').map(Number); return pad(Math.min(23,H+2))+':'+pad(M); })();
-  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//La Escena Local//ES','BEGIN:VEVENT','UID:'+v.id+'@laescenalocal.es','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART:'+dt(v.fecha,v.hora),'DTEND:'+dt(v.fecha,end),'SUMMARY:'+icsEsc(v.titulo+' · '+F.n),'LOCATION:'+icsEsc(P?P.n+(P.dir?', '+P.dir:'')+', '+S.city:(v.lugar||'')),'DESCRIPTION:'+icsEsc((v.desc||'')+(v.url?' '+v.url:'')),'END:VEVENT','END:VCALENDAR'];
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//La Escena Local//ES','BEGIN:VEVENT','UID:'+v.id+'-'+v.fecha+'@laescenalocal.es','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART:'+dt(v.fecha,v.hora),'DTEND:'+dt(v.fecha,end),'SUMMARY:'+icsEsc(v.titulo+' · '+F.n),'LOCATION:'+icsEsc(P?P.n+(P.dir?', '+P.dir:'')+', '+S.city:(v.lugar||'')),'DESCRIPTION:'+icsEsc((v.desc||'')+(v.url?' '+v.url:'')),'END:VEVENT','END:VCALENDAR'];
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([L.join('\r\n')],{type:'text/calendar'})); a.download='evento.ics'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); }
 // Formulario para añadir un evento (simulación del que tendrá cada proyecto)
 const dlgEvAdd=$('#dlgEvAdd'), EVACTS=['clases','taller','curso','quedada','jam','slam','practica','intercambio','salida','colectivo','funcion','concierto','exposicion','proyeccion','emision','charla','fiesta','mercadillo'];
@@ -1675,9 +1760,17 @@ function syncOtro(){ $('#eOtroL').hidden=$('#eDonde').value!=='otro'; }
 function openEvAdd(){ if(!S.cur||!S.cur.items.length){ toast('Elige una ciudad con fichas para probarlo.'); return; }
   $('#eFid').innerHTML=S.cur.items.slice().sort((a,b)=>a.n.localeCompare(b.n,'es')).map(x=>`<option value="${esc(x.id)}">${esc(x.n)}</option>`).join('');
   $('#eAct').innerHTML=HOWS.filter(([k])=>k!=='espacio').map(([k,l])=>{ const o=Object.entries(S.acts).filter(([id,a])=>a.p===k&&EVACTS.includes(id)); return o.length?`<optgroup label="${esc(l)}">${o.map(([id,a])=>`<option value="${id}">${esc(a.n)}</option>`).join('')}</optgroup>`:''; }).join('');
-  ['eTit','eFin','eOtro','ePre','eDes','eUrl'].forEach(i=>$('#'+i).value=''); $('#ePeq').checked=false; $('#eIni').value='20:00';
-  $('#eDia').value=S.vista==='agenda'&&S.rango==='dia'&&S.day?S.day:HOY; $('#eDia').min=HOY; $('#eErr').hidden=true;
-  fillDonde(); if(dlgEvAdd.showModal) dlgEvAdd.showModal(); else dlgEvAdd.setAttribute('open',''); $('#eTit').focus(); }
+  ['eTit','eFin','eOtro','ePre','eDes','eUrl','eHasta'].forEach(i=>$('#'+i).value=''); $('#ePeq').checked=false; $('#eIni').value='20:00'; $('#eRep').value='';
+  document.querySelectorAll('#eDiasF input').forEach(x=>x.checked=false); document.querySelector('input[name="eMes"][value="dia"]').checked=true;
+  $('#eDia').value=S.vista==='agenda'&&S.rango==='dia'&&S.day&&S.day>=HOY?S.day:HOY; $('#eDia').min=HOY; $('#eErr').hidden=true;
+  fillDonde(); syncRep(); if(dlgEvAdd.showModal) dlgEvAdd.showModal(); else dlgEvAdd.setAttribute('open',''); $('#eTit').focus(); }
+// ¿Se repite?: días de la semana, o qué día de cada mes; «Hasta» opcional
+function syncRep(){ const t=$('#eRep').value, d=$('#eDia').value||HOY, sem=t==='semanal'||t==='quincenal';
+  $('#eDiasF').hidden=!sem; $('#eMesF').hidden=t!=='mensual'; $('#eHastaL').hidden=!t; $('#eDiaL').textContent=t?'Empieza el':'Día';
+  if(sem&&!document.querySelector('#eDiasF input:checked')){ const x=document.querySelector(`#eDiasF input[value="${dow(d)}"]`); if(x) x.checked=true; }
+  $('#eMesDia').textContent='El día '+dnum(d)+' de cada mes'; $('#eMesNth').textContent='El '+ORD[nthOf(d)]+' '+DIAS[dow(d)]+' de cada mes';
+  $('#eHasta').min=d; $('#eHasta').max=addD(d,366); }
+$('#eRep').addEventListener('change',syncRep); $('#eDia').addEventListener('change',()=>{ if(['semanal','quincenal'].includes($('#eRep').value)&&document.querySelectorAll('#eDiasF input:checked').length<=1){ document.querySelectorAll('#eDiasF input').forEach(x=>x.checked=false); } syncRep(); });
 $('#eFid').addEventListener('change',fillDonde); $('#eDonde').addEventListener('change',syncOtro);
 $('#eCancel').addEventListener('click',()=>dlgEvAdd.close());
 dlgEvAdd.addEventListener('click',e=>{ if(e.target===dlgEvAdd) dlgEvAdd.close(); });
@@ -1687,9 +1780,16 @@ $('#evForm').addEventListener('submit',e=>{ e.preventDefault();
   if(!tit) return err('Ponle un título al evento.'); if(!dia||dia<HOY) return err('Elige un día de hoy en adelante.'); if(!ini) return err('Pon la hora a la que empieza.');
   if(fin&&fin<=ini) return err('La hora de fin tiene que ser después de la de inicio.'); if(don==='otro'&&!otro) return err('Escribe dónde es.');
   if(url&&!/^https?:\/\/\S+\.\S+/.test(url)) return err('El enlace tiene que empezar por https://');
-  const v={id:'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),fid:$('#eFid').value,pid:don==='otro'?null:don,lugar:don==='otro'?otro:'',fecha:dia,hora:ini,fin:fin||'',titulo:tit,act:$('#eAct').value,precio:$('#ePre').value.trim(),peques:$('#ePeq').checked,desc:$('#eDes').value.trim(),url,demo:false};
-  EVS.push(v); saveEvs(); dlgEvAdd.close(); S.vista='agenda'; S.rango='dia'; S.day=dia; render(); toList();
-  toast('Publicado: lo ves en la agenda del '+fechaLarga(dia)+'.'); });
+  const tipo=$('#eRep').value, hasta=$('#eHasta').value; let rep=null;
+  if(tipo){ const dias=[...document.querySelectorAll('#eDiasF input:checked')].map(x=>+x.value);
+    if(tipo!=='mensual'&&!dias.length) return err('Marca qué días de la semana se repite.');
+    if(hasta&&hasta<=dia) return err('La fecha de fin tiene que ser después de la de inicio.');
+    if(hasta&&hasta>addD(dia,366)) return err('Como mucho, un año seguido. Para más, se renueva.');
+    rep={tipo,dias:tipo==='mensual'?[]:dias,modo:tipo==='mensual'?document.querySelector('input[name="eMes"]:checked').value:'',desde:dia,hasta:hasta||addD(dia,91),auto:!hasta}; }
+  const v={id:'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),fid:$('#eFid').value,pid:don==='otro'?null:don,lugar:don==='otro'?otro:'',fecha:dia,hora:ini,fin:fin||'',titulo:tit,act:$('#eAct').value,precio:$('#ePre').value.trim(),peques:$('#ePeq').checked,desc:$('#eDes').value.trim(),url,demo:false,rep,canc:[]};
+  const f1=firstOcc(v); if(rep&&f1>rep.hasta) return err('Con esos días no cae ninguna fecha antes del fin. Revisa los días o las fechas.');
+  EVS.push(v); saveEvs(); dlgEvAdd.close(); S.vista='agenda'; S.rango='dia'; S.day=f1; render(); toList();
+  toast(rep?'Publicado: '+repTxt(rep,true).replace(/^./,c=>c.toLowerCase())+'.':'Publicado: lo ves en la agenda del '+fechaLarga(dia)+'.'); });
 // Eventos de ejemplo: 14 días; el próximo sábado, más de 100
 function demoEvents(){ if(!S.cur||!S.cur.items.length){ toast('Elige una ciudad con fichas para probarlo.'); return; }
   const all=S.cur.items, sps=all.filter(e=>e.fmt==='espacio'), pick=a=>a[Math.floor(Math.random()*a.length)], rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
@@ -1705,8 +1805,21 @@ function demoEvents(){ if(!S.cur||!S.cur.items.length){ toast('Elige una ciudad 
       const [h0,h1]=HRS[act]||[11,21], H=rnd(h0,h1), M=pick([0,0,0,30,30,15,45]), hora=pad(H)+':'+pad(H>=23?pick([0,30]):M);
       const fin=Math.random()<.4&&H<22?pad(H+2)+':'+pad(M):'', p=PRE[act]||[.1,['5 €']];
       out.push({id:'d'+i+'-'+k+'-'+Math.random().toString(36).slice(2,6),fid:F.id,pid,lugar,fecha:d,hora,fin,titulo:t,act,precio:Math.random()<p[0]?pick(p[1]):'',peques:(F.kids||[]).length?Math.random()<.7:Math.random()<.04,desc:'Evento de ejemplo, generado para ver cómo queda la agenda.',url:'',demo:true}); } }
+  // Además, lo fijo: jams y clases cada semana, quedadas cada dos semanas, mercadillos y slams una vez al mes
+  const ser=[], ini=addD(HOY,-28), placeOf=F=>F.fmt==='espacio'?F.id:(sps.length?pick(sps).id:null);
+  const nthDate=(w,nth)=>{ for(let i=0;i<70;i++){ const d=addD(ini,i); if(dow(d)===w&&nthOf(d)===nth) return d; } return ini; };
+  const mkS=(F,act,titulo,rep,hora,fin,precio)=>ser.push({id:'s'+ser.length+'-'+Math.random().toString(36).slice(2,6),fid:F.id,pid:placeOf(F),lugar:'',fecha:rep.desde,hora,fin,titulo,act,precio,peques:(F.kids||[]).length>0&&Math.random()<.7,desc:'Evento de ejemplo que se repite, para ver cómo queda la agenda.',url:'',demo:true,rep,canc:[]});
+  const cOf=F=>(discsOf(F)[0]||famsOf(F)[0]||'todo un poco').toLowerCase();
+  all.filter(F=>F.acts.includes('jam')).forEach(F=>mkS(F,'jam',pick(['Jam de '+cOf(F),'Jam abierta','Micro abierto']),{tipo:'semanal',dias:[pick([2,3,4])],modo:'',desde:ini,hasta:addD(HOY,90),auto:true},pick(['21:00','21:30','22:00']),'',''));
+  all.filter(F=>F.acts.includes('clases')).slice(0,30).forEach(F=>{ const two=Math.random()<.45, d1=pick([1,2,3]); mkS(F,'clases','Clases de '+cOf(F)+(two?'':' (nivel '+pick(['inicial','medio'])+')'),{tipo:'semanal',dias:two?[d1,d1+2]:[pick([1,2,3,4])],modo:'',desde:addD(HOY,-60),hasta:addD(HOY,200),auto:false},pick(['18:00','19:00','19:30','20:00']),'',pick(['40 € al mes','35 € al mes','10 € la clase','Primera clase gratis'])); });
+  all.filter(F=>F.acts.some(a=>a==='quedada'||a==='practica')).slice(0,14).forEach(F=>mkS(F,F.acts.includes('quedada')?'quedada':'practica',pick(['Quedada de '+cOf(F),'Práctica abierta de '+cOf(F)]),{tipo:'quincenal',dias:[pick([0,6])],modo:'',desde:ini,hasta:addD(HOY,120),auto:false},pick(['11:00','11:30','18:00']),'',''));
+  all.filter(F=>F.acts.some(a=>a==='mercadillo'||a==='slam')).forEach(F=>{ const m=F.acts.includes('mercadillo'), w=m?pick([0,6]):pick([4,5]), nth=pick([1,2,3]);
+    mkS(F,m?'mercadillo':'slam',m?'Mercadillo de '+cOf(F):'Slam de '+cOf(F),{tipo:'mensual',dias:[],modo:'nth',desde:nthDate(w,nth),hasta:addD(HOY,180),auto:false},m?'10:30':'21:00','',''); });
+  ser.slice(0,4).forEach(v=>{ for(let i=0;i<14;i++){ const d=addD(HOY,i); if(occurs(v,d)){ v.canc=[d]; break; } } }); // alguna fecha cancelada
+  out.push(...ser);
   EVS=EVS.filter(v=>!v.demo).concat(out); saveEvs(); AGX.clear(); S.vista='agenda'; S.rango='dia'; S.day=sat; render();
-  toast(out.length+' eventos de ejemplo en 14 días; el '+fechaLarga(sat)+' tiene '+out.filter(v=>v.fecha===sat).length+'.'); }
+  const nSat=evPool([sat]).length;
+  toast(out.length-ser.length+' eventos sueltos y '+ser.length+' que se repiten; el '+fechaLarga(sat)+' tiene '+nSat+'.'); }
 
 // ---------- Interacción ----------
 let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
@@ -1741,6 +1854,7 @@ document.addEventListener('click',ev=>{
   const vb=ev.target.closest('[data-vista]'); if(vb){ setVista(vb.dataset.vista); return; }
   const dy=ev.target.closest('[data-day]'); if(dy){ S.day=dy.dataset.day; S.rango='dia'; render(); if(!dy.classList.contains('agd')) toList(); return; }
   const rg=ev.target.closest('[data-rango]'); if(rg){ S.rango=rg.dataset.rango; render(); return; }
+  const lk=ev.target.closest('[data-evlook]'); if(lk){ EVLOOK=lk.dataset.evlook; try{ localStorage.setItem('les-evlook',EVLOOK); }catch(x){} render(); return; }
   const mx=ev.target.closest('[data-agx]'); if(mx){ AGX.add(mx.dataset.agx); render(); return; }
   if(ev.target.closest('[data-evadd]')){ openEvAdd(); return; }
   if(ev.target.closest('[data-evdemo]')){ demoEvents(); return; }
