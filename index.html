@@ -58,6 +58,15 @@ header{padding-block:24px 14px}
 .brand .bcity:focus-visible{outline:3px solid var(--amarillo);outline-offset:3px;border-radius:4px}
 .brand-wrap{position:relative}
 .brand-wrap .city-panel{top:calc(100% + 8px)}
+/* Primera visita: el selector de ciudad aparece en el centro de la pantalla */
+#pickBg{position:fixed;inset:0;z-index:60;background:rgba(250,245,240,.55);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+#cityPick{position:fixed;z-index:61;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px}
+#cityPick[hidden],#pickBg[hidden]{display:none}
+#cityPick .bcity{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:clamp(24px,6vw,32px);letter-spacing:-.01em;color:var(--ink);background:var(--surface);border:1.5px solid var(--ink);border-radius:999px;padding:10px 22px;box-shadow:0 14px 40px rgba(43,27,61,.18);white-space:nowrap}
+#cityPick .bcity svg{width:.55em;height:.55em;transform:rotate(180deg)}
+#cityPick .bcity:focus-visible{outline:3px solid var(--amarillo);outline-offset:3px}
+#cityPick .city-panel{position:static;margin-top:4px;width:min(340px,calc(100vw - 32px));box-shadow:0 18px 50px rgba(43,27,61,.2)}
+html.picking{overflow:hidden}
 .tagline{margin:14px 0 0;max-width:58ch;display:flex;flex-direction:column;gap:2px}
 .tagline .slogan{font-family:var(--display);font-weight:500;font-size:clamp(17px,2.6vw,20px);line-height:1.25;color:var(--ink)}
 .tagline .slogan span{display:inline-block}
@@ -804,6 +813,8 @@ footer{border-top:1px solid var(--line);padding-block:18px 32px;color:var(--mute
 </dialog>
 
 <div class="toast" id="toast" hidden></div>
+<div id="pickBg" hidden></div>
+<div id="cityPick" class="city-wrap" hidden></div>
 
 <script>
 // ---------- Conexión ----------
@@ -861,6 +872,9 @@ const counted=e=>!pure(e);
 function famCount(items,f){ return items.filter(e=>famsOf(e).includes(f)).length; }
 S.view='lista'; S.t=''; S.cede=false; S.kind='ambos';
 try{ const sv=JSON.parse(localStorage.getItem('laescena')||'{}'); if(sv.city) S.city=sv.city; }catch(e){}
+// Primera visita a la portada (sin ciudad guardada y sin nada en la dirección): se pide elegir ciudad
+let FIRST=false; try{ const raw=localStorage.getItem('laescena'); FIRST=!(raw&&JSON.parse(raw).city)&&!location.search&&!location.hash; }catch(e){ FIRST=false; }
+let PICK=false;
 function save(){ try{ localStorage.setItem('laescena',JSON.stringify({city:S.city,view:S.view})); }catch(e){} }
 
 // ---------- Carga ----------
@@ -893,6 +907,7 @@ async function boot(){
   if(editTok&&S.mode==='live'){ try{ editData=await api('rpc/ficha_por_enlace',{method:'POST',body:JSON.stringify({t:editTok})}); if(editData&&editData.ciudad&&cityObj(editData.ciudad)) S.city=editData.ciudad; }catch(e){ editErr=true; } }
   if(!cityObj(S.city)) S.city='Murcia';
   fillForm();
+  if(FIRST) startPick();
   await selectCity(S.city,S.mun);
   if(want&&S.cur&&byId(want)) openFicha(want,false);
   if(editData) openEdit(editTok,editData);
@@ -974,7 +989,7 @@ function hl(text,q){ const nq=norm(q); if(!nq||nq.length<2) return esc(text); co
 const chev='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
 function renderTop(){
   $('#notice').hidden=true;
-  $('#bcity').textContent=S.city; document.title='La Escena Local · '+S.city;
+  $('#bcity').textContent=PICK?'Elige tu ciudad':S.city; document.title='La Escena Local · '+S.city;
 
   // (pestañas y formatos se pintan en render(), con sus contadores)
   const pt=pillNow();
@@ -988,7 +1003,7 @@ function renderCityList(){
   const match=c=>!nq||norm(c.nombre).includes(nq)||norm(c.provincia||'').includes(nq)||!!viaMun(c);
   // Solo ciudades abiertas o abriéndose (y la actual, por si se llegó a ella por un enlace)
   const list=S.cities.filter(c=>(c.est!=='sin_abrir'||c.nombre===S.city)&&match(c));
-  const opt=c=>{ const vm=viaMun(c); return `<button type="button" role="option" class="city-opt${c.nombre===S.city?' cur':''}" data-city="${esc(c.nombre)}"${vm?` data-mun="${esc(vm)}"`:''}><span>${esc(c.nombre)}</span><small>${vm?'incluye '+esc(vm):c.est==='abierta'?(c.n+(c.n===1?' ficha':' fichas')):'abriendo'}</small></button>`; };
+  const opt=c=>{ const vm=viaMun(c); return `<button type="button" role="option" class="city-opt${c.nombre===S.city&&!PICK?' cur':''}" data-city="${esc(c.nombre)}"${vm?` data-mun="${esc(vm)}"`:''}><span>${esc(c.nombre)}</span><small>${vm?'incluye '+esc(vm):c.est==='abierta'?(c.n+(c.n===1?' ficha':' fichas')):'abriendo'}</small></button>`; };
   const msg=nq&&!list.length?`<div class="grp">${esc(q)} todavía no está en la lista</div>`:'';
   $('#cityList').innerHTML=msg+list.map(opt).join('')
     +`<button type="button" class="city-opt city-new" data-propose-city="${esc(q)}"><span>${nq&&!list.length?'Recomienda un proyecto de '+esc(q):'¿No está tu ciudad? Recomienda un proyecto'}</span><small>→</small></button>`;
@@ -1068,8 +1083,8 @@ function render(){
   ma.innerHTML=act.length?`<span class="ma-l">${nn} ${nn===1?'ficha':'fichas'} con:</span>`+act.map(([k,l])=>`<button type="button" data-unset="${k}" aria-label="Quitar el filtro ${esc(l)}">${esc(l)}</button>`).join('')+(act.length>1?'<button type="button" class="all" data-unset="all">Ver todo</button>':''):'';
   $('#mapSub').textContent=act.length?'Resaltado, lo que coincide. Toca un punto para ver su ficha.':'Toca una disciplina para filtrar la lista o un punto para ver su ficha.';
   if(SG.open) renderSug();
-  if(!all.length){ $('#out').innerHTML=invite(); return; }
   syncUrl();
+  if(!all.length){ $('#out').innerHTML=invite(); return; }
   if(!res.length){
     // ¿Una errata? Lo escrito se parece a una disciplina o a algo que hacer
     S.dym=null; if(S.t){ const o=sugs(S.t).find(x=>(x.k==='q'||x.k==='fam'||x.k==='t')&&x.n&&norm(x.label)!==norm(S.t)); if(o) S.dym=o; }
@@ -1486,9 +1501,31 @@ dlgF.addEventListener('click',async e=>{
 
 // ---------- Interacción ----------
 let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
-function closeCity(){ $('#cityPanel').hidden=true; $('#cityBtn').setAttribute('aria-expanded','false'); }
+function closeCity(){ $('#cityPanel').hidden=true; $('#cityBtn').setAttribute('aria-expanded','false'); if(PICK) endPick(); }
+// Primera visita: el mismo selector (botón + lista) se lleva al centro; al elegir vuelve a su sitio junto al logo
+let pickHome=null;
+function startPick(){
+  const btn=$('#cityBtn'), panel=$('#cityPanel'), box=$('#cityPick');
+  pickHome={btnNext:btn.nextSibling, btnParent:btn.parentNode, panelParent:panel.parentNode};
+  PICK=true; box.append(btn,panel); box.hidden=false; $('#pickBg').hidden=false; document.documentElement.classList.add('picking');
+  $('#bcity').textContent='Elige tu ciudad'; btn.setAttribute('aria-expanded','true');
+  $('#cityQ').value=''; renderCityList(); panel.hidden=false;
+  try{ if(matchMedia('(pointer:fine)').matches) $('#cityQ').focus(); }catch(e){}
+}
+function endPick(){
+  if(!PICK) return; PICK=false;
+  const btn=$('#cityBtn'), panel=$('#cityPanel'), bg=$('#pickBg'), from=btn.getBoundingClientRect();
+  pickHome.btnParent.insertBefore(btn,pickHome.btnNext); pickHome.panelParent.append(panel);
+  $('#cityPick').hidden=true; document.documentElement.classList.remove('picking'); $('#bcity').textContent=S.city;
+  let calm=false; try{ calm=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  if(calm||!btn.animate){ bg.hidden=true; return; }
+  bg.animate([{opacity:1},{opacity:0}],{duration:380,easing:'ease-out'}).onfinish=()=>{ bg.hidden=true; };
+  requestAnimationFrame(()=>{ const to=btn.getBoundingClientRect(); if(!to.width) return;
+    const dx=(from.left+from.width/2)-(to.left+to.width/2), dy=(from.top+from.height/2)-(to.top+to.height/2), k=from.height/to.height;
+    btn.animate([{transform:`translate(${dx}px,${dy}px) scale(${k})`},{transform:'none'}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)'}); });
+}
 $('#cityList').addEventListener('click',e=>{ const b=e.target.closest('[data-propose-city]'); if(!b) return; e.stopPropagation(); const q=norm(b.dataset.proposeCity||''); closeCity(); openAdd('sugerencia'); const c=q&&S.cities.find(x=>norm(x.nombre)===q||norm(x.nombre).startsWith(q)); $('#fCity').value=c?c.nombre:''; });
-$('#cityBtn').addEventListener('click',e=>{ e.stopPropagation(); closeDisc(); const p=$('#cityPanel'); p.hidden=!p.hidden; $('#cityBtn').setAttribute('aria-expanded',String(!p.hidden)); if(!p.hidden){ $('#cityQ').value=''; renderCityList(); $('#cityQ').focus(); } });
+$('#cityBtn').addEventListener('click',e=>{ e.stopPropagation(); if(PICK){ $('#cityQ').focus(); return; } closeDisc(); const p=$('#cityPanel'); p.hidden=!p.hidden; $('#cityBtn').setAttribute('aria-expanded',String(!p.hidden)); if(!p.hidden){ $('#cityQ').value=''; renderCityList(); $('#cityQ').focus(); } });
 $('#cityQ').addEventListener('input',renderCityList);
 function closeDisc(){}
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeCity(); closeDisc(); } if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('node')){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click',{bubbles:true})); } });
